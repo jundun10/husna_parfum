@@ -93,7 +93,7 @@ const submit = () => {
                 <div class="forgot">
 
                     <Link href="/forgot-password">
-                        Lupa kata sandi?
+                        Lupa Password?
                     </Link>
 
                 </div>

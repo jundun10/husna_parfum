@@ -483,19 +483,9 @@ body {
     color: #666;
 }
 
-
-/* =========================
-   PAGE
-========================= */
-
 .home-page {
     background: #ffffff;
 }
-
-
-/* =========================
-   NAVBAR
-========================= */
 
 .navbar {
     position: sticky;
@@ -578,10 +568,6 @@ body {
     color: #6daa5c;
 }
 
-
-/* =========================
-   HERO
-========================= */
 
 .hero {
     position: relative;
@@ -690,10 +676,6 @@ body {
 }
 
 
-/* =========================
-   GENERAL
-========================= */
-
 .section-container {
     width: min(1200px, calc(100% - 100px));
     margin: 0 auto;
@@ -758,11 +740,6 @@ body {
     color: #888;
 }
 
-
-/* =========================
-   TENTANG KAMI
-========================= */
-
 .about-section {
     min-height: 720px;
 
@@ -787,11 +764,6 @@ body {
 
     gap: 70px;
 }
-
-
-/* =========================
-   KONTEN KIRI
-========================= */
 
 .about-content {
     width: 48%;
@@ -846,11 +818,6 @@ body {
 
     line-height: 1.9;
 }
-
-
-/* =========================
-   TOMBOL KENALI KAMI
-========================= */
 
 .text-button {
     display: inline-flex;
@@ -909,9 +876,6 @@ body {
     object-fit: cover;
     object-position: center;
 }
-/* =========================
-   FEATURES
-========================= */
 
 .features-section {
     padding: 100px 5%;
@@ -1007,10 +971,6 @@ body {
     color: #888;
 }
 
-
-/* =========================
-   PRODUCTS
-========================= */
 
 .products-section {
     padding: 100px 5%;
@@ -1118,11 +1078,6 @@ body {
     color: #888;
 }
 
-
-/* =========================
-   CONTACT
-========================= */
-
 .contact-section {
     padding: 100px 5%;
 
@@ -1189,10 +1144,6 @@ body {
 }
 
 
-/* =========================
-   FOOTER
-========================= */
-
 .footer {
     padding: 35px 20px;
 
@@ -1220,10 +1171,6 @@ body {
     font-size: 9px;
 }
 
-
-/* =========================
-   RESPONSIVE
-========================= */
 
 @media (max-width: 800px) {
 
