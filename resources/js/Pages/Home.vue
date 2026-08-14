@@ -26,7 +26,7 @@ const logout = () => {
         <nav class="navbar">
 
             <Link
-                href="/dashboard"
+                href="/"
                 class="logo"
             >
                 <img
@@ -43,12 +43,12 @@ const logout = () => {
                 <a href="#kontak">Kontak</a>
             </div>
 
-            <button
-                class="logout-button"
-                @click="logout"
-            >
-                Logout
-            </button>
+            <a
+    href="/login"
+    class="logout-button"
+>
+    Login / Daftar
+</a>
 
         </nav>
 
@@ -551,16 +551,16 @@ body {
 }
 
 .logout-button {
-    border: none;
+    display: inline-block;
+    text-decoration: none;
 
+    border: none;
     background: transparent;
 
     color: #777;
-
     font-size: 10px;
 
     cursor: pointer;
-
     transition: .2s;
 }
 

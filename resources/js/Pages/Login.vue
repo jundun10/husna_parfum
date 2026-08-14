@@ -1,5 +1,6 @@
 <script setup>
 import { useForm, Head, Link } from '@inertiajs/vue3';
+import { ArrowLeft } from 'lucide-vue-next';
 
 const logoUrl = '/images/logo.jpg';
 
@@ -18,10 +19,16 @@ const submit = () => {
     <Head title="Login" />
 
     <div class="auth-page">
+        <Link
+    href="/"
+    class="back-button"
+    aria-label="Kembali ke Home"
+>
+    <ArrowLeft :size="22" :stroke-width="1.8" />
+</Link>
 
         <div class="auth-box">
 
-            <!-- LOGO -->
             <div class="auth-logo">
                 <img
                     :src="logoUrl"
@@ -29,7 +36,6 @@ const submit = () => {
                 >
             </div>
 
-            <!-- TITLE -->
             <div class="auth-title">
                 <h1>Log in</h1>
             </div>
@@ -38,8 +44,6 @@ const submit = () => {
                 class="auth-form"
                 @submit.prevent="submit"
             >
-
-                <!-- EMAIL -->
                 <div class="form-group">
 
                     <label class="form-label">
@@ -63,8 +67,6 @@ const submit = () => {
 
                 </div>
 
-
-                <!-- PASSWORD -->
                 <div class="form-group">
 
                     <label class="form-label">
@@ -88,8 +90,6 @@ const submit = () => {
 
                 </div>
 
-
-                <!-- FORGOT -->
                 <div class="forgot">
 
                     <Link href="/forgot-password">
@@ -98,8 +98,6 @@ const submit = () => {
 
                 </div>
 
-
-                <!-- BUTTON -->
                 <button
                     type="submit"
                     class="btn-submit"
@@ -110,8 +108,6 @@ const submit = () => {
 
             </form>
 
-
-            <!-- REGISTER -->
             <div class="auth-switch">
 
                 Belum punya akun?
@@ -185,7 +181,33 @@ const submit = () => {
 
     color: #555;
 }
+.back-button {
+    position: fixed;
 
+    top: 25px;
+    left: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+    border: none;
+    padding: 5px;
+
+    color: #6f9d9d;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.back-button:hover {
+    color: #6daa5c;
+    transform: translateX(-2px);
+}
 .form-group {
     margin-bottom: 18px;
 }
