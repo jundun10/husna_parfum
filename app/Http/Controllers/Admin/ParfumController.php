@@ -37,4 +37,29 @@ class ParfumController extends Controller
 
         return back()->with('success', 'Stok parfum berhasil ditambahkan.');
     }
+
+    public function update(Request $request, Parfum $parfum): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nama' => ['required', 'string', 'max:255'],
+            'harga' => ['required', 'numeric', 'min:0'],
+            'stok' => ['required', 'integer', 'min:0'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('parfum', 'public');
+        }
+
+        $parfum->update($validated);
+
+        return back()->with('success', 'Stok parfum berhasil diperbarui.');
+    }
+
+    public function destroy(Parfum $parfum): RedirectResponse
+    {
+        $parfum->delete();
+
+        return back()->with('success', 'Stok parfum berhasil dihapus.');
+    }
 }

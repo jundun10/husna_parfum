@@ -5,6 +5,15 @@ import { ShoppingCart, Package } from 'lucide-vue-next';
 
 const props = defineProps({
     authUser: Object,
+
+    totalStok: {
+        type: Number,
+        default: 0,
+    },
+    parfumsTerendah: {
+    type: Array,
+    default: () => [],
+    },
 });
 
 const logoUrl = '/images/logo.jpg';
@@ -124,17 +133,17 @@ const logout = () => {
             </nav>
 
             <div class="sidebar-footer">
-    <button
-        type="button"
-        class="logout-button"
-        @click="logout"
-        :disabled="logoutForm.processing"
-    >
-        <span>
-            {{ logoutForm.processing ? 'Keluar...' : 'Logout' }}
-        </span>
-    </button>
-</div>
+            <button
+                type="button"
+                class="logout-button"
+                @click="logout"
+                :disabled="logoutForm.processing"
+            >
+                <span>
+                    {{ logoutForm.processing ? 'Keluar...' : 'Logout' }}
+                </span>
+            </button>
+            </div>
 
         </aside>
 
@@ -209,7 +218,7 @@ const logout = () => {
 
         </div>
 
-        <h2>0</h2>
+        <h2>{{ props.totalStok }}</h2>
 
         <p>
             Total stok parfum
@@ -346,11 +355,33 @@ const logout = () => {
                         </Link>
                     </div>
 
-                    <div class="empty-state">
-                       
-                        <p>
-                            Belum ada data stok.
-                        </p>
+                    <div class="lowest-stock-list">
+
+                        <div
+                            v-for="parfum in props.parfumsTerendah"
+                            :key="parfum.id"
+                            class="lowest-stock-item"
+                        >
+
+                            <span class="lowest-stock-name">
+                                {{ parfum.nama }}
+                            </span>
+
+                            <strong class="lowest-stock-number">
+                                {{ parfum.stok }}
+                            </strong>
+
+                        </div>
+
+                        <div
+                            v-if="props.parfumsTerendah.length === 0"
+                            class="empty-state"
+                        >
+                            <p>
+                                Belum ada data stok.
+                            </p>
+                        </div>
+
                     </div>
 
                 </div>
@@ -1085,6 +1116,42 @@ const logout = () => {
     margin: 0;
 
     font-size: 10px;
+}
+
+.lowest-stock-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.lowest-stock-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 13px 4px;
+
+    border-bottom: 1px solid #edf2f2;
+}
+
+.lowest-stock-item:last-child {
+    border-bottom: none;
+}
+
+.lowest-stock-name {
+    color: #666;
+    font-size: 11px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lowest-stock-number {
+    color: #6f9d9d;
+    font-size: 13px;
+    font-weight: 700;
+
+    margin-left: 15px;
 }
 
 @media (max-width: 900px) {

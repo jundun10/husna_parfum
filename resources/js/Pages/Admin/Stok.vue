@@ -8,6 +8,11 @@ const props = defineProps({
         default: () => [],
     },
 });
+const showSuccess = ref(false);
+const successMessage = ref('');
+
+const showError = ref(false);
+const errorMessage = ref('');
 
 const showModal = ref(false);
 
@@ -15,36 +20,245 @@ const form = useForm({
     nama: '',
     harga: '',
     stok: '',
-    foto: null,
 });
+
+const hargaDisplay = ref('');
+const showEditModal = ref(false);
+const editParfum = ref(null);
+
+const editForm = useForm({
+    nama: '',
+    harga: '',
+    stok: '',
+});
+
+const editHargaDisplay = ref('');
+const showConfirm = ref(false);
+const confirmType = ref(null);
+const selectedParfum = ref(null);
 
 const openModal = () => {
     form.reset();
     form.clearErrors();
+
+    hargaDisplay.value = '';
+
     showModal.value = true;
 };
 
 const closeModal = () => {
-    if (form.processing) return;
 
     showModal.value = false;
+
     form.reset();
     form.clearErrors();
+
+    hargaDisplay.value = '';
 };
 
 const submit = () => {
+
     form.post('/admin/stok', {
         forceFormData: true,
 
         onSuccess: () => {
-            showModal.value = false;
-            form.reset();
+
+            closeModal();
+
+            showSuccessNotification(
+                'Stok parfum berhasil ditambahkan.'
+            );
+        },
+
+        onError: (errors) => {
+
+            const firstError = Object.values(errors)[0];
+
+            showErrorNotification(
+                firstError || 'Stok parfum gagal ditambahkan.'
+            );
         },
     });
 };
 
-const handleFoto = (event) => {
-    form.foto = event.target.files[0];
+const openEditModal = (parfum) => {
+
+    editParfum.value = parfum;
+
+    editForm.clearErrors();
+
+    editForm.nama = parfum.nama;
+    editForm.harga = String(parfum.harga);
+    editForm.stok = parfum.stok;
+    editHargaDisplay.value =
+        Number(parfum.harga).toLocaleString('id-ID');
+
+    showEditModal.value = true;
+};
+const confirmSubmitEdit = () => {
+    if (!editParfum.value) return;
+
+    selectedParfum.value = editParfum.value;
+    confirmType.value = 'edit';
+    showConfirm.value = true;
+};
+
+const closeEditModal = () => {
+
+    showEditModal.value = false;
+
+    editForm.reset();
+    editForm.clearErrors();
+
+    editHargaDisplay.value = '';
+
+    editParfum.value = null;
+    selectedParfum.value = null;
+};
+
+const showSuccessNotification = (message) => {
+    successMessage.value = message;
+    showSuccess.value = true;
+
+    setTimeout(() => {
+        showSuccess.value = false;
+    }, 2000);
+};
+
+const showErrorNotification = (message) => {
+    errorMessage.value = message;
+    showError.value = true;
+
+    setTimeout(() => {
+        showError.value = false;
+    }, 2500);
+};
+const submitEdit = () => {
+
+    if (!editParfum.value) return;
+
+    editForm
+        .transform((data) => ({
+            ...data,
+            _method: 'PUT',
+        }))
+        .post(`/admin/stok/${editParfum.value.id}`, {
+
+            forceFormData: true,
+
+            onSuccess: () => {
+
+                showConfirm.value = false;
+                confirmType.value = null;
+                selectedParfum.value = null;
+
+                closeEditModal();
+
+                showSuccessNotification(
+                    'Data parfum berhasil diperbarui.'
+                );
+            },
+
+            onError: (errors) => {
+
+                const firstError = Object.values(errors)[0];
+
+                showErrorNotification(
+                    firstError || 'Data parfum gagal diperbarui.'
+                );
+            },
+        });
+};
+
+const confirmDelete = (parfum) => {
+    selectedParfum.value = parfum;
+    confirmType.value = 'delete';
+    showConfirm.value = true;
+};
+
+const deleteParfum = () => {
+
+    if (!selectedParfum.value) return;
+
+    form.delete(
+        `/admin/stok/${selectedParfum.value.id}`,
+        {
+            onSuccess: () => {
+
+                showConfirm.value = false;
+                confirmType.value = null;
+                selectedParfum.value = null;
+
+                showSuccessNotification(
+                    'Parfum berhasil dihapus.'
+                );
+            },
+
+            onError: () => {
+
+                showErrorNotification(
+                    'Parfum gagal dihapus.'
+                );
+            },
+        }
+    );
+};
+
+const handleConfirm = () => {
+
+    if (!selectedParfum.value) return;
+    if (confirmType.value === 'edit') {
+
+        submitEdit();
+
+        return;
+    }
+    if (confirmType.value === 'delete') {
+
+        deleteParfum();
+
+        return;
+    }
+};
+
+const closeConfirm = () => {
+
+    if (form.processing || editForm.processing) return;
+
+    showConfirm.value = false;
+    confirmType.value = null;
+    selectedParfum.value = null;
+};
+const formatHargaInput = (value) => {
+
+    const angka = String(value).replace(/\D/g, '');
+
+    if (!angka) {
+        hargaDisplay.value = '';
+        form.harga = '';
+        return;
+    }
+
+    hargaDisplay.value =
+        Number(angka).toLocaleString('id-ID');
+
+    form.harga = angka;
+};
+
+const formatEditHargaInput = (value) => {
+
+    const angka = String(value).replace(/\D/g, '');
+
+    if (!angka) {
+        editHargaDisplay.value = '';
+        editForm.harga = '';
+        return;
+    }
+
+    editHargaDisplay.value =
+        Number(angka).toLocaleString('id-ID');
+
+    editForm.harga = angka;
 };
 
 const formatRupiah = (value) => {
@@ -120,58 +334,133 @@ const formatRupiah = (value) => {
         </section>
 
         <section
-            v-else
-            class="product-grid"
-        >
+    v-else
+    class="table-card"
+>
 
-            <article
-                v-for="parfum in parfums"
-                :key="parfum.id"
-                class="product-card"
-            >
+    <div class="table-wrapper">
 
-                <div class="product-image">
+        <table class="stok-table">
 
-                    <img
-                        v-if="parfum.foto"
-                        :src="`/storage/${parfum.foto}`"
-                        :alt="parfum.nama"
-                    >
+            <thead>
+                <tr>
+                    <th>Nama Parfum</th>
+                    <th>Harga</th>
+                    <th>Stok</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
 
-                    <div
-                        v-else
-                        class="no-image"
-                    >
-                        ♡
-                    </div>
+            <tbody>
 
-                </div>
+                <tr
+                    v-for="parfum in parfums"
+                    :key="parfum.id"
+                >
 
-                <div class="product-info">
-
-                    <h2>
-                        {{ parfum.nama }}
-                    </h2>
-
-                    <p class="price">
-                        {{ formatRupiah(parfum.harga) }}
-                    </p>
-
-                    <div class="stock-row">
-
-                        <span>Stok</span>
-
-                        <strong>
-                            {{ parfum.stok }}
+                    <td>
+                        <strong class="product-name">
+                            {{ parfum.nama }}
                         </strong>
+                    </td>
 
-                    </div>
+                    <td>
+                        <span class="table-price">
+                            {{ formatRupiah(parfum.harga) }}
+                        </span>
+                    </td>
 
-                </div>
+                    <td>
+                        <span class="stock-number">
+                            {{ parfum.stok }}
+                        </span>
+                    </td>
 
-            </article>
+                    <td>
+                        <div class="action-buttons">
 
-        </section>
+                        <button
+                            type="button"
+                            class="edit-button"
+                            @click="openEditModal(parfum)"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            class="delete-button"
+                            @click="confirmDelete(parfum)"
+                        >
+                            Hapus
+                        </button>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<div
+    v-if="showConfirm"
+    class="modal-overlay"
+>
+    <div class="confirm-modal">
+
+        <div class="confirm-icon">
+            {{ confirmType === 'delete' ? '!' : '?' }}
+        </div>
+
+        <h2>
+            {{
+                confirmType === 'delete'
+                    ? 'Hapus Parfum?'
+                    : 'Ubah Parfum?'
+            }}
+        </h2>
+
+        <p v-if="selectedParfum">
+            {{
+                confirmType === 'delete'
+                    ? `Apakah anda ingin menghapus parfum "${selectedParfum.nama}"?`
+                    : `Apakah anda ingin merubah parfum "${selectedParfum.nama}"?`
+            }}
+        </p>
+
+        <div class="confirm-actions">
+
+            <button
+                type="button"
+                class="cancel-button"
+                @click="closeConfirm"
+            >
+                Batal
+            </button>
+
+            <button
+                type="button"
+                :class="
+                    confirmType === 'delete'
+                        ? 'confirm-delete-button'
+                        : 'confirm-edit-button'
+                "
+                @click="handleConfirm"
+                :disabled="form.processing"
+            >
+                {{ form.processing ? 'Memproses...' : 'Oke' }}
+            </button>
+
+        </div>
+
+    </div>
+</div>
 
         <div
             v-if="showModal"
@@ -185,7 +474,6 @@ const formatRupiah = (value) => {
 
                     <div>
                         <h2>Tambah Stok Parfum</h2>
-
                         <p>
                             Masukkan informasi produk parfum.
                         </p>
@@ -208,47 +496,6 @@ const formatRupiah = (value) => {
 
                     <div class="form-group">
 
-                        <label>
-                            Foto Produk
-                        </label>
-
-                        <label class="upload-box">
-
-                            <span class="upload-icon">
-                                +
-                            </span>
-
-                            <span v-if="!form.foto">
-                                Pilih foto produk
-                            </span>
-
-                            <span v-else>
-                                {{ form.foto.name }}
-                            </span>
-
-                            <input
-                                type="file"
-                                accept="image/*"
-                                @change="handleFoto"
-                            >
-
-                        </label>
-
-                        <small>
-                            JPG, PNG atau WEBP. Maksimal 2 MB.
-                        </small>
-
-                        <span
-                            v-if="form.errors.foto"
-                            class="error"
-                        >
-                            {{ form.errors.foto }}
-                        </span>
-
-                    </div>
-
-                    <div class="form-group">
-
                         <label for="nama">
                             Nama Parfum
                         </label>
@@ -257,7 +504,7 @@ const formatRupiah = (value) => {
                             id="nama"
                             v-model="form.nama"
                             type="text"
-                            placeholder="Contoh: Dior Sauvage"
+                            placeholder="Masukkan nama parfum"
                         >
 
                         <span
@@ -281,13 +528,14 @@ const formatRupiah = (value) => {
                                 Rp
                             </span>
 
-                            <input
-                                id="harga"
-                                v-model="form.harga"
-                                type="number"
-                                min="0"
-                                placeholder="Masukkan harga"
-                            >
+                        <input
+                            id="harga"
+                            :value="hargaDisplay"
+                            @input="formatHargaInput($event.target.value)"
+                            type="text"
+                            inputmode="numeric"
+                            placeholder="Masukkan harga"
+                        >
 
                         </div>
 
@@ -311,7 +559,7 @@ const formatRupiah = (value) => {
                             v-model="form.stok"
                             type="number"
                             min="0"
-                            placeholder="Contoh: 10"
+                            placeholder="Masukkan jumlah"
                         >
 
                         <span
@@ -325,35 +573,270 @@ const formatRupiah = (value) => {
 
                     <div class="modal-actions">
 
-                        <button
-                            type="button"
-                            class="cancel-button"
-                            @click="closeModal"
-                        >
-                            Batal
-                        </button>
+                    <button
+                        type="button"
+                        class="cancel-button"
+                        @click="closeModal"
+                    >
+                        Batal
+                    </button>
 
-                        <button
-                            type="submit"
-                            class="save-button"
-                            :disabled="form.processing"
-                        >
-                            {{
-                                form.processing
-                                    ? 'Menyimpan...'
-                                    : 'Simpan Stok'
-                            }}
-                        </button>
+                    <button
+                        type="submit"
+                        class="save-button"
+                        :disabled="form.processing"
+                    >
+                        {{ form.processing ? 'Menyimpan...' : 'Simpan Stok' }}
+                    </button>
 
-                    </div>
+                </div>
+
 
                 </form>
 
             </div>
 
         </div>
+        <div
+            v-if="showEditModal"
+            class="modal-overlay"
+            @click.self="closeEditModal"
+        >
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    Edit Stok Parfum
+                </h2>
+
+                <p>
+                    Ubah informasi produk parfum.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                @click="closeEditModal"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <form
+            class="stok-form"
+            @submit.prevent="submitEdit"
+        >
+            <div class="form-group">
+
+                <label for="edit-nama">
+                    Nama Parfum
+                </label>
+
+                <input
+                    id="edit-nama"
+                    v-model="editForm.nama"
+                    type="text"
+                    placeholder="Contoh: Dior Sauvage"
+                >
+
+                <span
+                    v-if="editForm.errors.nama"
+                    class="error"
+                >
+                    {{ editForm.errors.nama }}
+                </span>
+
+            </div>
+            <div class="form-group">
+
+                <label for="edit-harga">
+                    Harga
+                </label>
+
+                <div class="price-input">
+
+                    <span>
+                        Rp
+                    </span>
+
+                    <input
+                        id="edit-harga"
+                        :value="editHargaDisplay"
+                        @input="
+                            formatEditHargaInput(
+                                $event.target.value
+                            )
+                        "
+                        type="text"
+                        inputmode="numeric"
+                        placeholder="Masukkan harga"
+                    >
+
+                </div>
+
+                <span
+                    v-if="editForm.errors.harga"
+                    class="error"
+                >
+                    {{ editForm.errors.harga }}
+                </span>
+
+            </div>
+            <div class="form-group">
+
+                <label for="edit-stok">
+                    Jumlah Stok
+                </label>
+
+                <input
+                    id="edit-stok"
+                    v-model="editForm.stok"
+                    type="number"
+                    min="0"
+                    placeholder="Contoh: 10"
+                >
+
+                <span
+                    v-if="editForm.errors.stok"
+                    class="error"
+                >
+                    {{ editForm.errors.stok }}
+                </span>
+
+            </div>
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-button"
+                    @click="closeEditModal"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-button"
+                    :disabled="editForm.processing"
+                >
+                    {{
+                        editForm.processing
+                            ? 'Memperbarui...'
+                            : 'Simpan Perubahan'
+                    }}
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
+
+</div>
+
+    </div>
+<Transition name="success">
+
+    <div
+        v-if="showSuccess"
+        class="success-overlay"
+    >
+
+        <div class="success-modal">
+
+            <div class="success-icon">
+
+                <svg
+                    viewBox="0 0 52 52"
+                    class="checkmark"
+                >
+
+                    <circle
+                        cx="26"
+                        cy="26"
+                        r="24"
+                        fill="none"
+                        class="check-circle"
+                    />
+
+                    <path
+                        d="M14 27 L22 35 L39 18"
+                        fill="none"
+                        class="check-line"
+                    />
+
+                </svg>
+
+            </div>
+
+            <h3>
+                Berhasil!
+            </h3>
+
+            <p>
+                {{ successMessage }}
+            </p>
+
+        </div>
+
+    </div>
+
+</Transition>
+
+<Transition name="error">
+
+    <div
+        v-if="showError"
+        class="success-overlay"
+    >
+
+        <div class="success-modal error-modal">
+
+            <div class="success-icon">
+
+                <svg
+                    viewBox="0 0 52 52"
+                    class="checkmark"
+                >
+
+                    <circle
+                        cx="26"
+                        cy="26"
+                        r="24"
+                        fill="none"
+                        class="error-circle"
+                    />
+
+                    <path
+                        d="M17 17 L35 35 M35 17 L17 35"
+                        fill="none"
+                        class="error-line"
+                    />
+
+                </svg>
+
+            </div>
+
+            <h3>
+                Gagal!
+            </h3>
+
+            <p>
+                {{ errorMessage }}
+            </p>
+
+        </div>
+
+    </div>
+
+</Transition>
 </template>
 
 <style scoped>
@@ -526,16 +1009,8 @@ const formatRupiah = (value) => {
     color: #8b9999;
 }
 
-.product-grid {
-    display: grid;
-
-    grid-template-columns: repeat(4, 1fr);
-
-    gap: 20px;
-}
-
-.product-card {
-    overflow: hidden;
+.table-card {
+    width: 100%;
 
     background: #fbfdfc;
 
@@ -544,70 +1019,136 @@ const formatRupiah = (value) => {
     border-radius: 14px;
 
     box-shadow: 0 8px 25px rgba(50, 90, 90, 0.05);
+
+    overflow: hidden;
 }
 
-.product-image {
-    height: 220px;
+.table-wrapper {
+    width: 100%;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow-x: auto;
+}
 
+.stok-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 11px;
+}
+
+.stok-table thead {
     background: #f2f7f6;
 }
 
-.product-image img {
-    width: 100%;
-    height: 100%;
+.stok-table th {
+    padding: 15px 18px;
 
-    object-fit: contain;
-}
-
-.no-image {
-    color: #a3b5b5;
-
-    font-size: 35px;
-}
-
-.product-info {
-    padding: 18px;
-}
-
-.product-info h2 {
-    margin: 0 0 8px;
-
-    font-family: Georgia, serif;
-
-    font-size: 17px;
-    font-weight: normal;
-
-    color: #344747;
-}
-
-.price {
-    margin: 0 0 15px;
-
-    color: #477878;
-
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.stock-row {
-    display: flex;
-    justify-content: space-between;
-
-    padding-top: 12px;
-
-    border-top: 1px solid #e2ebea;
+    color: #6f8585;
 
     font-size: 10px;
 
-    color: #899999;
+    font-weight: 600;
+
+    text-align: left;
+
+    border-bottom: 1px solid #dce8e6;
+
+    white-space: nowrap;
 }
 
-.stock-row strong {
+.stok-table td {
+    padding: 14px 18px;
+
+    color: #526363;
+
+    border-bottom: 1px solid #e8efee;
+
+    vertical-align: middle;
+}
+.stok-table th:nth-child(4),
+.stok-table td:nth-child(4) {
+    width: 260px;
+    padding-left: 50px;
+}
+
+.stok-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.stok-table tbody tr:hover {
+    background: #f8fbfa;
+}
+
+.product-name {
+    color: #344747;
+
+    font-family: Georgia, serif;
+
+    font-size: 13px;
+
+    font-weight: normal;
+}
+
+.table-price {
     color: #477878;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.stock-number {
+    color: #555;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.action-buttons {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.edit-button,
+.delete-button {
+    padding: 7px 11px;
+
+    border-radius: 6px;
+
+    font-size: 9px;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.edit-button {
+    border: 1px solid #cbdedc;
+
+    background: #ffffff;
+
+    color: #477878;
+}
+
+.edit-button:hover {
+    background: #edf5f4;
+}
+
+.delete-button {
+    border: 1px solid #efd4d4;
+
+    background: #ffffff;
+
+    color: #b87575;
+}
+
+.delete-button:hover {
+    background: #fff5f5;
 }
 
 .modal-overlay {
@@ -871,10 +1412,327 @@ const formatRupiah = (value) => {
     cursor: not-allowed;
 }
 
-@media (max-width: 1000px) {
-    .product-grid {
-        grid-template-columns: repeat(3, 1fr);
+.confirm-modal {
+    width: 100%;
+    max-width: 390px;
+
+    padding: 30px;
+
+    background: #fbfdfc;
+
+    border: 1px solid #d7e3e1;
+
+    border-radius: 17px;
+
+    text-align: center;
+
+    box-shadow: 0 25px 70px rgba(20, 50, 50, 0.2);
+}
+
+.confirm-icon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 17px;
+
+    border-radius: 50%;
+
+    background: #eaf3f2;
+
+    color: #477878;
+
+    font-size: 22px;
+
+    font-weight: 600;
+}
+
+.confirm-modal h2 {
+    margin: 0 0 10px;
+
+    font-family: Georgia, serif;
+
+    font-size: 21px;
+
+    font-weight: normal;
+
+    color: #344747;
+}
+
+.confirm-modal p {
+    margin: 0 auto;
+
+    max-width: 300px;
+
+    font-size: 11px;
+
+    line-height: 1.7;
+
+    color: #879797;
+}
+
+.confirm-actions {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.confirm-edit-button,
+.confirm-delete-button {
+    padding: 11px 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 10px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.confirm-edit-button {
+    background: #477878;
+
+    color: white;
+}
+
+.confirm-edit-button:hover {
+    background: #386666;
+}
+
+.confirm-delete-button {
+    background: #b87575;
+
+    color: white;
+}
+
+.confirm-delete-button:hover {
+    background: #a46262;
+}
+
+.confirm-edit-button:disabled,
+.confirm-delete-button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+.success-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(20, 40, 40, 0.25);
+
+    backdrop-filter: blur(3px);
+}
+
+.success-modal {
+    width: 330px;
+
+    padding: 35px 30px;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.15);
+}
+.success-icon {
+    width: 80px;
+    height: 80px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkmark {
+    width: 80px;
+    height: 80px;
+}
+
+.check-circle {
+    stroke: #62b66a;
+
+    stroke-width: 2;
+
+    stroke-dasharray: 151;
+    stroke-dashoffset: 151;
+
+    animation:
+        circleDraw 0.5s ease forwards;
+}
+
+.check-line {
+    stroke: #62b66a;
+
+    stroke-width: 3.5;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+
+    animation:
+        checkDraw 0.45s ease 0.45s forwards;
+}
+
+.success-modal h3 {
+    margin: 0 0 8px;
+
+    font-family: Georgia, serif;
+
+    font-size: 25px;
+
+    font-weight: normal;
+
+    color: #31504f;
+}
+
+.success-modal p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #819393;
+}
+
+
+@keyframes circleDraw {
+
+    from {
+        stroke-dashoffset: 151;
     }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+
+}
+
+@keyframes checkDraw {
+
+    from {
+        stroke-dashoffset: 40;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+
+}
+
+.success-enter-active {
+    animation: successIn 0.3s ease;
+}
+
+.success-leave-active {
+    animation: successOut 0.25s ease;
+}
+
+@keyframes successIn {
+
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+}
+
+@keyframes successOut {
+
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+}
+
+.error-circle {
+    stroke: #d96b6b;
+    stroke-width: 2;
+
+    stroke-dasharray: 151;
+    stroke-dashoffset: 151;
+
+    animation: circleError 0.5s ease forwards;
+}
+
+.error-line {
+    stroke: #d96b6b;
+    stroke-width: 3.5;
+
+    stroke-linecap: round;
+
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+
+    animation: errorDraw 0.4s ease 0.4s forwards;
+}
+
+.error-modal h3 {
+    color: #b75c5c;
+}
+
+@keyframes circleError {
+
+    from {
+        stroke-dashoffset: 151;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes errorDraw {
+
+    from {
+        stroke-dashoffset: 50;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.error-enter-active {
+    animation: successIn 0.3s ease;
+}
+
+.error-leave-active {
+    animation: successOut 0.25s ease;
 }
 
 @media (max-width: 750px) {
@@ -887,8 +1745,8 @@ const formatRupiah = (value) => {
         gap: 15px;
     }
 
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .stok-table {
+        min-width: 600px;
     }
 }
 
@@ -899,10 +1757,6 @@ const formatRupiah = (value) => {
 
     .add-button {
         width: 100%;
-    }
-
-    .product-grid {
-        grid-template-columns: 1fr;
     }
 
     .modal {

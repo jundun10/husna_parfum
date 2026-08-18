@@ -4,13 +4,12 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Admin\ParfumController;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Parfum;
 
 
 Route::get('/', function () {
     return Inertia::render('Home');
 })->name('home');
-
 
 
 Route::get('/test-vue', function () {
@@ -26,17 +25,32 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCa
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/dashboard', function () {
+
+        $parfumsTerendah = Parfum::orderBy('stok', 'asc')
+            ->take(5)
+            ->get(['id', 'nama', 'stok']);
+
+        $totalStok = Parfum::sum('stok');
+
         return Inertia::render('Admin/Dashboard', [
             'authUser' => request()->user(),
+            'totalStok' => $totalStok,
+            'parfumsTerendah' => $parfumsTerendah,
         ]);
-    })->name('admin.dashboard');
 
+    })->name('admin.dashboard');
 
     Route::get('/admin/stok', [ParfumController::class, 'index'])
         ->name('admin.stok');
 
     Route::post('/admin/stok', [ParfumController::class, 'store'])
         ->name('admin.stok.store');
+    
+    Route::put('/admin/stok/{parfum}', [ParfumController::class, 'update'])
+    ->name('admin.stok.update');
+
+    Route::delete('/admin/stok/{parfum}', [ParfumController::class, 'destroy'])
+    ->name('admin.stok.destroy');
 
 });
 
