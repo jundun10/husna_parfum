@@ -1,9 +1,9 @@
 <script setup>
-import { useForm, Head, Link } from '@inertiajs/vue3';
+import { useForm, Head, Link, usePage } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
 
 const logoUrl = '/images/logo.jpg';
-
+const page = usePage();
 const form = useForm({
     email: '',
     password: '',
@@ -19,10 +19,10 @@ const submit = () => {
     <Head title="Login" />
 
     <div class="auth-page">
-        <Link
-    href="/"
-    class="back-button"
-    aria-label="Kembali ke Home"
+        <Link 
+    :href="page.props.backUrl || '/'"
+    class="back-button" 
+    aria-label="Kembali"
 >
     <ArrowLeft :size="22" :stroke-width="1.8" />
 </Link>

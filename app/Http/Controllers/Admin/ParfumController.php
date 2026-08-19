@@ -26,6 +26,10 @@ class ParfumController extends Controller
             'nama' => ['required', 'string', 'max:255'],
             'harga' => ['required', 'numeric', 'min:0'],
             'stok' => ['required', 'integer', 'min:0'],
+            'kategori' => [
+            'required',
+            'in:Pria,Wanita,Unisex,Parfum Lain',
+        ],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
@@ -44,6 +48,10 @@ class ParfumController extends Controller
             'nama' => ['required', 'string', 'max:255'],
             'harga' => ['required', 'numeric', 'min:0'],
             'stok' => ['required', 'integer', 'min:0'],
+            'kategori' => [
+            'required',
+            'in:Pria,Wanita,Unisex,Parfum Lain',
+        ],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 

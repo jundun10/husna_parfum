@@ -10,6 +10,7 @@ class Parfum extends Model
         'nama',
         'harga',
         'stok',
+        'kategori',
         'foto',
     ];
 }

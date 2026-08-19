@@ -20,9 +20,12 @@ const form = useForm({
     nama: '',
     harga: '',
     stok: '',
+    kategori: '',
+    foto: null,
 });
 
 const hargaDisplay = ref('');
+const fotoNama = ref('');
 const showEditModal = ref(false);
 const editParfum = ref(null);
 
@@ -30,9 +33,12 @@ const editForm = useForm({
     nama: '',
     harga: '',
     stok: '',
+    kategori: '',
+    foto: null,
 });
 
 const editHargaDisplay = ref('');
+const editFotoNama = ref('');
 const showConfirm = ref(false);
 const confirmType = ref(null);
 const selectedParfum = ref(null);
@@ -42,6 +48,7 @@ const openModal = () => {
     form.clearErrors();
 
     hargaDisplay.value = '';
+    fotoNama.value = '';
 
     showModal.value = true;
 };
@@ -54,10 +61,11 @@ const closeModal = () => {
     form.clearErrors();
 
     hargaDisplay.value = '';
+    fotoNama.value = '';
 };
 
 const submit = () => {
-
+    
     form.post('/admin/stok', {
         forceFormData: true,
 
@@ -90,6 +98,9 @@ const openEditModal = (parfum) => {
     editForm.nama = parfum.nama;
     editForm.harga = String(parfum.harga);
     editForm.stok = parfum.stok;
+    editForm.kategori = parfum.kategori;
+    editForm.foto = null;
+    editFotoNama.value = '';
     editHargaDisplay.value =
         Number(parfum.harga).toLocaleString('id-ID');
 
@@ -111,7 +122,7 @@ const closeEditModal = () => {
     editForm.clearErrors();
 
     editHargaDisplay.value = '';
-
+    editFotoNama.value = '';
     editParfum.value = null;
     selectedParfum.value = null;
 };
@@ -570,6 +581,89 @@ const formatRupiah = (value) => {
                         </span>
 
                     </div>
+                    <div class="form-group">
+
+                        <label for="foto">
+                            Foto Parfum
+                        </label>
+
+                        <label class="upload-box">
+
+                            <span>
+                                Pilih foto 
+                            </span>
+
+                            <input
+                                id="foto"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                @change="
+                                    form.foto = $event.target.files[0];
+                                    fotoNama = $event.target.files[0]?.name || '';
+                                "
+                                
+                            >
+
+                        </label>
+                        <span
+                            v-if="fotoNama"
+                            class="selected-file"
+                        >
+                        {{ fotoNama }}
+                        </span>
+
+                        <small>
+                            JPG, JPEG, PNG atau WEBP. Maksimal 2 MB.
+                        </small>
+
+                        <span
+                            v-if="form.errors.foto"
+                            class="error"
+                        >
+                            {{ form.errors.foto }}
+                        </span>
+
+                    </div>
+                    <div class="form-group">
+
+                    <label for="kategori">
+                        Kategori
+                    </label>
+
+                    <select
+                        id="kategori"
+                        v-model="form.kategori"
+                        class="form-input"
+                    >
+                        <option value="" disabled>
+                            Pilih kategori
+                        </option>
+
+                        <option value="Pria">
+                            Pria
+                        </option>
+
+                        <option value="Wanita">
+                            Wanita
+                        </option>
+
+                        <option value="Unisex">
+                            Unisex
+                        </option>
+
+                        <option value="Parfum Lain">
+                            Parfum Lain
+                        </option>
+                    </select>
+
+                    <span
+                        v-if="form.errors.kategori"
+                        class="error"
+                    >
+                        {{ form.errors.kategori }}
+                    </span>
+
+                </div>
 
                     <div class="modal-actions">
 
@@ -708,6 +802,83 @@ const formatRupiah = (value) => {
                     class="error"
                 >
                     {{ editForm.errors.stok }}
+                </span>
+
+            </div>
+            <div class="form-group">
+
+                <label for="edit-foto">
+                    Foto Parfum
+                </label>
+
+                <label class="upload-box">
+
+                    <span>
+                        Pilih foto baru
+                    </span>
+
+                    <input
+                        id="edit-foto"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        @change="editForm.foto = $event.target.files[0]
+                        editFotoNama = $event.target.files[0]?.name || '';
+                        "
+                    >
+
+                </label>
+                <span
+                    v-if="editFotoNama"
+                    class="selected-file"
+                >
+                {{ editFotoNama }}
+                </span>
+
+                <span
+                    v-if="editForm.errors.foto"
+                    class="error"
+                >
+                    {{ editForm.errors.foto }}
+                </span>
+
+            </div>
+            <div class="form-group">
+
+                <label for="edit-kategori">
+                    Kategori
+                </label>
+
+                <select
+                    id="edit-kategori"
+                    v-model="editForm.kategori"
+                    class="form-input"
+                >
+                    <option value="" disabled>
+                        Pilih kategori
+                    </option>
+
+                    <option value="Pria">
+                        Pria
+                    </option>
+
+                    <option value="Wanita">
+                        Wanita
+                    </option>
+
+                    <option value="Unisex">
+                        Unisex
+                    </option>
+
+                    <option value="Parfum Lain">
+                        Parfum Lain
+                    </option>
+                </select>
+
+                <span
+                    v-if="editForm.errors.kategori"
+                    class="error"
+                >
+                    {{ editForm.errors.kategori }}
                 </span>
 
             </div>
@@ -1274,6 +1445,32 @@ const formatRupiah = (value) => {
 .form-group input::placeholder {
     color: #b0bbbb;
 }
+.form-group select {
+    width: 100%;
+
+    padding: 12px 13px;
+
+    border: 1px solid #d4e2e0;
+    border-radius: 8px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #526363;
+
+    font-size: 11px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.form-group select:focus {
+    border-color: #7eabab;
+
+    box-shadow: 0 0 0 3px rgba(126, 171, 171, 0.12);
+}
 
 .upload-box {
     min-height: 80px;
@@ -1617,7 +1814,23 @@ const formatRupiah = (value) => {
 
     color: #819393;
 }
+.selected-file {
+    display: block;
 
+    margin-top: 8px;
+
+    padding: 8px 10px;
+
+    border-radius: 7px;
+
+    background: #edf5f4;
+
+    color: #477878;
+
+    font-size: 9px;
+
+    word-break: break-all;
+}
 
 @keyframes circleDraw {
 

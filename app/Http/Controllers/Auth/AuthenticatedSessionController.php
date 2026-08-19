@@ -15,10 +15,22 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
-    {
-        return Inertia::render('Login');
+    public function create(Request $request): Response
+{
+    $fromPelanggan = $request->query('from') === 'pelanggan';
+
+    if ($fromPelanggan) {
+        $request->session()->put('login_from', 'pelanggan');
     }
+
+    $backUrl = $fromPelanggan
+        ? '/Pelanggan'
+        : '/';
+
+    return Inertia::render('Login', [
+        'backUrl' => $backUrl,
+    ]);
+}
 
     /**
      * Handle an incoming authentication request.
@@ -39,7 +51,7 @@ class AuthenticatedSessionController extends Controller
         return redirect()->route('superadmin.dashboard');
     }
 
-    return redirect()->route('home');
+    return redirect()->route('pelanggan');
 }
 
     /**

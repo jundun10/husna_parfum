@@ -82,10 +82,10 @@ const logout = () => {
         </p>
 
         <a
-            href="#produk"
+            href="/Pelanggan"
             class="hero-button"
         >
-            Lihat Koleksi
+            Pesan Sekarang
         </a>
 
     </div>
