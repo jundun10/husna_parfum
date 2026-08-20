@@ -2,25 +2,32 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
 
-const provinces = ref([]);
 const regencies = ref([]);
 const districts = ref([]);
 const villages = ref([]);
 
-const loadingProvinces = ref(false);
 const loadingRegencies = ref(false);
 const loadingDistricts = ref(false);
 const loadingVillages = ref(false);
 const props = defineProps({
+    
     alamat: {
         type: Object,
         default: null,
     },
+
     authUser: {
         type: Object,
         default: null,
     },
+
+    provinces: {
+        type: Array,
+        default: () => [],
+    },
 });
+const isEditing = ref(!props.alamat);
+
 
 const form = useForm({
     nama_penerima: props.alamat?.nama_penerima ?? props.authUser?.name ?? '',
@@ -34,27 +41,8 @@ const form = useForm({
     alamat_lengkap: props.alamat?.alamat_lengkap ?? '',
     kode_pos: props.alamat?.kode_pos ?? '',
 });
-const loadProvinces = async () => {
-    loadingProvinces.value = true;
 
-    try {
-        const response = await fetch(
-            'https://wilayah.id/api/provinces.json'
-        );
 
-        const result = await response.json();
-
-        provinces.value = result.data;
-    } catch (error) {
-        console.error('Gagal mengambil provinsi:', error);
-    } finally {
-        loadingProvinces.value = false;
-    }
-};
-
-onMounted(() => {
-    loadProvinces();
-});
 watch(
     () => form.provinsi,
     async (provinceCode) => {
@@ -72,12 +60,12 @@ watch(
 
         try {
             const response = await fetch(
-                `https://wilayah.id/api/regencies/${provinceCode}.json`
-            );
+            `/api/wilayah/regencies/${provinceCode}`
+        );
 
-            const result = await response.json();
+        const result = await response.json();
 
-            regencies.value = result.data;
+regencies.value = result;
         } catch (error) {
             console.error('Gagal mengambil kabupaten:', error);
         } finally {
@@ -100,14 +88,15 @@ watch(
 
         try {
             const response = await fetch(
-                `https://wilayah.id/api/districts/${regencyCode}.json`
+                `/api/wilayah/districts/${regencyCode}`
             );
 
             const result = await response.json();
 
-            districts.value = result.data;
+            districts.value = result;
         } catch (error) {
             console.error('Gagal mengambil kecamatan:', error);
+            districts.value = [];
         } finally {
             loadingDistricts.value = false;
         }
@@ -126,19 +115,73 @@ watch(
 
         try {
             const response = await fetch(
-                `https://wilayah.id/api/villages/${districtCode}.json`
+                `/api/wilayah/villages/${districtCode}`
             );
 
             const result = await response.json();
 
-            villages.value = result.data;
+            villages.value = result;
         } catch (error) {
             console.error('Gagal mengambil desa:', error);
+            villages.value = [];
         } finally {
             loadingVillages.value = false;
         }
     }
 );
+const loadExistingAddress = async () => {
+    if (!props.alamat) return;
+
+    try {
+        if (form.provinsi) {
+            loadingRegencies.value = true;
+
+            const regencyResponse = await fetch(
+                `/api/wilayah/regencies/${form.provinsi}`
+            );
+
+            regencies.value = await regencyResponse.json();
+
+            loadingRegencies.value = false;
+        }
+
+        if (form.kabupaten_kota) {
+            loadingDistricts.value = true;
+
+            const districtResponse = await fetch(
+                `/api/wilayah/districts/${form.kabupaten_kota}`
+            );
+
+            districts.value = await districtResponse.json();
+
+            loadingDistricts.value = false;
+        }
+
+        if (form.kecamatan) {
+            loadingVillages.value = true;
+
+            const villageResponse = await fetch(
+                `/api/wilayah/villages/${form.kecamatan}`
+            );
+
+            villages.value = await villageResponse.json();
+
+            loadingVillages.value = false;
+        }
+    } catch (error) {
+        console.error('Gagal memuat alamat lama:', error);
+
+        loadingRegencies.value = false;
+        loadingDistricts.value = false;
+        loadingVillages.value = false;
+    }
+};
+
+onMounted(() => {
+    if (props.alamat) {
+        loadExistingAddress();
+    }
+});
 const submit = () => {
     form.post('/pelanggan/alamat');
 };
@@ -150,24 +193,73 @@ const submit = () => {
     <div class="address-page">
 
         <header class="address-header">
-            <Link
-                href="/pelanggan/keranjang"
-                class="back-link"
-            >
-                ← Kembali
-            </Link>
 
-            <div>
-                <h1>Alamat Pengiriman</h1>
-                <p>
-                    Tambahkan alamat untuk melanjutkan checkout.
-                </p>
-            </div>
-        </header>
+    <Link
+        href="/pelanggan/keranjang"
+        class="back-link"
+    >
+        ← Kembali
+    </Link>
+
+    <div class="address-title">
+        <div>
+            <h1>Alamat Pengiriman</h1>
+
+            <p>
+                {{
+                    isEditing
+                        ? 'Lengkapi atau ubah alamat pengiriman.'
+                        : 'Alamat pengiriman akun kamu.'
+                }}
+            </p>
+        </div>
+
+        <button
+            v-if="props.alamat && !isEditing"
+            type="button"
+            class="edit-address-button"
+            @click="isEditing = true"
+        >
+            Edit
+        </button>
+    </div>
+
+    </header>
+
+    <div
+    v-if="props.alamat && !isEditing"
+    class="saved-address-card"
+>
+    <div class="saved-address-top">
+        <div>
+            <span class="saved-label">
+                ALAMAT UTAMA
+            </span>
+
+            <h2>
+                {{ props.alamat.nama_penerima }}
+            </h2>
+        </div>
+
+        <span class="saved-phone">
+            {{ props.alamat.no_hp }}
+        </span>
+    </div>
+
+    <p>
+        {{ props.alamat.alamat_lengkap }},
+        {{ props.alamat.desa }},
+        {{ props.alamat.kecamatan }},
+        {{ props.alamat.kabupaten_kota }},
+        {{ props.alamat.provinsi }},
+        {{ props.alamat.kode_pos }}
+    </p>
+    </div>
 
         <main class="address-container">
 
             <form
+                v-if="isEditing"
                 class="address-card"
                 @submit.prevent="submit"
             >
@@ -210,171 +302,151 @@ const submit = () => {
 
                 </div>
 
-                <div class="form-row">
+                <div class="form-group">
+                    <label>Provinsi</label>
 
-                    <div class="form-group">
-                        <label>Provinsi</label>
+                    <select v-model="form.provinsi">
+                        <option value="">
+                            Pilih Provinsi
+                        </option>
 
-                        <select
-                            v-model="form.provinsi"
-                            :disabled="loadingProvinces"
+                        <option
+                            v-for="province in props.provinces"
+                            :key="province.code"
+                            :value="province.code"
                         >
-                            <option value="">
-                                {{
-                                    loadingProvinces
-                                        ? 'Memuat provinsi...'
-                                        : 'Pilih Provinsi'
-                                }}
-                            </option>
+                            {{ province.name }}
+                        </option>
+                    </select>
 
-                            <option
-                                v-for="province in provinces"
-                                :key="province.code"
-                                :value="province.code"
-                            >
-                                {{ province.name }}
-                            </option>
-                        </select>
+                    <span
+                        v-if="form.errors.provinsi"
+                        class="error"
+                    >
+                        {{ form.errors.provinsi }}
+                    </span>
+                </div>
 
-                        <span
-                            v-if="form.errors.provinsi"
-                            class="error"
-                        >
-                            {{ form.errors.provinsi }}
-                        </span>
-                    </div>
+                <div class="form-group">
+                    <label>Kabupaten</label>
 
-                    <div class="form-group">
-                        <label>Kabupaten / Kota</label>
-
-                        <select
-                            v-model="form.kabupaten_kota"
-                            :disabled="
-                                !form.provinsi ||
+                    <select
+                        v-model="form.kabupaten_kota"
+                        :disabled="
+                            !form.provinsi ||
+                            loadingRegencies
+                        "
+                    >
+                        <option value="">
+                            {{
                                 loadingRegencies
-                            "
+                                    ? 'Memuat kabupaten / kota...'
+                                    : 'Pilih Kabupaten / Kota'
+                            }}
+                        </option>
+
+                        <option
+                            v-for="regency in regencies"
+                            :key="regency.code"
+                            :value="regency.code"
                         >
-                            <option value="">
-                                {{
-                                    loadingRegencies
-                                        ? 'Memuat kabupaten / kota...'
-                                        : 'Pilih Kabupaten / Kota'
-                                }}
-                            </option>
+                            {{ regency.name }}
+                        </option>
+                    </select>
 
-                            <option
-                                v-for="regency in regencies"
-                                :key="regency.code"
-                                :value="regency.code"
-                            >
-                                {{ regency.name }}
-                            </option>
-                        </select>
-
-                        <span
-                            v-if="form.errors.kabupaten_kota"
-                            class="error"
-                        >
-                            {{ form.errors.kabupaten_kota }}
-                        </span>
-                    </div>
-
+                    <span
+                        v-if="form.errors.kabupaten_kota"
+                        class="error"
+                    >
+                        {{ form.errors.kabupaten_kota }}
+                    </span>
                 </div>
 
-                <div class="form-row">
+                <div class="form-group">
+                    <label>Kecamatan</label>
 
-                    <div class="form-group">
-                        <label>Kecamatan</label>
-
-                        <select
-                            v-model="form.kecamatan"
-                            :disabled="
-                                !form.kabupaten_kota ||
+                    <select
+                        v-model="form.kecamatan"
+                        :disabled="
+                            !form.kabupaten_kota ||
+                            loadingDistricts
+                        "
+                    >
+                        <option value="">
+                            {{
                                 loadingDistricts
-                            "
+                                    ? 'Memuat kecamatan...'
+                                    : 'Pilih Kecamatan'
+                            }}
+                        </option>
+
+                        <option
+                            v-for="district in districts"
+                            :key="district.code"
+                            :value="district.code"
                         >
-                            <option value="">
-                                {{
-                                    loadingDistricts
-                                        ? 'Memuat kecamatan...'
-                                        : 'Pilih Kecamatan'
-                                }}
-                            </option>
+                            {{ district.name }}
+                        </option>
+                    </select>
 
-                            <option
-                                v-for="district in districts"
-                                :key="district.code"
-                                :value="district.code"
-                            >
-                                {{ district.name }}
-                            </option>
-                        </select>
-
-                        <span
-                            v-if="form.errors.kecamatan"
-                            class="error"
-                        >
-                            {{ form.errors.kecamatan }}
-                        </span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Kode Pos</label>
-
-                        <input
-                            v-model="form.kode_pos"
-                            type="text"
-                            placeholder="Kode pos"
-                        >
-
-                        <span
-                            v-if="form.errors.kode_pos"
-                            class="error"
-                        >
-                            {{ form.errors.kode_pos }}
-                        </span>
-                    </div>
-
+                    <span
+                        v-if="form.errors.kecamatan"
+                        class="error"
+                    >
+                        {{ form.errors.kecamatan }}
+                    </span>
                 </div>
-                <div class="form-row">
 
-                    <div class="form-group">
+                <div class="form-group">
+                    <label>Desa / Kelurahan</label>
 
-                        <label>Desa / Kelurahan</label>
-
-                        <select
-                            v-model="form.desa"
-                            :disabled="
-                                !form.kecamatan ||
+                    <select
+                        v-model="form.desa"
+                        :disabled="
+                            !form.kecamatan ||
+                            loadingVillages
+                        "
+                    >
+                        <option value="">
+                            {{
                                 loadingVillages
-                            "
+                                    ? 'Memuat desa / kelurahan...'
+                                    : 'Pilih Desa / Kelurahan'
+                            }}
+                        </option>
+
+                        <option
+                            v-for="village in villages"
+                            :key="village.code"
+                            :value="village.code"
                         >
-                            <option value="">
-                                {{
-                                    loadingVillages
-                                        ? 'Memuat desa / kelurahan...'
-                                        : 'Pilih Desa / Kelurahan'
-                                }}
-                            </option>
+                            {{ village.name }}
+                        </option>
+                    </select>
 
-                            <option
-                                v-for="village in villages"
-                                :key="village.code"
-                                :value="village.code"
-                            >
-                                {{ village.name }}
-                            </option>
-                        </select>
+                    <span
+                        v-if="form.errors.desa"
+                        class="error"
+                    >
+                        {{ form.errors.desa }}
+                    </span>
+                </div>
 
-                        <span
-                            v-if="form.errors.desa"
-                            class="error"
-                        >
-                            {{ form.errors.desa }}
-                        </span>
+                <div class="form-group">
+                    <label>Kode Pos</label>
 
-                    </div>
+                    <input
+                        v-model="form.kode_pos"
+                        type="text"
+                        placeholder="Kode pos"
+                    >
 
+                    <span
+                        v-if="form.errors.kode_pos"
+                        class="error"
+                    >
+                        {{ form.errors.kode_pos }}
+                    </span>
                 </div>
 
                 <div class="form-group">
@@ -429,7 +501,97 @@ const submit = () => {
     align-items: flex-start;
     gap: 25px;
 }
+.address-title {
+    flex: 1;
 
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.edit-address-button {
+    padding: 8px 14px;
+
+    border: 1px solid #dce7e5;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #568381;
+
+    font-size: 10px;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.edit-address-button:hover {
+    background: #edf4f2;
+}
+
+.saved-address-card {
+    width: min(900px, 100%);
+
+    margin: 0 auto 20px;
+
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #dce7e5;
+    border-radius: 14px;
+
+    box-shadow: 0 10px 30px rgba(70, 95, 90, .05);
+}
+
+.saved-address-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 10px;
+}
+
+.saved-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #8da3a1;
+
+    font-size: 7px;
+    letter-spacing: 2px;
+}
+
+.saved-address-top h2 {
+    margin: 0;
+
+    font-family: Georgia, serif;
+
+    font-size: 19px;
+    font-weight: normal;
+
+    color: #304c4b;
+}
+
+.saved-phone {
+    color: #6f8885;
+
+    font-size: 10px;
+}
+
+.saved-address-card p {
+    margin: 0;
+
+    color: #718381;
+
+    font-size: 11px;
+    line-height: 1.8;
+}
 .back-link {
     color: #477c79;
     text-decoration: none;

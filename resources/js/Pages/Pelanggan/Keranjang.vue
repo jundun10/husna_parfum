@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { ArrowLeft, Minus, Plus, Trash2 } from 'lucide-vue-next';
 
@@ -29,6 +29,7 @@ const formatRupiah = (value) => {
 const selectedIds = ref(
     props.items.map(item => item.id)
 );
+const metodePembayaran = ref('cod');
 
 const jumlahMap = ref(
     Object.fromEntries(
@@ -63,13 +64,51 @@ const toggleSemua = () => {
 };
 
 const tambahJumlah = (item) => {
-    jumlahMap.value[item.id]++;
+    const jumlahBaru = jumlahMap.value[item.id] + 1;
+
+    if (jumlahBaru > item.parfum?.stok) {
+        return;
+    }
+
+    jumlahMap.value[item.id] = jumlahBaru;
+
+    router.put(
+        `/pelanggan/keranjang/${item.id}`,
+        {
+            jumlah: jumlahBaru,
+        },
+        {
+            preserveScroll: true,
+        }
+    );
 };
 
 const kurangiJumlah = (item) => {
-    if (jumlahMap.value[item.id] > 1) {
-        jumlahMap.value[item.id]--;
+    const jumlahBaru = jumlahMap.value[item.id] - 1;
+
+    if (jumlahBaru < 1) {
+        return;
     }
+
+    jumlahMap.value[item.id] = jumlahBaru;
+
+    router.put(
+        `/pelanggan/keranjang/${item.id}`,
+        {
+            jumlah: jumlahBaru,
+        },
+        {
+            preserveScroll: true,
+        }
+    );
+};
+const hapusItem = (item) => {
+    router.delete(
+        `/pelanggan/keranjang/${item.id}`,
+        {
+            preserveScroll: true,
+        }
+    );
 };
 
 const totalHarga = computed(() => {
@@ -95,6 +134,23 @@ const jumlahDipilih = computed(() => {
             );
         }, 0);
 });
+const checkout = () => {
+    if (selectedIds.value.length === 0) {
+        return;
+    }
+
+    router.post(
+        '/pelanggan/keranjang/checkout',
+        {
+            item_ids: selectedIds.value,
+            metode_pembayaran: metodePembayaran.value,
+        },
+        {
+            preserveScroll: true,
+        }
+    );
+};
+
 </script>
 
 <template>
@@ -118,13 +174,6 @@ const jumlahDipilih = computed(() => {
                     {{ props.items.length }} produk
                 </span>
             </div>
-
-            <button
-                type="button"
-                class="edit-button"
-            >
-                Edit
-            </button>
 
         </header>
 
@@ -356,6 +405,7 @@ const jumlahDipilih = computed(() => {
                                 type="button"
                                 class="delete-button"
                                 title="Hapus"
+                                @click="hapusItem(item)"
                             >
                                 <Trash2 :size="16" />
                             </button>
@@ -393,7 +443,38 @@ const jumlahDipilih = computed(() => {
                         Semua
                     </span>
                 </button>
+                
+                <div class="payment-method">
 
+                    <span class="payment-label">
+                        Metode Pembayaran
+                    </span>
+
+                    <label class="payment-option">
+                        <input
+                            type="radio"
+                            value="cod"
+                            v-model="metodePembayaran"
+                        >
+
+                        <span>
+                            COD
+                        </span>
+                    </label>
+
+                    <label class="payment-option">
+                        <input
+                            type="radio"
+                            value="transfer"
+                            v-model="metodePembayaran"
+                        >
+
+                        <span>
+                            Transfer
+                        </span>
+                    </label>
+
+                </div>
 
                 <div class="checkout-summary">
 
@@ -404,6 +485,12 @@ const jumlahDipilih = computed(() => {
                     <strong>
                         {{ formatRupiah(totalHarga) }}
                     </strong>
+                    <span
+                        v-if="!props.alamat"
+                        class="checkout-warning"
+                    >
+                        Tambahkan alamat terlebih dahulu
+                    </span>
 
                 </div>
 
@@ -411,10 +498,14 @@ const jumlahDipilih = computed(() => {
                 <button
                     type="button"
                     class="checkout-button"
-                    :disabled="selectedIds.length === 0"
+                    :disabled="
+                        selectedIds.length === 0 ||
+                        !props.alamat
+                    "
+                    @click="checkout"
                 >
                     Checkout
-                </button>
+            </button>
 
             </div>
 
@@ -738,11 +829,6 @@ const jumlahDipilih = computed(() => {
     font-size: 9px;
 }
 
-
-/* =====================================================
-   CHECKBOX
-===================================================== */
-
 .checkbox {
     width: 20px;
     height: 20px;
@@ -770,11 +856,6 @@ const jumlahDipilih = computed(() => {
 
     background: #5e8b87;
 }
-
-
-/* =====================================================
-   ITEM
-===================================================== */
 
 .cart-list {
     display: flex;
@@ -819,11 +900,6 @@ const jumlahDipilih = computed(() => {
     justify-content: center;
 }
 
-
-/* =====================================================
-   IMAGE
-===================================================== */
-
 .cart-image {
     width: 110px;
     height: 110px;
@@ -858,11 +934,6 @@ const jumlahDipilih = computed(() => {
 
     color: #9aadaa;
 }
-
-
-/* =====================================================
-   INFO
-===================================================== */
 
 .cart-info {
     min-width: 0;
@@ -1107,6 +1178,10 @@ const jumlahDipilih = computed(() => {
 
     font-size: 16px;
 }
+.checkout-warning {
+    color: #b77b7b;
+    font-size: 9px;
+}
 
 .checkout-button {
     min-width: 145px;
@@ -1139,7 +1214,37 @@ const jumlahDipilih = computed(() => {
 
     cursor: not-allowed;
 }
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
 
+.payment-label {
+    color: #526b69;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    color: #66807e;
+    font-size: 9px;
+
+    cursor: pointer;
+}
+
+.payment-option input {
+    width: 13px;
+    height: 13px;
+
+    accent-color: #5d8986;
+
+    cursor: pointer;
+}
 
 
 @media (max-width: 700px) {

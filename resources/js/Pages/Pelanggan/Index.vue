@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { ShoppingCart, UserRound, LogOut } from 'lucide-vue-next';
+import { ShoppingCart, UserRound } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -32,11 +32,13 @@ const formatRupiah = (value) => {
         maximumFractionDigits: 0,
     }).format(value);
 };
-const showProfileMenu = ref(false);
-const logoutForm = useForm({});
+const bukaProfil = () => {
+    if (!props.authUser) {
+        window.location.href = '/login?from=pelanggan';
+        return;
+    }
 
-const logout = () => {
-    logoutForm.post('/logout');
+    router.visit('/Pelanggan/Profil');
 };
 
 const produkTampil = computed(() => {
@@ -144,88 +146,31 @@ const populer = computed(() => {
             <ShoppingCart :size="19" />
         </button>
 
-        <div class="profile-wrapper">
+       <div class="profile-wrapper">
 
-            <button
-                type="button"
-                class="profile-button"
-                @click="showProfileMenu = !showProfileMenu"
-            >
-                <span
-                    v-if="props.authUser"
-                    class="profile-avatar"
-                >
-                    {{ props.authUser.name?.charAt(0).toUpperCase() }}
-                </span>
+    <button
+        type="button"
+        class="profile-button"
+        @click="bukaProfil"
+        aria-label="Profil"
+    >
 
-                <UserRound
-                    v-else
-                    :size="19"
-                    :stroke-width="1.8"
-                />
-            </button>
+        <span
+            v-if="props.authUser"
+            class="profile-avatar"
+        >
+            {{ props.authUser.name?.charAt(0).toUpperCase() }}
+        </span>
 
-            <div
-                v-if="showProfileMenu"
-                class="profile-menu"
-            >
+        <UserRound
+            v-else
+            :size="19"
+            :stroke-width="1.8"
+        />
 
-                <template v-if="props.authUser">
+    </button>
 
-                    <div class="profile-info">
-
-                        <strong>
-                            {{ props.authUser.name }}
-                        </strong>
-
-                        <span>
-                            {{ props.authUser.email }}
-                        </span>
-
-                    </div>
-
-                    <div class="profile-divider"></div>
-
-                    <button
-                        type="button"
-                        class="profile-logout"
-                        @click="logout"
-                        :disabled="logoutForm.processing"
-                    >
-                        <LogOut :size="16" />
-                        <span>
-                            {{ logoutForm.processing ? 'Keluar...' : 'Logout' }}
-                        </span>
-                    </button>
-
-                </template>
-
-                <template v-else>
-
-                    <div class="profile-info">
-                        <strong>
-                            Belum Login
-                        </strong>
-
-                        <span>
-                            Login untuk memesan parfum.
-                        </span>
-                    </div>
-
-                    <div class="profile-divider"></div>
-
-                    <Link
-                        href="/login"
-                        class="profile-login"
-                    >
-                        Login
-                    </Link>
-
-                </template>
-
-            </div>
-
-        </div>
+</div>
 
     </div>
 

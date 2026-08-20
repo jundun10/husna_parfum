@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\ParfumController;
 use App\Models\Parfum;
 use App\Http\Controllers\Pelanggan\KeranjangController;
 use App\Http\Controllers\Pelanggan\AlamatController;
-
+use App\Http\Controllers\Admin\PesananController;
 
 Route::get('/', function () {
     return Inertia::render('Home');
@@ -54,6 +54,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/admin/stok/{parfum}', [ParfumController::class, 'destroy'])
     ->name('admin.stok.destroy');
 
+    Route::get('/admin/pesanan', [PesananController::class, 'index'])
+    ->name('admin.pesanan');
+
+    Route::put('/admin/pesanan/{pesanan}/status', [PesananController::class, 'updateStatus'])
+    ->name('admin.pesanan.status');
 });
 Route::get('/Pelanggan', function () {
 
@@ -72,18 +77,28 @@ Route::get('/Pelanggan', function () {
     ]);
 
 })->name('pelanggan');
+Route::get('/Pelanggan/Profil', function () {
+
+    $pesanans = request()->user()
+        ->pesanans()
+        ->with([
+            'items.parfum',
+            'alamat',
+        ])
+        ->latest()
+        ->get();
+
+    return Inertia::render('Pelanggan/Profil', [
+        'authUser' => request()->user(),
+        'pesanans' => $pesanans,
+    ]);
+
+})->name('pelanggan.profil');
 Route::get('/pelanggan/pesan/{parfum}', function (Parfum $parfum) {
 
     return redirect()->route('pelanggan');
 
 })->middleware('auth')->name('pelanggan.pesan');
-
-
-Route::get('/pelanggan/keranjang', function () {
-
-    return redirect()->route('pelanggan');
-
-})->middleware('auth')->name('pelanggan.keranjang');
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super-admin/dashboard', function () {
@@ -91,19 +106,46 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     })->name('superadmin.dashboard');
     
 });
-Route::middleware('auth')->group(function () {
-    Route::post('/pelanggan/keranjang/{parfum}', [KeranjangController::class, 'store'])
-        ->name('pelanggan.keranjang.store');
-});
+
 Route::middleware('auth')->group(function () {
 
-    Route::get('/pelanggan/keranjang', [KeranjangController::class, 'index'])
-        ->name('pelanggan.keranjang');
+    Route::get(
+        '/pelanggan/keranjang',
+        [KeranjangController::class, 'index']
+    )->name('pelanggan.keranjang');
 
-    Route::post('/pelanggan/keranjang/{parfum}', [KeranjangController::class, 'store'])
-        ->name('pelanggan.keranjang.store');
+
+    Route::post(
+        '/pelanggan/keranjang/checkout',
+        [KeranjangController::class, 'checkout']
+    )->name('pelanggan.keranjang.checkout');
+
+
+    Route::put(
+        '/pelanggan/keranjang/{item}',
+        [KeranjangController::class, 'updateJumlah']
+    )->name('pelanggan.keranjang.update');
+
+
+    Route::delete(
+        '/pelanggan/keranjang/{item}',
+        [KeranjangController::class, 'destroy']
+    )->name('pelanggan.keranjang.destroy');
+
+
+    Route::post(
+        '/pelanggan/keranjang/{parfum}',
+        [KeranjangController::class, 'store']
+    )->name('pelanggan.keranjang.store');
+
+
+    Route::get(
+        '/pelanggan/checkout/success/{pesanan}',
+        [KeranjangController::class, 'success']
+    )->name('pelanggan.checkout.success');
 
 });
+
 Route::middleware('auth')->group(function () {
 
     Route::get('/pelanggan/alamat', [AlamatController::class, 'create'])
@@ -112,6 +154,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/pelanggan/alamat', [AlamatController::class, 'store'])
         ->name('pelanggan.alamat.store');
 
+    Route::get('/api/wilayah/regencies/{provinceCode}', [AlamatController::class, 'regencies'])
+        ->name('wilayah.regencies');
+
+    Route::get('/api/wilayah/districts/{regencyCode}', [AlamatController::class, 'districts'])
+        ->name('wilayah.districts');
+
+    Route::get('/api/wilayah/villages/{districtCode}', [AlamatController::class, 'villages'])
+        ->name('wilayah.villages');
 });
 
 require __DIR__.'/auth.php';

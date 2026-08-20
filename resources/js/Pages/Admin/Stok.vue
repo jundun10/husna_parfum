@@ -1,11 +1,20 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import {
+    Menu,
+    X,
+} from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps({
     parfums: {
         type: Array,
         default: () => [],
+    },
+
+    authUser: {
+        type: Object,
+        default: null,
     },
 });
 const showSuccess = ref(false);
@@ -15,7 +24,13 @@ const showError = ref(false);
 const errorMessage = ref('');
 
 const showModal = ref(false);
+const sidebarOpen = ref(false);
+const logoUrl = '/images/logo.jpg';
+const logoutForm = useForm({});
 
+const logout = () => {
+    logoutForm.post('/logout');
+};
 const form = useForm({
     nama: '',
     harga: '',
@@ -282,41 +297,180 @@ const formatRupiah = (value) => {
 </script>
 
 <template>
+
     <Head title="Kelola Stok" />
 
-    <div class="stok-page">
+    <div class="admin-page">
 
-        <header class="page-header">
+        <!-- OVERLAY -->
+        <div
+            v-if="sidebarOpen"
+            class="overlay"
+            @click="sidebarOpen = false"
+        ></div>
 
-            <div class="header-left">
 
-                <Link
-                    href="/admin/dashboard"
-                    class="back-button"
+        <!-- SIDEBAR -->
+        <aside
+            class="sidebar"
+            :class="{ 'sidebar-open': sidebarOpen }"
+        >
+
+            <div class="sidebar-header">
+
+                <div class="brand">
+
+                    <img
+                        :src="logoUrl"
+                        alt="Lamore Perfumes"
+                    >
+
+                    <div>
+                        <h2>Lamore</h2>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="close-button"
+                    @click="sidebarOpen = false"
                 >
-                    ←
-                </Link>
+                    ×
+                </button>
 
-                <div>
-                    <h1>Kelola Stok</h1>
+            </div>
 
-                    <p>
-                        Kelola persediaan parfum Lamore Perfumes.
-                    </p>
+
+            <div class="admin-info">
+
+                <div class="admin-avatar">
+                    {{ props.authUser?.name?.charAt(0).toUpperCase() }}
+                </div>
+
+                <div class="admin-details">
+
+                    <strong>
+                        {{ props.authUser?.name }}
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                    <small>
+                        {{ props.authUser?.email }}
+                    </small>
+
                 </div>
 
             </div>
 
-            <button
-                type="button"
-                class="add-button"
-                @click="openModal"
-            >
-                <span>+</span>
-                Tambah Stok
-            </button>
 
-        </header>
+            <nav class="sidebar-menu">
+
+                <Link
+                    href="/admin/dashboard"
+                    class="menu-item"
+                >
+                    <span>Dashboard</span>
+                </Link>
+
+                <Link
+                    href="/admin/pesanan"
+                    class="menu-item"
+                >
+                    <span>Pesanan</span>
+                </Link>
+
+                <Link
+                    href="/admin/stok"
+                    class="menu-item"
+                >
+                    <span>Kelola Stok</span>
+                </Link>
+
+                <Link
+                    href="/admin/laporan"
+                    class="menu-item"
+                >
+                    <span>Laporan</span>
+                </Link>
+
+                <Link
+                    href="/admin/pengaturan"
+                    class="menu-item"
+                >
+                    <span>Pengaturan</span>
+                </Link>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <button
+                    type="button"
+                    class="logout-button"
+                    @click="logout"
+                    :disabled="logoutForm.processing"
+                >
+                    <span>
+                        {{
+                            logoutForm.processing
+                                ? 'Keluar...'
+                                : 'Logout'
+                        }}
+                    </span>
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN -->
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+
+                <div class="topbar-left">
+
+                    <button
+                        type="button"
+                        class="toggle-button"
+                        @click="sidebarOpen = true"
+                        aria-label="Buka sidebar"
+                    >
+                        ☰
+                    </button>
+
+                    <div>
+
+                        <h1>
+                            Kelola Stok
+                        </h1>
+
+                        <p>
+                            Kelola persediaan parfum Lamore Perfumes.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="add-button"
+                    @click="openModal"
+                >
+                    <span>+</span>
+                    Tambah Stok
+                </button>
+
+            </header>
 
         <section
             v-if="parfums.length === 0"
@@ -912,7 +1066,6 @@ const formatRupiah = (value) => {
 
 </div>
 
-    </div>
 <Transition name="success">
 
     <div
@@ -1008,6 +1161,8 @@ const formatRupiah = (value) => {
     </div>
 
 </Transition>
+        </main>
+    </div>
 </template>
 
 <style scoped>
@@ -1015,73 +1170,336 @@ const formatRupiah = (value) => {
     box-sizing: border-box;
 }
 
-.stok-page {
-    min-height: 100vh;
-    padding: 35px;
-    background: #edf3f2;
-    color: #526363;
+.sidebar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 275px;
+    height: 100vh;
+
+    padding: 25px 18px;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #ffffff;
+
+    border-right: 1px solid #e2eeee;
+
+    transform: translateX(-100%);
+
+    transition: transform .3s ease;
+
+    z-index: 1000;
+
+    box-shadow: 8px 0 30px rgba(100, 130, 130, .08);
+
+    overflow-y: auto;
 }
 
+.sidebar.sidebar-open {
+    transform: translateX(0);
+}
 
-.page-header {
+.sidebar-header {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 30px;
+    margin-bottom: 38px;
 }
 
-.header-left {
+.brand {
     display: flex;
+
     align-items: center;
-    gap: 16px;
+
+    gap: 11px;
 }
 
-.back-button {
-    width: 42px;
-    height: 42px;
+.brand img {
+    width: 43px;
+    height: 43px;
+
+    object-fit: contain;
+
+    border-radius: 8px;
+
+    mix-blend-mode: multiply;
+}
+
+.brand h2 {
+    margin: 0;
+
+    font-family: Georgia, serif;
+
+    font-size: 18px;
+    font-weight: normal;
+
+    color: #6f9d9d;
+}
+
+.close-button {
+    width: 34px;
+    height: 34px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border: 1px solid #d5e3e1;
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #999;
+
+    cursor: pointer;
+}
+
+.close-button:hover {
+    background: #f3f9f9;
+}
+
+.admin-info {
+    display: flex;
+
+    align-items: center;
+
+    margin: 5px 0 28px;
+
+    padding: 0 8px;
+}
+
+.admin-avatar {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 13px;
+
+    border-radius: 50%;
+
+    background: #eaf7f7;
+
+    color: #6f9d9d;
+
+    font-family: Georgia, serif;
+
+    font-size: 21px;
+}
+
+.admin-details {
+    min-width: 0;
+}
+
+.admin-details strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #344747;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.admin-details span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #6f9d9d;
+
+    font-size: 11px;
+}
+
+.admin-details small {
+    display: block;
+
+    max-width: 190px;
+
+    overflow: hidden;
+
+    color: #9aa8a8;
+
+    font-size: 9px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.sidebar-menu {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+
+    padding: 13px 14px;
+
+    border-radius: 9px;
+
+    color: #777;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    transition: .2s ease;
+}
+
+.menu-item:hover {
+    background: #f2f9f9;
+
+    color: #6f9d9d;
+}
+
+.menu-item.active {
+    background: #eaf7f7;
+
+    color: #6f9d9d;
+
+    font-weight: 500;
+}
+
+.sidebar-footer {
+    margin-top: 25px;
+
+    padding-top: 15px;
+}
+
+.logout-button {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border: 1px solid #f0dddd;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #b77777;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.logout-button:hover {
+    background: #fff8f8;
+}
+
+.logout-button:disabled {
+    opacity: .6;
+
+    cursor: not-allowed;
+}
+
+.overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, .22);
+
+    z-index: 999;
+}
+.admin-page {
+    min-height: 100vh;
+
+    background: #edf3f2;
+
+    color: #526363;
+}
+
+.main-content {
+    min-height: 100vh;
+
+    padding: 30px 35px;
+}
+
+.topbar {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 35px;
+}
+
+.topbar-left {
+    display: flex;
+
+    align-items: center;
+
+    gap: 17px;
+}
+
+.toggle-button {
+    width: 45px;
+    height: 45px;
+
+    border: 1px solid #dceeee;
+
     border-radius: 10px;
 
     background: #ffffff;
 
-    color: #5c8585;
+    color: #6f9d9d;
 
     font-size: 20px;
 
-    text-decoration: none;
+    cursor: pointer;
 
     transition: 0.2s;
+
+    box-shadow:
+        0 5px 18px
+        rgba(100, 130, 130, 0.04);
 }
 
-.back-button:hover {
-    background: #eaf3f2;
+.toggle-button:hover {
+    background: #effafa;
 }
 
-.page-header h1 {
+.topbar h1 {
     margin: 0 0 5px;
 
     font-family: Georgia, serif;
 
     font-size: 29px;
+
     font-weight: normal;
 
-    color: #344747;
+    color: #666;
 }
 
-.page-header p {
+.topbar p {
     margin: 0;
 
     font-size: 11px;
 
-    color: #879797;
+    color: #999;
 }
-
 
 .add-button,
 .empty-button {

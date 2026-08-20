@@ -56,4 +56,8 @@ public function alamat(): HasOne
 {
     return $this->hasOne(Alamat::class);
 }
+public function pesanans()
+{
+    return $this->hasMany(Pesanan::class);
+}
 }

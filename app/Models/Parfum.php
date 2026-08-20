@@ -13,4 +13,8 @@ class Parfum extends Model
         'kategori',
         'foto',
     ];
+    public function pesananItems()
+{
+    return $this->hasMany(PesananItem::class);
+}
 }

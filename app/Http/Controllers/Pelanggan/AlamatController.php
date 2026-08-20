@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Pelanggan;
-
 use App\Http\Controllers\Controller;
 use App\Models\Alamat;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,12 +12,57 @@ use Inertia\Response;
 class AlamatController extends Controller
 {
     public function create(Request $request): Response
-    {
-        return Inertia::render('Pelanggan/Alamat', [
-            'alamat' => $request->user()->alamat,
-            'authUser' => $request->user(),
-        ]);
-    }
+{
+    $response = Http::get('https://wilayah.id/api/provinces.json');
+
+    $provinces = $response->successful()
+        ? $response->json('data', [])
+        : [];
+
+    return Inertia::render('Pelanggan/Alamat', [
+        'alamat' => $request->user()->alamat,
+        'authUser' => $request->user(),
+        'provinces' => $provinces,
+    ]);
+}
+    public function regencies(string $provinceCode)
+{
+    $response = Http::get(
+        "https://wilayah.id/api/regencies/{$provinceCode}.json"
+    );
+
+    return response()->json(
+        $response->successful()
+            ? $response->json('data', [])
+            : []
+    );
+}
+
+    public function districts(string $regencyCode)
+{
+    $response = Http::get(
+        "https://wilayah.id/api/districts/{$regencyCode}.json"
+    );
+
+    return response()->json(
+        $response->successful()
+            ? $response->json('data', [])
+            : []
+    );
+}
+
+    public function villages(string $districtCode)
+{
+    $response = Http::get(
+        "https://wilayah.id/api/villages/{$districtCode}.json"
+    );
+
+    return response()->json(
+        $response->successful()
+            ? $response->json('data', [])
+            : []
+    );
+}
 
     public function store(Request $request): RedirectResponse
     {

@@ -12,13 +12,14 @@ use Inertia\Response;
 class ParfumController extends Controller
 {
     public function index(): Response
-    {
-        $parfums = Parfum::latest()->get();
+{
+    $parfums = Parfum::latest()->get();
 
-        return Inertia::render('Admin/Stok', [
-            'parfums' => $parfums,
-        ]);
-    }
+    return Inertia::render('Admin/Stok', [
+        'parfums' => $parfums,
+        'authUser' => request()->user(),
+    ]);
+}
 
     public function store(Request $request): RedirectResponse
     {
