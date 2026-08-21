@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { CircleCheckBig, ArrowLeft } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -16,6 +17,21 @@ const formatRupiah = (value) => {
         maximumFractionDigits: 0,
     }).format(value);
 };
+const isCod = computed(() => {
+    return props.pesanan.metode_pembayaran === 'cod';
+});
+
+const metodePembayaranLabel = computed(() => {
+    if (props.pesanan.metode_pembayaran === 'cod') {
+        return 'COD';
+    }
+
+    if (props.pesanan.metode_pembayaran === 'transfer') {
+        return 'Transfer Bank';
+    }
+
+    return props.pesanan.metode_pembayaran;
+});
 </script>
 
 <template>
@@ -48,16 +64,42 @@ const formatRupiah = (value) => {
                 </div>
 
 
-                <h1>
-                    Terima kasih atas pesanan Anda!
+                <h1 v-if="isCod">
+                    Pesanan Berhasil
+                </h1>
+
+                <h1 v-else>
+                    Pembayaran Berhasil
                 </h1>
 
 
-                <p class="success-message">
+                <p
+                    v-if="isCod"
+                    class="success-message"
+                >
                     Pesanan Anda berhasil dibuat.
-                    Kami akan memproses pesanan Anda
-                    sesegera mungkin.
+                    Pembayaran dilakukan saat pesanan diterima.
+                    Kami akan memproses pesanan anda.
                 </p>
+
+                <p
+                    v-else
+                    class="success-message"
+                                >
+                    Pembayaran Anda berhasil.
+                    Pesanan akan segera di proses.
+                </p>
+                <div class="order-summary">
+
+                    <span>
+                        Metode Pembayaran
+                    </span>
+
+                    <strong>
+                        {{ metodePembayaranLabel }}
+                    </strong>
+
+                </div>
 
                 <div class="order-total">
 
@@ -248,7 +290,7 @@ const formatRupiah = (value) => {
 
 
 .order-total strong {
-    color: #c83d63;
+    color: #4f817d;
 
     font-size: 17px;
 }

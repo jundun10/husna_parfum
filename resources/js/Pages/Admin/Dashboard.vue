@@ -10,9 +10,15 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+
+    totalPesanan: {
+        type: Number,
+        default: 0,
+    },
+
     parfumsTerendah: {
-    type: Array,
-    default: () => [],
+        type: Array,
+        default: () => [],
     },
 });
 
@@ -193,7 +199,7 @@ const logout = () => {
 
             </div>
 
-            <h2>0</h2>
+            <h2>{{ props.totalPesanan }}</h2>
 
             <p>
                 Total pesanan

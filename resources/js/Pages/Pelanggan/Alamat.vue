@@ -198,7 +198,7 @@ const submit = () => {
         href="/pelanggan/keranjang"
         class="back-link"
     >
-        ← Kembali
+        ←
     </Link>
 
     <div class="address-title">
@@ -289,7 +289,7 @@ const submit = () => {
                         <input
                             v-model="form.no_hp"
                             type="text"
-                            placeholder="08xxxxxxxxxx"
+                            placeholder="08"
                         >
 
                         <span
@@ -340,7 +340,7 @@ const submit = () => {
                         <option value="">
                             {{
                                 loadingRegencies
-                                    ? 'Memuat kabupaten / kota...'
+                                    ? 'Memuat...'
                                     : 'Pilih Kabupaten / Kota'
                             }}
                         </option>
@@ -375,7 +375,7 @@ const submit = () => {
                         <option value="">
                             {{
                                 loadingDistricts
-                                    ? 'Memuat kecamatan...'
+                                    ? 'Memuat...'
                                     : 'Pilih Kecamatan'
                             }}
                         </option>
@@ -410,7 +410,7 @@ const submit = () => {
                         <option value="">
                             {{
                                 loadingVillages
-                                    ? 'Memuat desa / kelurahan...'
+                                    ? 'Memuat...'
                                     : 'Pilih Desa / Kelurahan'
                             }}
                         </option>

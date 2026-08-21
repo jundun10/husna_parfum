@@ -122,7 +122,13 @@ const totalHarga = computed(() => {
             );
         }, 0);
 });
+const ongkir = computed(() => {
+    return selectedIds.value.length > 0 ? 25000 : 0;
+});
 
+const totalBayar = computed(() => {
+    return totalHarga.value + ongkir.value;
+});
 
 
 const jumlahDipilih = computed(() => {
@@ -176,7 +182,6 @@ const checkout = () => {
             </div>
 
         </header>
-
 
         <main class="cart-container">
             <section class="address-section">
@@ -239,7 +244,7 @@ const checkout = () => {
         </Link>
     </div>
 
-</section>
+        </section>
 
             <div
                 v-if="props.items.length === 0"
@@ -421,95 +426,156 @@ const checkout = () => {
         </main>
 
         <div
-            v-if="props.items.length"
-            class="checkout-bar"
+    v-if="props.items.length"
+    class="checkout-panel"
+>
+
+    <section class="payment-card">
+
+        <div class="payment-card-header">
+
+            <h2>
+                Metode Pembayaran
+            </h2>
+
+            <Link
+                href="/pelanggan/pembayaran"
+                class="see-all-payment"
+            >
+                Lihat Semua
+                <span>›</span>
+            </Link>
+
+        </div>
+
+        <label
+            class="payment-item"
+            :class="{
+                selected: metodePembayaran === 'cod'
+            }"
         >
 
-            <div class="checkout-inner">
+            <input
+                type="radio"
+                value="cod"
+                v-model="metodePembayaran"
+            >
 
-                <button
-                    type="button"
-                    class="bottom-select"
-                    @click="toggleSemua"
-                >
-                    <span
-                        class="checkbox"
-                        :class="{ checked: semuaDipilih }"
-                    >
-                        <span v-if="semuaDipilih">✓</span>
-                    </span>
+            <div class="payment-item-content">
 
-                    <span>
-                        Semua
-                    </span>
-                </button>
-                
-                <div class="payment-method">
+                <strong>
+                    COD
+                </strong>
 
-                    <span class="payment-label">
-                        Metode Pembayaran
-                    </span>
-
-                    <label class="payment-option">
-                        <input
-                            type="radio"
-                            value="cod"
-                            v-model="metodePembayaran"
-                        >
-
-                        <span>
-                            COD
-                        </span>
-                    </label>
-
-                    <label class="payment-option">
-                        <input
-                            type="radio"
-                            value="transfer"
-                            v-model="metodePembayaran"
-                        >
-
-                        <span>
-                            Transfer
-                        </span>
-                    </label>
-
-                </div>
-
-                <div class="checkout-summary">
-
-                    <span>
-                        {{ jumlahDipilih }} produk
-                    </span>
-
-                    <strong>
-                        {{ formatRupiah(totalHarga) }}
-                    </strong>
-                    <span
-                        v-if="!props.alamat"
-                        class="checkout-warning"
-                    >
-                        Tambahkan alamat terlebih dahulu
-                    </span>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="checkout-button"
-                    :disabled="
-                        selectedIds.length === 0 ||
-                        !props.alamat
-                    "
-                    @click="checkout"
-                >
-                    Checkout
-            </button>
+                <span>
+                    Bayar saat pesanan diterima
+                </span>
 
             </div>
 
+        </label>
+
+        <label
+            class="payment-item"
+            :class="{
+                selected: metodePembayaran === 'transfer'
+            }"
+        >
+
+            <input
+                type="radio"
+                value="transfer"
+                v-model="metodePembayaran"
+            >
+
+            <div class="payment-item-content">
+
+                <strong>
+                    Transfer Bank
+                </strong>
+
+                <span>
+                    Bayar melalui transfer bank
+                </span>
+
+            </div>
+
+        </label>
+
+    </section>
+
+
+    <section class="payment-summary-card">
+
+        <h2>
+            Rincian Pembayaran
+        </h2>
+
+        <div class="summary-row">
+
+            <span>
+                Harga Produk
+            </span>
+
+            <strong>
+                {{ formatRupiah(totalHarga) }}
+            </strong>
+
         </div>
+
+
+        <div class="summary-row">
+
+            <span>
+                Ongkos Kirim
+            </span>
+
+            <strong>
+                {{ formatRupiah(ongkir) }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-line"></div>
+
+
+        <div class="summary-total">
+
+            <span>
+                Total Pembayaran
+            </span>
+
+            <strong>
+                {{ formatRupiah(totalBayar) }}
+            </strong>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="checkout-button"
+            :disabled="
+                selectedIds.length === 0 ||
+                !props.alamat
+            "
+            @click="checkout"
+        >
+
+            <span>
+                {{ formatRupiah(totalBayar) }}
+            </span>
+
+            <span>
+                Checkout
+            </span>
+
+        </button>
+
+    </section>
+
+</div>
 
     </div>
 </template>
@@ -523,7 +589,7 @@ const checkout = () => {
 .cart-page {
     min-height: 100vh;
 
-    padding-bottom: 95px;
+    padding-bottom: 30px;
 
     background: #f5f8f7;
 
@@ -1123,86 +1189,246 @@ const checkout = () => {
     font-size: 10px;
 }
 
-.checkout-bar {
-    position: fixed;
+.checkout-panel {
+    width: min(1000px, calc(100% - 40px));
 
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    z-index: 30;
-
-    padding: 13px 6%;
-
-    background: rgba(255, 255, 255, .96);
-
-    border-top: 1px solid #dce7e5;
-
-    box-shadow: 0 -8px 25px rgba(70, 95, 90, .08);
-
-    backdrop-filter: blur(10px);
-}
-
-.checkout-inner {
-    width: min(1000px, 100%);
-
-    margin: 0 auto;
+    margin: 20px auto 40px;
 
     display: grid;
 
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1.35fr 1fr;
+
+    gap: 15px;
+
+    align-items: start;
+}
+
+.payment-card {
+    background: #ffffff;
+
+    border: 1px solid #e1ebe8;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+}
+
+.payment-card-header {
+    display: flex;
 
     align-items: center;
 
-    gap: 20px;
+    justify-content: space-between;
+
+    padding: 18px 20px;
+
+    border-bottom: 1px solid #edf2f0;
 }
 
-.checkout-summary {
-    display: flex;
+.payment-card-header h2 {
+    margin: 0;
 
-    align-items: flex-end;
-
-    flex-direction: column;
-
-    gap: 3px;
-}
-
-.checkout-summary span {
-    color: #99a8a6;
-
-    font-size: 9px;
-}
-
-.checkout-summary strong {
     color: #304c4b;
 
-    font-size: 16px;
-}
-.checkout-warning {
-    color: #b77b7b;
-    font-size: 9px;
+    font-size: 14px;
+
+    font-weight: 600;
 }
 
-.checkout-button {
-    min-width: 145px;
+.see-all-payment {
+    display: flex;
 
-    height: 44px;
+    align-items: center;
 
-    padding: 0 25px;
+    gap: 4px;
 
-    border: none;
+    color: #5d8986;
 
-    border-radius: 11px;
+    font-size: 10px;
 
-    background: #5d8986;
+    text-decoration: none;
+}
 
-    color: white;
+.see-all-payment span {
+    font-size: 17px;
 
-    font-size: 11px;
+    line-height: 1;
+}
+
+.payment-item {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #edf2f0;
+
+    background: #ffffff;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: .2s ease;
+}
+
+.payment-item:last-child {
+    border-bottom: none;
+}
+
+.payment-item.selected {
+    background: #f7fbfa;
+}
+
+.payment-item input {
+    width: 18px;
+    height: 18px;
+
+    margin: 0;
+
+    flex-shrink: 0;
+
+    accent-color: #5d8986;
+}
+
+.payment-item-content {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.payment-item-content strong {
+    color: #405d5a;
+
+    font-size: 12px;
+}
+
+.payment-item-content span {
+    color: #97a6a4;
+
+    font-size: 9px;
+}
+
+.payment-check {
+    margin-left: auto;
+
+    color: #5d8986;
+
+    font-size: 15px;
+
+    font-weight: 600;
+}
+.payment-summary-card {
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e1ebe8;
+
+    border-radius: 14px;
+}
+
+.payment-summary-card h2 {
+    margin: 0 0 18px;
+
+    color: #304c4b;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.summary-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+}
+
+.summary-row span {
+    color: #899997;
+
+    font-size: 10px;
+}
+
+.summary-row strong {
+    color: #526b69;
+
+    font-size: 11px;
+}
+
+.summary-line {
+    margin: 15px 0;
+
+    border-top: 1px solid #e6eeec;
+}
+
+.summary-total {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.summary-total span {
+    color: #304c4b;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+.summary-total strong {
+    color: #4f817d;
+
+    font-size: 16px;
+}
+
+.checkout-button {
+    width: 100%;
+
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #5d8986;
+
+    color: #ffffff;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.checkout-button span:first-child {
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+.checkout-button span:last-child {
+    font-size: 10px;
 }
 
 .checkout-button:hover:not(:disabled) {
@@ -1214,38 +1440,6 @@ const checkout = () => {
 
     cursor: not-allowed;
 }
-.payment-method {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.payment-label {
-    color: #526b69;
-    font-size: 9px;
-    white-space: nowrap;
-}
-
-.payment-option {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-
-    color: #66807e;
-    font-size: 9px;
-
-    cursor: pointer;
-}
-
-.payment-option input {
-    width: 13px;
-    height: 13px;
-
-    accent-color: #5d8986;
-
-    cursor: pointer;
-}
-
 
 @media (max-width: 700px) {
 
@@ -1311,24 +1505,30 @@ const checkout = () => {
         margin-left: auto;
     }
 
-    .checkout-bar {
-        padding: 10px 12px;
-    }
+    .checkout-panel {
+    width: calc(100% - 20px);
 
-    .checkout-inner {
-        grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr;
 
-        gap: 10px;
-    }
+    margin: 15px auto 25px;
 
-    .checkout-summary strong {
-        font-size: 14px;
-    }
+    gap: 12px;
+}
 
-    .checkout-button {
-        min-width: 115px;
+.payment-card-header {
+    padding: 16px;
+}
 
-        height: 42px;
-    }
+.payment-item {
+    padding: 14px 16px;
+}
+
+.payment-summary-card {
+    padding: 16px;
+}
+
+.summary-total strong {
+    font-size: 18px;
+}
 }
 </style>

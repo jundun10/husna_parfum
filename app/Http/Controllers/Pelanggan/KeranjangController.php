@@ -157,15 +157,15 @@ $alamat = $request->user()->alamat;
             }
 
             $pesanan = Pesanan::create([
-            'user_id' => $user->id,
-            'alamat_id' => $alamat->id,
-            'total_harga' => $totalHarga,
-            'status' => 'menunggu',
-            'metode_pembayaran' => $validated['metode_pembayaran'],
-            'status_pembayaran' => $validated['metode_pembayaran'] === 'transfer'
-                ? 'sudah_bayar'
-                : 'belum_bayar',
-             ]);
+                'user_id' => $user->id,
+                'alamat_id' => $alamat->id,
+                'total_harga' => $totalHarga,
+                'status' => 'menunggu',
+                'metode_pembayaran' => $validated['metode_pembayaran'],
+                'status_pembayaran' => $validated['metode_pembayaran'] === 'cod'
+                    ? 'belum_bayar'
+                    : 'sudah_bayar',
+            ]);
 
             foreach ($items as $item) {
 

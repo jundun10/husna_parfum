@@ -11,6 +11,7 @@ class Pesanan extends Model
     protected $fillable = [
         'user_id',
         'alamat_id',
+        'payment_method_id',
         'total_harga',
         'status',
         'metode_pembayaran',
@@ -21,6 +22,11 @@ class Pesanan extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function paymentMethod(): BelongsTo
+{
+    return $this->belongsTo(PaymentMethod::class);
+}
 
     public function alamat(): BelongsTo
     {

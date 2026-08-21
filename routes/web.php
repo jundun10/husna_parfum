@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Admin\ParfumController;
 use App\Models\Parfum;
+use App\Models\Pesanan;
 use App\Http\Controllers\Pelanggan\KeranjangController;
 use App\Http\Controllers\Pelanggan\AlamatController;
 use App\Http\Controllers\Admin\PesananController;
@@ -28,17 +29,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/dashboard', function () {
 
-        $parfumsTerendah = Parfum::orderBy('stok', 'asc')
-            ->take(5)
-            ->get(['id', 'nama', 'stok']);
+    $parfumsTerendah = Parfum::orderBy('stok', 'asc')
+        ->take(5)
+        ->get(['id', 'nama', 'stok']);
 
-        $totalStok = Parfum::sum('stok');
+    $totalStok = Parfum::sum('stok');
 
-        return Inertia::render('Admin/Dashboard', [
-            'authUser' => request()->user(),
-            'totalStok' => $totalStok,
-            'parfumsTerendah' => $parfumsTerendah,
-        ]);
+    $totalPesanan = Pesanan::count();
+
+    return Inertia::render('Admin/Dashboard', [
+        'authUser' => request()->user(),
+        'totalStok' => $totalStok,
+        'parfumsTerendah' => $parfumsTerendah,
+        'totalPesanan' => $totalPesanan,
+    ]);
 
     })->name('admin.dashboard');
 

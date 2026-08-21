@@ -8,7 +8,8 @@ import {
     Package,
     MapPin,
     User,
-    Mail
+    Mail,
+    CreditCard
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -429,7 +430,6 @@ const updateStatus = (pesanan) => {
                         </div>
 
 
-                        <!-- DETAIL -->
                         <div
                             v-if="isOpen(pesanan.id)"
                             class="order-detail"
@@ -437,7 +437,6 @@ const updateStatus = (pesanan) => {
 
                             <div class="detail-grid">
 
-                                <!-- ALAMAT -->
                                 <div class="detail-box">
 
                                     <div class="detail-title">
@@ -498,9 +497,38 @@ const updateStatus = (pesanan) => {
                                 </div>
 
                             </div>
+                            <div class="detail-box">
 
+                                <div class="detail-title">
+                                    <CreditCard :size="16" />
 
-                            <div class="products-title">
+                                    <span>
+                                        Pembayaran
+                                    </span>
+                                </div>
+
+                                <strong>
+                                    {{
+                                        pesanan.metode_pembayaran === 'cod'
+                                            ? 'COD'
+                                            : pesanan.metode_pembayaran === 'transfer'
+                                                ? 'Transfer Bank'
+                                                : pesanan.metode_pembayaran
+                                    }}
+                                </strong>
+
+                                <span>
+                                    Status:
+                                    {{
+                                        pesanan.status_pembayaran === 'sudah_bayar'
+                                            ? 'Sudah Dibayar'
+                                            : 'Belum Dibayar'
+                                    }}
+                                </span>
+
+                            </div>
+
+                            <div class="detail-title products-title">
                                 <Package :size="17" />
 
                                 <span>
@@ -1257,11 +1285,8 @@ const updateStatus = (pesanan) => {
 
 .detail-grid {
     display: grid;
-
-    grid-template-columns: repeat(2, 1fr);
-
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
-
     margin-bottom: 20px;
 }
 
@@ -1320,18 +1345,11 @@ const updateStatus = (pesanan) => {
 }
 
 .products-title {
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
+    margin-top: 18px;
     margin-bottom: 10px;
-
-    color: #6f9d9d;
-
-    font-size: 10px;
 }
+
+
 
 .product-list {
     display: flex;
@@ -1339,6 +1357,8 @@ const updateStatus = (pesanan) => {
     flex-direction: column;
 
     gap: 8px;
+
+    margin-top: 0;
 }
 
 .product-row {
