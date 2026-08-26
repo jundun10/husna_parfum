@@ -34,6 +34,7 @@ const logout = () => {
 const form = useForm({
     nama: '',
     harga: '',
+    harga_per_ml: '',
     stok: '',
     kategori: '',
     foto: null,
@@ -47,6 +48,7 @@ const editParfum = ref(null);
 const editForm = useForm({
     nama: '',
     harga: '',
+    harga_per_ml: '',
     stok: '',
     kategori: '',
     foto: null,
@@ -54,6 +56,7 @@ const editForm = useForm({
 
 const editHargaDisplay = ref('');
 const editFotoNama = ref('');
+const editFotoPreview = ref(null);
 const showConfirm = ref(false);
 const confirmType = ref(null);
 const selectedParfum = ref(null);
@@ -112,10 +115,14 @@ const openEditModal = (parfum) => {
 
     editForm.nama = parfum.nama;
     editForm.harga = String(parfum.harga);
+    editForm.harga_per_ml = String(parfum.harga_per_ml ?? '');
     editForm.stok = parfum.stok;
     editForm.kategori = parfum.kategori;
     editForm.foto = null;
     editFotoNama.value = '';
+    editFotoPreview.value = parfum.foto
+    ? `/storage/${parfum.foto}`
+    : null;
     editHargaDisplay.value =
         Number(parfum.harga).toLocaleString('id-ID');
 
@@ -138,6 +145,7 @@ const closeEditModal = () => {
 
     editHargaDisplay.value = '';
     editFotoNama.value = '';
+    editFotoPreview.value = null;
     editParfum.value = null;
     selectedParfum.value = null;
 };
@@ -511,6 +519,7 @@ const formatRupiah = (value) => {
                 <tr>
                     <th>Nama Parfum</th>
                     <th>Harga</th>
+                    <th>Harga / ml</th>
                     <th>Stok</th>
                     <th>Aksi</th>
                 </tr>
@@ -532,6 +541,11 @@ const formatRupiah = (value) => {
                     <td>
                         <span class="table-price">
                             {{ formatRupiah(parfum.harga) }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="table-price">
+                            {{ formatRupiah(parfum.harga_per_ml) }} / ml
                         </span>
                     </td>
 
@@ -712,7 +726,40 @@ const formatRupiah = (value) => {
                         </span>
 
                     </div>
+                    <div class="form-group">
 
+                        <label for="harga_per_ml">
+                            Harga per ml
+                        </label>
+
+                        <div class="price-input">
+
+                            <span>
+                                Rp
+                            </span>
+
+                            <input
+                                id="harga_per_ml"
+                                v-model="form.harga_per_ml"
+                                type="number"
+                                min="0"
+                                placeholder="Contoh: 2000"
+                            >
+
+                        </div>
+
+                        <span
+                            v-if="form.errors.harga_per_ml"
+                            class="error"
+                        >
+                            {{ form.errors.harga_per_ml }}
+                        </span>
+
+                        <small>
+                            Harga yang digunakan untuk perhitungan berdasarkan ukuran ml.
+                        </small>
+
+                    </div>
                     <div class="form-group">
 
                         <label for="stok">
@@ -939,6 +986,40 @@ const formatRupiah = (value) => {
             </div>
             <div class="form-group">
 
+                <label for="edit-harga-per-ml">
+                    Harga per ml
+                </label>
+
+                <div class="price-input">
+
+                    <span>
+                        Rp
+                    </span>
+
+                    <input
+                        id="edit-harga-per-ml"
+                        v-model="editForm.harga_per_ml"
+                        type="number"
+                        min="0"
+                        placeholder="Contoh: 2000"
+                    >
+
+                </div>
+
+                <span
+                    v-if="editForm.errors.harga_per_ml"
+                    class="error"
+                >
+                    {{ editForm.errors.harga_per_ml }}
+                </span>
+
+                <small>
+                    Harga yang digunakan berdasarkan ukuran ml.
+                </small>
+
+            </div>
+            <div class="form-group">
+
                 <label for="edit-stok">
                     Jumlah Stok
                 </label>
@@ -964,6 +1045,15 @@ const formatRupiah = (value) => {
                 <label for="edit-foto">
                     Foto Parfum
                 </label>
+                <div
+                    v-if="editFotoPreview"
+                    class="edit-photo-preview"
+                >
+                    <img
+                        :src="editFotoPreview"
+                        alt="Preview foto parfum"
+                    >
+                </div>
 
                 <label class="upload-box">
 
@@ -975,9 +1065,14 @@ const formatRupiah = (value) => {
                         id="edit-foto"
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
-                        @change="editForm.foto = $event.target.files[0]
+                        @change="
+                        editForm.foto = $event.target.files[0];
                         editFotoNama = $event.target.files[0]?.name || '';
-                        "
+
+                        if ($event.target.files[0]) {
+                            editFotoPreview = URL.createObjectURL(
+                                $event.target.files[0]
+                            );}"
                     >
 
                 </label>
@@ -1169,7 +1264,28 @@ const formatRupiah = (value) => {
 * {
     box-sizing: border-box;
 }
+.edit-photo-preview {
+    width: 100%;
+    height: 150px;
 
+    margin-bottom: 10px;
+
+    overflow: hidden;
+
+    border: 1px solid #dce7e5;
+    border-radius: 10px;
+
+    background: #f5f8f7;
+}
+
+.edit-photo-preview img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: contain;
+}
 .sidebar {
     position: fixed;
 

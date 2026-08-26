@@ -24,15 +24,16 @@ class ParfumController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'harga' => ['required', 'numeric', 'min:0'],
-            'stok' => ['required', 'integer', 'min:0'],
-            'kategori' => [
+        'nama' => ['required', 'string', 'max:255'],
+        'harga' => ['required', 'numeric', 'min:0'],
+        'harga_per_ml' => ['required', 'numeric', 'min:0'],
+        'stok' => ['required', 'integer', 'min:0'],
+        'kategori' => [
             'required',
             'in:Pria,Wanita,Unisex,Parfum Lain',
         ],
-            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+    ]);
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('parfum', 'public');
@@ -44,26 +45,41 @@ class ParfumController extends Controller
     }
 
     public function update(Request $request, Parfum $parfum): RedirectResponse
-    {
-        $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'harga' => ['required', 'numeric', 'min:0'],
-            'stok' => ['required', 'integer', 'min:0'],
-            'kategori' => [
+{
+    $validated = $request->validate([
+        'nama' => ['required', 'string', 'max:255'],
+        'harga' => ['required', 'numeric', 'min:0'],
+        'harga_per_ml' => ['required', 'numeric', 'min:0'],
+        'stok' => ['required', 'integer', 'min:0'],
+        'kategori' => [
             'required',
             'in:Pria,Wanita,Unisex,Parfum Lain',
         ],
-            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        'foto' => [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048',
+        ],
+    ]);
 
-        if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('parfum', 'public');
-        }
+    $validated['harga_per_ml'] = (int) round(
+        (float) $validated['harga_per_ml']
+    );
 
-        $parfum->update($validated);
-
-        return back()->with('success', 'Stok parfum berhasil diperbarui.');
+    if ($request->hasFile('foto')) {
+        $validated['foto'] = $request
+            ->file('foto')
+            ->store('parfum', 'public');
     }
+
+    $parfum->update($validated);
+
+    return back()->with(
+        'success',
+        'Stok parfum berhasil diperbarui.'
+    );
+}
 
     public function destroy(Parfum $parfum): RedirectResponse
     {

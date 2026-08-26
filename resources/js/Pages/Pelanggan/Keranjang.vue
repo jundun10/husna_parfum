@@ -110,15 +110,25 @@ const hapusItem = (item) => {
         }
     );
 };
+const hitungSubtotalItem = (item) => {
+    const hargaPerMl = Number(item.parfum?.harga_per_ml ?? 0);
+    const ukuranMl = Number(item.ukuran_ml ?? 0);
+    const jumlah = Number(
+        jumlahMap.value[item.id] ?? item.jumlah ?? 0
+    );
 
+    return hargaPerMl * ukuranMl * jumlah;
+};
 const totalHarga = computed(() => {
     return props.items
         .filter(item => selectedIds.value.includes(item.id))
         .reduce((total, item) => {
             const jumlah = jumlahMap.value[item.id] ?? item.jumlah;
+            const hargaPerMl = Number(item.parfum?.harga_per_ml || 0);
+            const ukuranMl = Number(item.ukuran_ml || 0);
 
             return total + (
-                Number(item.parfum?.harga || 0) * jumlah
+                hargaPerMl * ukuranMl * jumlah
             );
         }, 0);
 });
@@ -352,16 +362,17 @@ const checkout = () => {
                             </h2>
 
                             <strong class="cart-price">
-                                {{
-                                    formatRupiah(
-                                        item.parfum?.harga || 0
-                                    )
-                                }}
+                                {{ formatRupiah(item.parfum?.harga_per_ml || 0) }}
+                                <small>/ ml</small>
                             </strong>
+
+                            <span class="size-info">
+                                Ukuran: {{ item.ukuran_ml }} ml
+                            </span>
 
                             <span class="stock-info">
                                 Stok tersedia:
-                                {{ item.parfum?.stok ?? 0 }}
+                                {{ item.parfum?.stok ?? 0 }} botol
                             </span>
 
                         </div>
@@ -397,13 +408,8 @@ const checkout = () => {
 
                             </div>
 
-                            <strong class="item-subtotal">
-                                {{
-                                    formatRupiah(
-                                        (item.parfum?.harga || 0) *
-                                        jumlahMap[item.id]
-                                    )
-                                }}
+                           <strong class="item-subtotal">
+                                {{ formatRupiah(hitungSubtotalItem(item)) }}
                             </strong>
 
                             <button
@@ -585,7 +591,20 @@ const checkout = () => {
 * {
     box-sizing: border-box;
 }
+.size-info {
+    display: block;
+    margin-bottom: 4px;
 
+    color: #5d8986;
+    font-size: 9px;
+}
+
+.stock-info {
+    display: block;
+
+    color: #9aa8a6;
+    font-size: 9px;
+}
 .cart-page {
     min-height: 100vh;
 

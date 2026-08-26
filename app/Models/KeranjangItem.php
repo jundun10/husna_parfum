@@ -10,6 +10,7 @@ class KeranjangItem extends Model
     protected $fillable = [
         'user_id',
         'parfum_id',
+        'ukuran_ml',
         'jumlah',
     ];
 

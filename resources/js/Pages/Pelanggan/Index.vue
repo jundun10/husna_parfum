@@ -75,7 +75,83 @@ const lanjutLoginPesan = () => {
 
 
 const showLoginModal = ref(false);
+const showUkuranModal = ref(false);
+const parfumUkuranDipilih = ref(null);
 
+const ukuranTersedia = [
+    1,
+    5,
+    10,
+    15,
+    20,
+    25,
+    50,
+];
+
+const ukuranMlDipilih = ref(10);
+const jumlahBotolDipilih = ref(1);
+const hargaUkuranDipilih = computed(() => {
+    const hargaPerMl = Number(
+        parfumUkuranDipilih.value?.harga_per_ml || 0
+    );
+
+    const ukuran = Number(ukuranMlDipilih.value || 0);
+
+    return hargaPerMl * ukuran;
+});
+const bukaUkuranModal = (parfum) => {
+    if (!props.authUser) {
+        showLoginModal.value = true;
+        return;
+    }
+
+    parfumUkuranDipilih.value = parfum;
+    ukuranMlDipilih.value = 10;
+    jumlahBotolDipilih.value = 1;
+    showUkuranModal.value = true;
+};
+
+const tutupUkuranModal = () => {
+    showUkuranModal.value = false;
+    parfumUkuranDipilih.value = null;
+};
+
+const tambahBotol = () => {
+    if (
+        parfumUkuranDipilih.value &&
+        jumlahBotolDipilih.value <
+            parfumUkuranDipilih.value.stok
+    ) {
+        jumlahBotolDipilih.value++;
+    }
+};
+
+const kurangiBotol = () => {
+    if (jumlahBotolDipilih.value > 1) {
+        jumlahBotolDipilih.value--;
+    }
+};
+
+const konfirmasiKeranjang = () => {
+    if (!parfumUkuranDipilih.value) {
+        return;
+    }
+
+    router.post(
+        `/pelanggan/keranjang/${parfumUkuranDipilih.value.id}`,
+        {
+            ukuran_ml: ukuranMlDipilih.value,
+            jumlah: jumlahBotolDipilih.value,
+        },
+        {
+            preserveScroll: true,
+
+            onSuccess: () => {
+                tutupUkuranModal();
+            },
+        }
+    );
+};
 const bukaKeranjang = () => {
     if (!props.authUser) {
         showLoginModal.value = true;
@@ -97,18 +173,7 @@ const rekomendasi = computed(() => {
     return props.parfums.slice(0, 4);
 });
 const masukkanKeranjang = (parfum) => {
-    if (!props.authUser) {
-        showLoginModal.value = true;
-        return;
-    }
-
-    router.post(
-        `/pelanggan/keranjang/${parfum.id}`,
-        {},
-        {
-            preserveScroll: true,
-        }
-    );
+    bukaUkuranModal(parfum);
 };
 const populer = computed(() => {
     return [...props.parfums]
@@ -148,29 +213,29 @@ const populer = computed(() => {
 
        <div class="profile-wrapper">
 
-    <button
-        type="button"
-        class="profile-button"
-        @click="bukaProfil"
-        aria-label="Profil"
-    >
+            <button
+                type="button"
+                class="profile-button"
+                @click="bukaProfil"
+                aria-label="Profil"
+            >
 
-        <span
-            v-if="props.authUser"
-            class="profile-avatar"
-        >
-            {{ props.authUser.name?.charAt(0).toUpperCase() }}
-        </span>
+            <span
+                v-if="props.authUser"
+                class="profile-avatar"
+            >
+                {{ props.authUser.name?.charAt(0).toUpperCase() }}
+            </span>
 
-        <UserRound
-            v-else
-            :size="19"
-            :stroke-width="1.8"
-        />
+            <UserRound
+                v-else
+                :size="19"
+                :stroke-width="1.8"
+            />
 
-    </button>
+         </button>
 
-</div>
+        </div>
 
     </div>
 
@@ -419,7 +484,7 @@ const populer = computed(() => {
                 <button
                     type="button"
                     class="cart-small"
-                    @click="bukaKeranjang"
+                    @click="masukkanKeranjang(parfum)"
                 >
                     <ShoppingCart :size="17" />
                 </button>
@@ -526,7 +591,7 @@ const populer = computed(() => {
                 <button
                     type="button"
                     class="cart-small"
-                    @click="bukaKeranjang"
+                    @click="masukkanKeranjang(parfum)"
                 >
                     <ShoppingCart :size="17" />
                 </button>
@@ -629,6 +694,133 @@ const populer = computed(() => {
 
     </div>
 </div>
+<div
+    v-if="showUkuranModal"
+    class="size-modal-overlay"
+    @click.self="tutupUkuranModal"
+>
+    <div class="size-modal">
+
+        <button
+            type="button"
+            class="size-modal-close"
+            @click="tutupUkuranModal"
+        >
+            ×
+        </button>
+
+
+        <div class="size-modal-product">
+
+            <div class="size-modal-image">
+
+                <img
+                    v-if="parfumUkuranDipilih?.foto"
+                    :src="`/storage/${parfumUkuranDipilih.foto}`"
+                    :alt="parfumUkuranDipilih.nama"
+                >
+
+                <span v-else>
+                    FOTO
+                </span>
+
+            </div>
+
+
+            <div class="size-modal-info">
+
+                <span>
+                    LAMORE PERFUMES
+                </span>
+
+                <h3>
+                     {{ formatRupiah(hargaUkuranDipilih) }}
+                </h3>
+
+                <p>
+                    Stok:
+                    {{ parfumUkuranDipilih?.stok ?? 0 }}
+                    botol
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="size-section">
+
+            <h4>
+                Ukuran
+            </h4>
+
+            <div class="size-list">
+
+                <button
+                    v-for="ml in ukuranTersedia"
+                    :key="ml"
+                    type="button"
+                    class="size-button"
+                    :class="{
+                        active: ukuranMlDipilih === ml
+                    }"
+                    @click="ukuranMlDipilih = ml"
+                >
+                    {{ ml }} ml
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="quantity-section">
+
+            <h4>
+                Jumlah Botol
+            </h4>
+
+            <div class="modal-quantity">
+
+                <button
+                    type="button"
+                    @click="kurangiBotol"
+                    :disabled="jumlahBotolDipilih <= 1"
+                >
+                    −
+                </button>
+
+                <span>
+                    {{ jumlahBotolDipilih }}
+                </span>
+
+                <button
+                    type="button"
+                    @click="tambahBotol"
+                    :disabled="
+                        jumlahBotolDipilih >=
+                        (parfumUkuranDipilih?.stok ?? 0)
+                    "
+                >
+                    +
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="size-modal-submit"
+            @click="konfirmasiKeranjang"
+        >
+            Masukkan Keranjang
+        </button>
+
+    </div>
+</div>
+
 
 </template>
 
@@ -1127,11 +1319,6 @@ const populer = computed(() => {
     letter-spacing: 2px;
 }
 
-
-/* =====================================================
-   PRODUCT INFO
-===================================================== */
-
 .product-info {
     padding: 13px 3px 0;
 }
@@ -1186,11 +1373,6 @@ const populer = computed(() => {
     font-size: 10px;
 }
 
-
-/* =====================================================
-   ACTION
-===================================================== */
-
 .product-actions {
     display: flex;
 
@@ -1243,11 +1425,6 @@ const populer = computed(() => {
     cursor: not-allowed;
 }
 
-
-/* =====================================================
-   SPECIAL SECTIONS
-===================================================== */
-
 .special-section {
     max-width: 1300px;
 
@@ -1293,11 +1470,6 @@ const populer = computed(() => {
 
     cursor: pointer;
 }
-
-
-/* =====================================================
-   SMALL PRODUCTS
-===================================================== */
 
 .small-product-grid {
     display: grid;
@@ -1392,11 +1564,6 @@ const populer = computed(() => {
     color: #5d8986;
 }
 
-
-/* =====================================================
-   EMPTY
-===================================================== */
-
 .empty-product {
     padding: 60px;
 
@@ -1412,10 +1579,6 @@ const populer = computed(() => {
 
     font-size: 11px;
 }
-/* =====================================================
-   HORIZONTAL PRODUCT SECTIONS
-===================================================== */
-
 .special-section {
     max-width: 1300px;
 
@@ -1449,9 +1612,6 @@ const populer = computed(() => {
     color: #91a3a1;
 }
 
-
-/* PRODUK HORIZONTAL */
-
 .horizontal-products {
     display: flex;
 
@@ -1467,9 +1627,6 @@ const populer = computed(() => {
 
     scrollbar-color: #b9ceca transparent;
 }
-
-
-/* HILANGKAN SCROLLBAR BAWAAN WEBKIT */
 
 .horizontal-products::-webkit-scrollbar {
     height: 5px;
@@ -1609,6 +1766,304 @@ const populer = computed(() => {
     background: #6daa5c;
 }
 
+.size-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(31, 47, 43, .40);
+
+    backdrop-filter: blur(6px);
+}
+
+.size-modal {
+    position: relative;
+
+    width: min(560px, 100%);
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e3ece9;
+    border-radius: 18px;
+
+    box-shadow:
+        0 25px 70px rgba(40, 65, 60, .18);
+
+    animation: sizeModalIn .2s ease;
+}
+
+.size-modal-close {
+    position: absolute;
+
+    top: 13px;
+    right: 13px;
+
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #f4f8f7;
+
+    color: #718481;
+
+    font-size: 23px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.size-modal-close:hover {
+    background: #eaf3f1;
+    color: #405d5a;
+}
+
+.size-modal-product {
+    display: flex;
+    align-items: center;
+
+    gap: 17px;
+
+    margin-bottom: 24px;
+
+    padding-right: 35px;
+}
+
+.size-modal-image {
+    width: 92px;
+    height: 92px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 12px;
+
+    background: #f3f7f6;
+}
+
+.size-modal-image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+.size-modal-image span {
+    color: #9aa9a7;
+    font-size: 8px;
+}
+
+.size-modal-info span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 7px;
+    letter-spacing: 2px;
+
+    color: #8da3a1;
+}
+
+.size-modal-info h3 {
+    margin: 0 0 6px;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 22px;
+    font-weight: 600;
+
+    color: #4f817d;
+}
+
+.size-modal-info p {
+    margin: 0;
+
+    color: #91a3a1;
+
+    font-size: 10px;
+}
+
+.size-section {
+    margin-bottom: 22px;
+}
+
+.size-section h4,
+.quantity-section h4 {
+    margin: 0 0 10px;
+
+    color: #405d5a;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.size-list {
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+
+    gap: 7px;
+
+    max-height: 190px;
+
+    overflow-y: auto;
+
+    padding-right: 4px;
+}
+
+.size-button {
+    min-height: 38px;
+
+    border: 1px solid #dce7e5;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #6d8582;
+
+    font-size: 9px;
+
+    cursor: pointer;
+
+    transition: .15s ease;
+}
+
+.size-button:hover {
+    border-color: #a8c7c3;
+    background: #f5faf9;
+}
+
+.size-button.active {
+    border-color: #5d8986;
+
+    background: #5d8986;
+
+    color: #ffffff;
+
+    font-weight: 600;
+}
+
+.quantity-section {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+
+    padding: 15px 0;
+
+    border-top: 1px solid #edf2f1;
+    border-bottom: 1px solid #edf2f1;
+}
+
+.modal-quantity {
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    border: 1px solid #dce7e5;
+    border-radius: 9px;
+
+    background: #f8faf9;
+}
+
+.modal-quantity button {
+    width: 38px;
+    height: 36px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #668b89;
+
+    font-size: 18px;
+
+    cursor: pointer;
+}
+
+.modal-quantity button:hover:not(:disabled) {
+    background: #edf4f2;
+}
+
+.modal-quantity button:disabled {
+    color: #ccd8d6;
+
+    cursor: not-allowed;
+}
+
+.modal-quantity span {
+    width: 40px;
+
+    text-align: center;
+
+    color: #526b69;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.size-modal-submit {
+    width: 100%;
+    height: 48px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #5d8986;
+
+    color: #ffffff;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.size-modal-submit:hover {
+    background: #477c79;
+}
+
+@keyframes sizeModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 @keyframes modalIn {
     from {
         opacity: 0;
@@ -1676,6 +2131,24 @@ const populer = computed(() => {
 
     .special-section {
         padding: 18px;
+    }
+    .size-modal {
+    padding: 20px;
+    border-radius: 15px;
+    }
+
+    .size-modal-product {
+        gap: 12px;
+    }
+
+    .size-modal-image {
+        width: 78px;
+        height: 78px;
+    }
+
+    .size-list {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
     }
 
 }

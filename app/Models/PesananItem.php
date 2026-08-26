@@ -10,6 +10,7 @@ class PesananItem extends Model
     protected $fillable = [
         'pesanan_id',
         'parfum_id',
+        'ukuran_ml',
         'jumlah',
         'harga',
         'subtotal',

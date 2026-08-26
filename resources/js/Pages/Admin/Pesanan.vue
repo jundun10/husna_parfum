@@ -565,10 +565,12 @@ const updateStatus = (pesanan) => {
                                             {{ item.parfum?.nama }}
                                         </strong>
 
+                                        <span class="product-size">
+                                            {{ item.ukuran_ml }} ml
+                                        </span>
+
                                         <span>
-                                            {{
-                                                formatRupiah(item.harga)
-                                            }}
+                                            {{ formatRupiah(item.harga) }}
                                             ×
                                             {{ item.jumlah }}
                                         </span>
@@ -604,7 +606,12 @@ const updateStatus = (pesanan) => {
 * {
     box-sizing: border-box;
 }
-
+.product-size {
+    display: block;
+    margin-bottom: 3px;
+    color: #5d8986;
+    font-size: 9px;
+}
 .admin-page {
     min-height: 100vh;
 
@@ -612,9 +619,6 @@ const updateStatus = (pesanan) => {
 
     color: #526363;
 }
-
-
-/* SIDEBAR */
 
 .sidebar {
     position: fixed;
@@ -1431,7 +1435,13 @@ const updateStatus = (pesanan) => {
 
     font-size: 11px;
 }
+.product-size {
+    display: block;
+    margin-bottom: 3px;
 
+    color: #5d8986;
+    font-size: 9px;
+}
 .maps-button {
     margin-top: 12px;
 

@@ -70,6 +70,7 @@ Route::get('/Pelanggan', function () {
         'id',
         'nama',
         'harga',
+        'harga_per_ml',
         'stok',
         'kategori',
         'foto',
