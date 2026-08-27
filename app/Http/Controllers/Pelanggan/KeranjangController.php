@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use App\Models\Pesanan;
 use App\Models\PesananItem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class KeranjangController extends Controller
 {
@@ -135,16 +136,172 @@ $alamat = $request->user()->alamat;
         'Produk berhasil dihapus dari keranjang.'
     );
 }
-   public function checkout(Request $request): RedirectResponse
+public function prepareCheckout(Request $request): RedirectResponse
 {
     $validated = $request->validate([
         'item_ids' => ['required', 'array', 'min:1'],
+        'item_ids.*' => ['integer'],
+    ]);
+
+    $items = KeranjangItem::where('user_id', $request->user()->id)
+        ->whereIn('id', $validated['item_ids'])
+        ->pluck('id')
+        ->toArray();
+
+    if (empty($items)) {
+        return back()->with(
+            'error',
+            'Pilih minimal satu produk untuk checkout.'
+        );
+    }
+
+    session([
+        'checkout_item_ids' => $items,
+    ]);
+
+    return redirect()->route('pelanggan.checkout');
+}
+
+public function showCheckout(Request $request)
+{
+    $directCheckout = session('direct_checkout');
+
+    // ==============================
+    // PESAN SEKARANG
+    // ==============================
+    if ($directCheckout) {
+
+        $parfum = Parfum::find($directCheckout['parfum_id']);
+
+        if (!$parfum) {
+            session()->forget('direct_checkout');
+
+            return redirect()
+                ->route('pelanggan.keranjang')
+                ->with('error', 'Produk checkout tidak ditemukan.');
+        }
+
+        $item = new KeranjangItem([
+            'id' => null,
+            'user_id' => $request->user()->id,
+            'parfum_id' => $parfum->id,
+            'ukuran_ml' => $directCheckout['ukuran_ml'],
+            'jumlah' => $directCheckout['jumlah'],
+        ]);
+
+        $item->setRelation('parfum', $parfum);
+
+        $items = collect([$item]);
+
+    } else {
+
+        // ==============================
+        // CHECKOUT DARI KERANJANG
+        // ==============================
+        $itemIds = session('checkout_item_ids', []);
+
+        if (empty($itemIds)) {
+            return redirect()
+                ->route('pelanggan.keranjang')
+                ->with('error', 'Silakan pilih produk terlebih dahulu.');
+        }
+
+        $items = KeranjangItem::with('parfum')
+            ->where('user_id', $request->user()->id)
+            ->whereIn('id', $itemIds)
+            ->get();
+
+        if ($items->isEmpty()) {
+            session()->forget('checkout_item_ids');
+
+            return redirect()
+                ->route('pelanggan.keranjang')
+                ->with('error', 'Produk checkout tidak ditemukan.');
+        }
+    }
+
+    // ==============================
+    // ALAMAT
+    // ==============================
+
+    $alamat = $request->user()->alamat;
+    $alamatLengkap = null;
+
+    if ($alamat) {
+
+        $provincesResponse = Http::get(
+            'https://wilayah.id/api/provinces.json'
+        );
+
+        $provinces = $provincesResponse->successful()
+            ? $provincesResponse->json('data', [])
+            : [];
+
+        $provinsi = collect($provinces)
+            ->firstWhere('code', $alamat->provinsi);
+
+        $regenciesResponse = Http::get(
+            "https://wilayah.id/api/regencies/{$alamat->provinsi}.json"
+        );
+
+        $regencies = $regenciesResponse->successful()
+            ? $regenciesResponse->json('data', [])
+            : [];
+
+        $kabupaten = collect($regencies)
+            ->firstWhere('code', $alamat->kabupaten_kota);
+
+        $districtsResponse = Http::get(
+            "https://wilayah.id/api/districts/{$alamat->kabupaten_kota}.json"
+        );
+
+        $districts = $districtsResponse->successful()
+            ? $districtsResponse->json('data', [])
+            : [];
+
+        $kecamatan = collect($districts)
+            ->firstWhere('code', $alamat->kecamatan);
+
+        $villagesResponse = Http::get(
+            "https://wilayah.id/api/villages/{$alamat->kecamatan}.json"
+        );
+
+        $villages = $villagesResponse->successful()
+            ? $villagesResponse->json('data', [])
+            : [];
+
+        $desa = collect($villages)
+            ->firstWhere('code', $alamat->desa);
+
+        $alamatLengkap = [
+            'nama_penerima' => $alamat->nama_penerima,
+            'no_hp' => $alamat->no_hp,
+            'alamat_lengkap' => $alamat->alamat_lengkap,
+            'desa' => $desa['name'] ?? $alamat->desa,
+            'kecamatan' => $kecamatan['name'] ?? $alamat->kecamatan,
+            'kabupaten_kota' => $kabupaten['name'] ?? $alamat->kabupaten_kota,
+            'provinsi' => $provinsi['name'] ?? $alamat->provinsi,
+            'kode_pos' => $alamat->kode_pos,
+        ];
+    }
+
+    return Inertia::render('Pelanggan/Checkout', [
+        'items' => $items,
+        'alamat' => $alamatLengkap,
+        'authUser' => $request->user(),
+    ]);
+}
+   public function checkout(Request $request): RedirectResponse
+{
+    $validated = $request->validate([
+        'item_ids' => ['nullable', 'array'],
         'item_ids.*' => ['integer'],
         'metode_pembayaran' => ['required', 'in:cod,transfer'],
     ]);
 
     $user = $request->user();
     $alamat = $user->alamat;
+    $directCheckout = session('direct_checkout');
 
     if (!$alamat) {
         return back()->with(
@@ -161,11 +318,35 @@ $alamat = $request->user()->alamat;
             $validated
         ) {
 
-            $items = KeranjangItem::with('parfum')
-                ->where('user_id', $user->id)
-                ->whereIn('id', $validated['item_ids'])
-                ->lockForUpdate()
-                ->get();
+            if ($directCheckout) {
+
+    $parfum = Parfum::lockForUpdate()
+        ->find($directCheckout['parfum_id']);
+
+    if (!$parfum) {
+        throw new \Exception('Produk tidak ditemukan.');
+    }
+
+    $item = new KeranjangItem([
+        'id' => null,
+        'user_id' => $user->id,
+        'parfum_id' => $parfum->id,
+        'ukuran_ml' => $directCheckout['ukuran_ml'],
+        'jumlah' => $directCheckout['jumlah'],
+    ]);
+
+    $item->setRelation('parfum', $parfum);
+
+    $items = collect([$item]);
+
+    } else {
+
+        $items = KeranjangItem::with('parfum')
+            ->where('user_id', $user->id)
+            ->whereIn('id', $validated['item_ids'] ?? [])
+            ->lockForUpdate()
+            ->get();
+    }
 
             if ($items->isEmpty()) {
                 throw new \Exception(
@@ -286,5 +467,49 @@ $alamat = $request->user()->alamat;
     return Inertia::render('Pelanggan/CheckoutSuccess', [
         'pesanan' => $pesanan,
     ]);
+}
+public function pesanSekarang(
+    Request $request,
+    Parfum $parfum
+): RedirectResponse {
+    if ($parfum->stok <= 0) {
+        return back()->with(
+            'error',
+            'Stok parfum sedang habis.'
+        );
+    }
+
+    $validated = $request->validate([
+        'ukuran_ml' => [
+            'required',
+            'integer',
+            'in:1,5,10,15,20,25,50',
+        ],
+
+        'jumlah' => [
+            'required',
+            'integer',
+            'min:1',
+        ],
+    ]);
+
+    if ($validated['jumlah'] > $parfum->stok) {
+        return back()->with(
+            'error',
+            'Jumlah botol melebihi stok yang tersedia.'
+        );
+    }
+
+    session([
+        'direct_checkout' => [
+            'parfum_id' => $parfum->id,
+            'ukuran_ml' => $validated['ukuran_ml'],
+            'jumlah' => $validated['jumlah'],
+        ],
+    ]);
+
+    session()->forget('checkout_item_ids');
+
+    return redirect()->route('pelanggan.checkout');
 }
 }

@@ -61,7 +61,7 @@ const pesanParfum = (parfum) => {
         return;
     }
 
-    window.location.href = `/pelanggan/pesan/${parfum.id}`;
+    bukaUkuranModal(parfum, 'pesan');
 };
 
 const tutupPesanModal = () => {
@@ -77,7 +77,7 @@ const lanjutLoginPesan = () => {
 const showLoginModal = ref(false);
 const showUkuranModal = ref(false);
 const parfumUkuranDipilih = ref(null);
-
+const modeUkuranModal = ref('keranjang');
 const ukuranTersedia = [
     1,
     5,
@@ -99,7 +99,7 @@ const hargaUkuranDipilih = computed(() => {
 
     return hargaPerMl * ukuran;
 });
-const bukaUkuranModal = (parfum) => {
+const bukaUkuranModal = (parfum, mode = 'keranjang') => {
     if (!props.authUser) {
         showLoginModal.value = true;
         return;
@@ -108,6 +108,7 @@ const bukaUkuranModal = (parfum) => {
     parfumUkuranDipilih.value = parfum;
     ukuranMlDipilih.value = 10;
     jumlahBotolDipilih.value = 1;
+    modeUkuranModal.value = mode;
     showUkuranModal.value = true;
 };
 
@@ -152,6 +153,28 @@ const konfirmasiKeranjang = () => {
         }
     );
 };
+
+const pesanSekarang = () => {
+    if (!parfumUkuranDipilih.value) {
+        return;
+    }
+
+    router.post(
+        `/pelanggan/pesan-sekarang/${parfumUkuranDipilih.value.id}`,
+        {
+            ukuran_ml: ukuranMlDipilih.value,
+            jumlah: jumlahBotolDipilih.value,
+        },
+        {
+            preserveScroll: true,
+
+            onSuccess: () => {
+                tutupUkuranModal();
+            },
+        }
+    );
+};
+
 const bukaKeranjang = () => {
     if (!props.authUser) {
         showLoginModal.value = true;
@@ -813,9 +836,17 @@ const populer = computed(() => {
         <button
             type="button"
             class="size-modal-submit"
-            @click="konfirmasiKeranjang"
+            @click="
+                modeUkuranModal === 'pesan'
+                    ? pesanSekarang()
+                    : konfirmasiKeranjang()
+            "
         >
-            Masukkan Keranjang
+            {{
+                modeUkuranModal === 'pesan'
+                    ? 'Pesan Sekarang'
+                    : 'Masukkan ke Keranjang'
+            }}
         </button>
 
     </div>

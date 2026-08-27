@@ -83,7 +83,7 @@ class AlamatController extends Controller
         );
 
         return redirect()
-            ->route('pelanggan.keranjang')
+            ->route('pelanggan.checkout')
             ->with('success', 'Alamat berhasil disimpan.');
     }
 }

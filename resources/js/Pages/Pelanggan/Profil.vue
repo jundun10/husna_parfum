@@ -70,9 +70,6 @@ const formatRupiah = (value) => {
             <div class="header-title">
                 <h1>Profil Saya</h1>
 
-                <span>
-                    Kelola akun dan pesanan kamu
-                </span>
             </div>
 
             <button

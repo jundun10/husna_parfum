@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { ArrowLeft, Minus, Plus, Trash2 } from 'lucide-vue-next';
+import { ArrowLeft, Minus, Plus, } from 'lucide-vue-next';
 
 const props = defineProps({
     items: {
@@ -29,7 +29,6 @@ const formatRupiah = (value) => {
 const selectedIds = ref(
     props.items.map(item => item.id)
 );
-const metodePembayaran = ref('cod');
 
 const jumlahMap = ref(
     Object.fromEntries(
@@ -156,13 +155,9 @@ const checkout = () => {
     }
 
     router.post(
-        '/pelanggan/keranjang/checkout',
+        '/pelanggan/checkout',
         {
             item_ids: selectedIds.value,
-            metode_pembayaran: metodePembayaran.value,
-        },
-        {
-            preserveScroll: true,
         }
     );
 };
@@ -194,67 +189,6 @@ const checkout = () => {
         </header>
 
         <main class="cart-container">
-            <section class="address-section">
-
-    <div class="address-heading">
-
-        <div>
-            <h2>Alamat Pengiriman</h2>
-            <p>Alamat tujuan pesananmu</p>
-        </div>
-    </div>
-
-    <div
-        v-if="props.alamat"
-        class="address-filled"
-    >
-        <div class="address-main">
-            <strong>
-                {{ props.alamat.nama_penerima }}
-            </strong>
-
-            <span>
-                {{ props.alamat.no_hp }}
-            </span>
-        </div>
-
-        <p>
-            {{ props.alamat.alamat_lengkap }},
-            {{ props.alamat.kecamatan }},
-            {{ props.alamat.kabupaten_kota }},
-            {{ props.alamat.provinsi }},
-            {{ props.alamat.kode_pos }}
-        </p>
-
-        <Link
-            href="/pelanggan/alamat"
-            class="address-edit"
-        >
-            Ubah
-        </Link>
-    </div>
-
-    <div
-        v-else
-        class="address-empty"
-    >
-        <div>
-            <strong>Belum ada alamat</strong>
-
-            <p>
-                Tambahkan alamat pengiriman sebelum checkout.
-            </p>
-        </div>
-
-        <Link
-            href="/pelanggan/alamat"
-            class="address-add"
-        >
-            Tambah Alamat
-        </Link>
-    </div>
-
-        </section>
 
             <div
                 v-if="props.items.length === 0"
@@ -418,7 +352,7 @@ const checkout = () => {
                                 title="Hapus"
                                 @click="hapusItem(item)"
                             >
-                                <Trash2 :size="16" />
+                                Hapus
                             </button>
 
                         </div>
@@ -426,162 +360,40 @@ const checkout = () => {
                     </article>
 
                 </div>
+                <div class="cart-footer">
+
+                <div class="cart-footer-info">
+                    <span>
+                        {{ jumlahDipilih }} produk dipilih
+                    </span>
+                </div>
+
+                <div class="cart-footer-action">
+
+                    <div class="cart-footer-total">
+                        <span>Total</span>
+
+                        <strong>
+                            {{ formatRupiah(totalBayar) }}
+                        </strong>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="checkout-button"
+                        :disabled="selectedIds.length === 0"
+                        @click="checkout"
+                    >
+                        Checkout
+                    </button>
+
+                </div>
+
+            </div>
 
             </div>
 
         </main>
-
-        <div
-    v-if="props.items.length"
-    class="checkout-panel"
->
-
-    <section class="payment-card">
-
-        <div class="payment-card-header">
-
-            <h2>
-                Metode Pembayaran
-            </h2>
-
-            <Link
-                href="/pelanggan/pembayaran"
-                class="see-all-payment"
-            >
-                Lihat Semua
-                <span>›</span>
-            </Link>
-
-        </div>
-
-        <label
-            class="payment-item"
-            :class="{
-                selected: metodePembayaran === 'cod'
-            }"
-        >
-
-            <input
-                type="radio"
-                value="cod"
-                v-model="metodePembayaran"
-            >
-
-            <div class="payment-item-content">
-
-                <strong>
-                    COD
-                </strong>
-
-                <span>
-                    Bayar saat pesanan diterima
-                </span>
-
-            </div>
-
-        </label>
-
-        <label
-            class="payment-item"
-            :class="{
-                selected: metodePembayaran === 'transfer'
-            }"
-        >
-
-            <input
-                type="radio"
-                value="transfer"
-                v-model="metodePembayaran"
-            >
-
-            <div class="payment-item-content">
-
-                <strong>
-                    Transfer Bank
-                </strong>
-
-                <span>
-                    Bayar melalui transfer bank
-                </span>
-
-            </div>
-
-        </label>
-
-    </section>
-
-
-    <section class="payment-summary-card">
-
-        <h2>
-            Rincian Pembayaran
-        </h2>
-
-        <div class="summary-row">
-
-            <span>
-                Harga Produk
-            </span>
-
-            <strong>
-                {{ formatRupiah(totalHarga) }}
-            </strong>
-
-        </div>
-
-
-        <div class="summary-row">
-
-            <span>
-                Ongkos Kirim
-            </span>
-
-            <strong>
-                {{ formatRupiah(ongkir) }}
-            </strong>
-
-        </div>
-
-
-        <div class="summary-line"></div>
-
-
-        <div class="summary-total">
-
-            <span>
-                Total Pembayaran
-            </span>
-
-            <strong>
-                {{ formatRupiah(totalBayar) }}
-            </strong>
-
-        </div>
-
-
-        <button
-            type="button"
-            class="checkout-button"
-            :disabled="
-                selectedIds.length === 0 ||
-                !props.alamat
-            "
-            @click="checkout"
-        >
-
-            <span>
-                {{ formatRupiah(totalBayar) }}
-            </span>
-
-            <span>
-                Checkout
-            </span>
-
-        </button>
-
-    </section>
-
-</div>
 
     </div>
 </template>
@@ -1133,27 +945,22 @@ const checkout = () => {
 }
 
 .delete-button {
-    width: 32px;
-    height: 32px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
+    padding: 0;
 
     border: none;
-
-    border-radius: 7px;
-
     background: transparent;
 
-    color: #b48686;
+    color: #111111;
+
+    font-size: 10px;
+    font-weight: 500;
 
     cursor: pointer;
+    transition: color .2s ease;
 }
 
 .delete-button:hover {
-    background: #fff5f5;
+    color: #5d8986;
 }
 
 .empty-cart {
@@ -1457,6 +1264,74 @@ const checkout = () => {
 .checkout-button:disabled {
     background: #cbd7d5;
 
+    cursor: not-allowed;
+}
+.cart-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 15px;
+    padding: 15px 18px;
+
+    background: #ffffff;
+    border: 1px solid #e1ebe8;
+    border-radius: 12px;
+}
+
+.cart-footer-info {
+    color: #899997;
+    font-size: 10px;
+}
+
+.cart-footer-action {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.cart-footer-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.cart-footer-total span {
+    margin-bottom: 2px;
+
+    color: #899997;
+    font-size: 9px;
+}
+
+.cart-footer-total strong {
+    color: #526b69;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.cart-footer .checkout-button {
+    width: 160px;
+    min-width: 160px;
+    height: 42px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #5d8986;
+    color: #ffffff;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.checkout-button:hover:not(:disabled) {
+    background: #477c79;
+}
+
+.checkout-button:disabled {
+    background: #cbd7d5;
     cursor: not-allowed;
 }
 

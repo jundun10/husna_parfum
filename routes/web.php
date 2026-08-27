@@ -119,6 +119,15 @@ Route::middleware('auth')->group(function () {
         [KeranjangController::class, 'index']
     )->name('pelanggan.keranjang');
 
+    Route::post(
+    '/pelanggan/checkout',
+    [KeranjangController::class, 'prepareCheckout']
+    )->name('pelanggan.checkout.prepare');
+
+    Route::get(
+        '/pelanggan/checkout',
+        [KeranjangController::class, 'showCheckout']
+    )->name('pelanggan.checkout');
 
     Route::post(
         '/pelanggan/keranjang/checkout',
@@ -148,6 +157,11 @@ Route::middleware('auth')->group(function () {
         '/pelanggan/checkout/success/{pesanan}',
         [KeranjangController::class, 'success']
     )->name('pelanggan.checkout.success');
+
+    Route::post(
+    '/pelanggan/pesan-sekarang/{parfum}',
+    [KeranjangController::class, 'pesanSekarang']
+    )->name('pelanggan.pesan.sekarang');
 
 });
 

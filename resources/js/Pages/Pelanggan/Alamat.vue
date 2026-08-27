@@ -195,7 +195,7 @@ const submit = () => {
         <header class="address-header">
 
     <Link
-        href="/pelanggan/keranjang"
+        href="/pelanggan/checkout"
         class="back-link"
     >
         ←
