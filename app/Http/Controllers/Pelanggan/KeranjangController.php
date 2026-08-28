@@ -12,6 +12,8 @@ use App\Models\Pesanan;
 use App\Models\PesananItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use App\Models\AdminNotification;
+
 
 class KeranjangController extends Controller
 {
@@ -30,7 +32,7 @@ class KeranjangController extends Controller
         'ukuran_ml' => [
             'required',
             'integer',
-            'in:5,10,15,20,25,35,40,45,50',
+            'in:1,5,10,15,20,25,50',
         ],
 
         'jumlah' => [
@@ -166,9 +168,6 @@ public function showCheckout(Request $request)
 {
     $directCheckout = session('direct_checkout');
 
-    // ==============================
-    // PESAN SEKARANG
-    // ==============================
     if ($directCheckout) {
 
         $parfum = Parfum::find($directCheckout['parfum_id']);
@@ -195,9 +194,6 @@ public function showCheckout(Request $request)
 
     } else {
 
-        // ==============================
-        // CHECKOUT DARI KERANJANG
-        // ==============================
         $itemIds = session('checkout_item_ids', []);
 
         if (empty($itemIds)) {
@@ -219,10 +215,6 @@ public function showCheckout(Request $request)
                 ->with('error', 'Produk checkout tidak ditemukan.');
         }
     }
-
-    // ==============================
-    // ALAMAT
-    // ==============================
 
     $alamat = $request->user()->alamat;
     $alamatLengkap = null;
@@ -315,7 +307,8 @@ public function showCheckout(Request $request)
         $pesanan = DB::transaction(function () use (
             $user,
             $alamat,
-            $validated
+            $validated,
+            $directCheckout
         ) {
 
             if ($directCheckout) {
@@ -416,6 +409,11 @@ public function showCheckout(Request $request)
                         : 'sudah_bayar',
             ]);
 
+            AdminNotification::create([
+                'pesanan_id' => $pesanan->id,
+                'is_read' => false,
+            ]);
+
             foreach ($items as $item) {
 
                 $hargaPerMl = (float) $item->parfum->harga_per_ml;
@@ -439,7 +437,9 @@ public function showCheckout(Request $request)
                     $item->jumlah
                 );
 
-                $item->delete();
+                if (!$directCheckout) {
+                    $item->delete();
+                }
             }
 
             return $pesanan;

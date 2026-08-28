@@ -1,9 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
-
+import LoadingSpinner from './Components/LoadingSpinner.vue';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+
 
 createInertiaApp({
     title: (title) => `${title} - Lamore Perfumes`,
@@ -14,15 +15,17 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.vue')
         ),
 
+    progress: false,
+
     setup({ el, App, props, plugin }) {
         createApp({
-            render: () => h(App, props),
+            render: () =>
+                h('div', null, [
+                    h(App, props),
+                    h(LoadingSpinner),
+                ]),
         })
             .use(plugin)
             .mount(el);
-    },
-
-    progress: {
-        color: '#7fbd6c',
     },
 });

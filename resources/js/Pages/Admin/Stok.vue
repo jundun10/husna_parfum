@@ -310,7 +310,6 @@ const formatRupiah = (value) => {
 
     <div class="admin-page">
 
-        <!-- OVERLAY -->
         <div
             v-if="sidebarOpen"
             class="overlay"
@@ -318,7 +317,6 @@ const formatRupiah = (value) => {
         ></div>
 
 
-        <!-- SIDEBAR -->
         <aside
             class="sidebar"
             :class="{ 'sidebar-open': sidebarOpen }"
@@ -437,10 +435,8 @@ const formatRupiah = (value) => {
         </aside>
 
 
-        <!-- MAIN -->
         <main class="main-content">
 
-            <!-- TOPBAR -->
             <header class="topbar">
 
                 <div class="topbar-left">
@@ -459,10 +455,6 @@ const formatRupiah = (value) => {
                         <h1>
                             Kelola Stok
                         </h1>
-
-                        <p>
-                            Kelola persediaan parfum Lamore Perfumes.
-                        </p>
 
                     </div>
 
@@ -647,7 +639,7 @@ const formatRupiah = (value) => {
             @click.self="closeModal"
         >
 
-            <div class="modal">
+            <div class="stok-modal">
 
                 <div class="modal-header">
 
@@ -814,7 +806,7 @@ const formatRupiah = (value) => {
                         </span>
 
                         <small>
-                            JPG, JPEG, PNG atau WEBP. Maksimal 2 MB.
+                            JPG, JPEG, PNG atau WEBP.
                         </small>
 
                         <span
@@ -898,7 +890,7 @@ const formatRupiah = (value) => {
             @click.self="closeEditModal"
         >
 
-    <div class="modal">
+    <div class="stok-modal">
 
         <div class="modal-header">
 
@@ -1872,7 +1864,7 @@ const formatRupiah = (value) => {
     z-index: 2000;
 }
 
-.modal {
+.stok-modal {
     width: 100%;
     max-width: 480px;
     max-height: 90vh;
@@ -1884,7 +1876,6 @@ const formatRupiah = (value) => {
     background: #fbfdfc;
 
     border: 1px solid #d7e3e1;
-
     border-radius: 17px;
 
     box-shadow: 0 25px 70px rgba(20, 50, 50, 0.2);

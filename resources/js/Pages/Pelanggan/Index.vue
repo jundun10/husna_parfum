@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ShoppingCart, UserRound } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 
 const props = defineProps({
     parfums: {
@@ -12,6 +12,11 @@ const props = defineProps({
     authUser: {
         type: Object,
         default: null,
+    },
+
+    cartCount: {
+        type: Number,
+        default: 0,
     },
 });
 
@@ -78,6 +83,9 @@ const showLoginModal = ref(false);
 const showUkuranModal = ref(false);
 const parfumUkuranDipilih = ref(null);
 const modeUkuranModal = ref('keranjang');
+const cartButtonRef = ref(null);
+const cartAnimating = ref(false);
+const gambarProdukUntukAnimasi = ref(null);
 const ukuranTersedia = [
     1,
     5,
@@ -132,6 +140,64 @@ const kurangiBotol = () => {
         jumlahBotolDipilih.value--;
     }
 };
+const animasiKeKeranjang = () => {
+    const source = gambarProdukUntukAnimasi.value;
+    const target = cartButtonRef.value;
+
+    if (!source || !target) {
+        return;
+    }
+
+    const sourceRect = source.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+
+    const clone = source.cloneNode(true);
+
+    clone.className = 'flying-product-image';
+
+    clone.style.left = `${sourceRect.left}px`;
+    clone.style.top = `${sourceRect.top}px`;
+    clone.style.width = `${sourceRect.width}px`;
+    clone.style.height = `${sourceRect.height}px`;
+
+    document.body.appendChild(clone);
+
+    requestAnimationFrame(() => {
+        clone.style.left =
+            `${sourceRect.left + sourceRect.width / 2 - 35}px`;
+
+        clone.style.top =
+            `${sourceRect.top + sourceRect.height / 2 - 35}px`;
+
+        clone.style.width = '70px';
+        clone.style.height = '70px';
+
+        clone.style.transform = 'scale(.85)';
+    });
+    setTimeout(() => {
+        clone.style.left =
+            `${targetRect.left + targetRect.width / 2 - 10}px`;
+
+        clone.style.top =
+            `${targetRect.top + targetRect.height / 2 - 10}px`;
+
+        clone.style.width = '20px';
+        clone.style.height = '20px';
+        clone.style.opacity = '0';
+        clone.style.borderRadius = '50%';
+        clone.style.transform = 'scale(.5)';
+    }, 550);
+
+    setTimeout(() => {
+        clone.remove();
+
+        cartAnimating.value = true;
+
+        setTimeout(() => {
+            cartAnimating.value = false;
+        }, 450);
+    }, 1800);
+};
 
 const konfirmasiKeranjang = () => {
     if (!parfumUkuranDipilih.value) {
@@ -147,8 +213,14 @@ const konfirmasiKeranjang = () => {
         {
             preserveScroll: true,
 
-            onSuccess: () => {
-                tutupUkuranModal();
+            onSuccess: async () => {
+            tutupUkuranModal();
+
+            await nextTick();
+
+            setTimeout(() => {
+                animasiKeKeranjang();
+            }, 100);
             },
         }
     );
@@ -195,8 +267,15 @@ const lanjutLogin = () => {
 const rekomendasi = computed(() => {
     return props.parfums.slice(0, 4);
 });
-const masukkanKeranjang = (parfum) => {
-    bukaUkuranModal(parfum);
+const masukkanKeranjang = (parfum, event) => {
+    if (event?.currentTarget) {
+        gambarProdukUntukAnimasi.value =
+            event.currentTarget
+                .closest('.product-card')
+                ?.querySelector('.product-visual img');
+    }
+
+    bukaUkuranModal(parfum, 'keranjang');
 };
 const populer = computed(() => {
     return [...props.parfums]
@@ -227,11 +306,20 @@ const populer = computed(() => {
     <div class="header-actions">
 
         <button
+            ref="cartButtonRef"
             type="button"
             class="cart-button"
+            :class="{ 'cart-bounce': cartAnimating }"
             @click="bukaKeranjang"
         >
             <ShoppingCart :size="19" />
+
+            <span
+                v-if="props.cartCount > 0"
+                class="cart-badge"
+            >
+                {{ props.cartCount }}
+            </span>
         </button>
 
        <div class="profile-wrapper">
@@ -392,7 +480,7 @@ const populer = computed(() => {
                             type="button"
                             class="cart-small"
                             title="Masukkan ke keranjang"
-                            @click="masukkanKeranjang(parfum)"
+                            @click="masukkanKeranjang(parfum, $event)"
                         >
                             <ShoppingCart :size="17" />
                         </button>
@@ -924,6 +1012,8 @@ const populer = computed(() => {
 }
 
 .cart-button {
+    position: relative;
+
     width: 40px;
     height: 40px;
 
@@ -940,6 +1030,73 @@ const populer = computed(() => {
 
     cursor: pointer;
     transition: .2s;
+}
+
+.cart-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #5d8986;
+    color: #ffffff;
+
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.cart-bounce {
+    animation: cartBounce .45s ease;
+}
+
+.flying-product-image {
+    position: fixed;
+    z-index: 99999;
+
+    object-fit: cover;
+    pointer-events: none;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 8px 25px rgba(60, 90, 85, .20);
+
+    transition:
+        left 1.2s cubic-bezier(.22, .61, .36, 1),
+        top 1.2s cubic-bezier(.22, .61, .36, 1),
+        width 1.2s ease,
+        height 1.2s ease,
+        opacity 1.2s ease,
+        transform 1.2s ease;
+}
+
+@keyframes cartBounce {
+    0% {
+        transform: scale(1);
+    }
+
+    35% {
+        transform: scale(1.25) rotate(-7deg);
+    }
+
+    65% {
+        transform: scale(.92) rotate(5deg);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .cart-button:hover {

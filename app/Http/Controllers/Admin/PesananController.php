@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pesanan;
+use App\Models\AdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
@@ -91,9 +92,21 @@ class PesananController extends Controller
                 );
         });
 
+        $notifications = AdminNotification::with([
+            'pesanan.user:id,name',
+            'pesanan.items.parfum:id,nama',
+        ])
+            ->where('is_read', false)
+            ->latest()
+            ->get();
+
+        $notificationCount = $notifications->count();
+
         return Inertia::render('Admin/Pesanan', [
             'pesanans' => $pesanans,
             'authUser' => request()->user(),
+            'notifications' => $notifications,
+            'notificationCount' => $notificationCount,
         ]);
     }
 
@@ -162,5 +175,14 @@ class PesananController extends Controller
             'success',
             'Status pesanan berhasil diperbarui.'
         );
+    }
+    public function markNotificationAsRead(
+    AdminNotification $notification
+    ) {
+        $notification->update([
+            'is_read' => true,
+        ]);
+
+        return redirect()->route('admin.pesanan');
     }
 }

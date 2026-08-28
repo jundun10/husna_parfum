@@ -1,6 +1,6 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import {
     ShoppingBag,
     ChevronDown,
@@ -9,7 +9,8 @@ import {
     MapPin,
     User,
     Mail,
-    CreditCard
+    CreditCard,
+    Bell
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -21,13 +22,25 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    notifications: {
+    type: Array,
+    default: () => [],
+    },
+
+    notificationCount: {
+        type: Number,
+        default: 0,
+    },
 });
+
 
 const logoUrl = '/images/logo.jpg';
 
 const sidebarOpen = ref(false);
 const openOrders = ref([]);
-
+const showNotifications = ref(false);
+const filterWaktu = ref('semua');
+const filterStatus = ref('semua');
 const logoutForm = useForm({});
 
 const logout = () => {
@@ -41,6 +54,54 @@ const formatRupiah = (value) => {
         maximumFractionDigits: 0,
     }).format(value);
 };
+const pesananTersaring = computed(() => {
+    return props.pesanans.filter((pesanan) => {
+        const statusCocok =
+            filterStatus.value === 'semua' ||
+            pesanan.status === filterStatus.value;
+
+        if (!statusCocok) {
+            return false;
+        }
+
+        if (filterWaktu.value === 'semua') {
+            return true;
+        }
+
+        const tanggalPesanan = new Date(pesanan.created_at);
+        const sekarang = new Date();
+
+        if (filterWaktu.value === 'hari_ini') {
+            return (
+                tanggalPesanan.getDate() === sekarang.getDate() &&
+                tanggalPesanan.getMonth() === sekarang.getMonth() &&
+                tanggalPesanan.getFullYear() === sekarang.getFullYear()
+            );
+        }
+
+        if (filterWaktu.value === 'minggu_ini') {
+            const awalMinggu = new Date(sekarang);
+            const hari = sekarang.getDay();
+
+            awalMinggu.setDate(
+                sekarang.getDate() - hari
+            );
+
+            awalMinggu.setHours(0, 0, 0, 0);
+
+            return tanggalPesanan >= awalMinggu;
+        }
+
+        if (filterWaktu.value === 'bulan_ini') {
+            return (
+                tanggalPesanan.getMonth() === sekarang.getMonth() &&
+                tanggalPesanan.getFullYear() === sekarang.getFullYear()
+            );
+        }
+
+        return true;
+    });
+});
 
 const toggleOrder = (id) => {
     if (openOrders.value.includes(id)) {
@@ -69,6 +130,15 @@ const updateStatus = (pesanan) => {
         preserveScroll: true,
     });
 };
+const bukaNotifikasi = (notification) => {
+    router.put(
+        `/admin/notifications/${notification.id}/read`,
+        {},
+        {
+            preserveScroll: true,
+        }
+    );
+};
 </script>
 
 <template>
@@ -76,15 +146,12 @@ const updateStatus = (pesanan) => {
 
     <div class="admin-page">
 
-        <!-- OVERLAY -->
         <div
             v-if="sidebarOpen"
             class="overlay"
             @click="sidebarOpen = false"
         ></div>
 
-
-        <!-- SIDEBAR -->
         <aside
             class="sidebar"
             :class="{ 'sidebar-open': sidebarOpen }"
@@ -113,8 +180,6 @@ const updateStatus = (pesanan) => {
 
             </div>
 
-
-            <!-- ADMIN INFO -->
             <div class="admin-info">
 
                 <div class="admin-avatar">
@@ -138,9 +203,6 @@ const updateStatus = (pesanan) => {
                 </div>
 
             </div>
-
-
-            <!-- MENU -->
             <nav class="sidebar-menu">
 
                 <Link
@@ -180,8 +242,6 @@ const updateStatus = (pesanan) => {
 
             </nav>
 
-
-            <!-- LOGOUT -->
             <div class="sidebar-footer">
 
                 <button
@@ -204,10 +264,8 @@ const updateStatus = (pesanan) => {
         </aside>
 
 
-        <!-- MAIN -->
         <main class="main-content">
 
-            <!-- TOPBAR -->
             <header class="topbar">
 
                 <div class="topbar-left">
@@ -224,9 +282,6 @@ const updateStatus = (pesanan) => {
                     <div>
                         <h1>Pesanan</h1>
 
-                        <p>
-                            Kelola pesanan pelanggan Lamore Perfumes.
-                        </p>
                     </div>
 
                 </div>
@@ -234,7 +289,6 @@ const updateStatus = (pesanan) => {
             </header>
 
 
-            <!-- PESANAN -->
             <section class="order-section">
 
                 <div class="section-heading">
@@ -242,21 +296,130 @@ const updateStatus = (pesanan) => {
                     <div>
                         <h2>Daftar Pesanan</h2>
 
-                        <p>
-                            Semua pesanan yang masuk dari pelanggan.
-                        </p>
                     </div>
 
                     <div class="order-count">
-                        {{ props.pesanans.length }} Pesanan
+                        {{ pesananTersaring.length }} Pesanan
+                    </div>
+
+                </div>
+                <div class="order-filters">
+
+                    <div class="filter-group">
+                        <span class="filter-label">Periode</span>
+
+                        <div class="filter-list">
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterWaktu === 'semua' }"
+                                @click="filterWaktu = 'semua'"
+                            >
+                                Semua
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterWaktu === 'hari_ini' }"
+                                @click="filterWaktu = 'hari_ini'"
+                            >
+                                Hari Ini
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterWaktu === 'minggu_ini' }"
+                                @click="filterWaktu = 'minggu_ini'"
+                            >
+                                Minggu Ini
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterWaktu === 'bulan_ini' }"
+                                @click="filterWaktu = 'bulan_ini'"
+                            >
+                                Bulan Ini
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="filter-label">Status</span>
+
+                        <div class="filter-list">
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterStatus === 'semua' }"
+                                @click="filterStatus = 'semua'"
+                            >
+                                Semua
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterStatus === 'menunggu' }"
+                                @click="filterStatus = 'menunggu'"
+                            >
+                                Menunggu
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterStatus === 'diproses' }"
+                                @click="filterStatus = 'diproses'"
+                            >
+                                Diproses
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterStatus === 'dikirim' }"
+                                @click="filterStatus = 'dikirim'"
+                            >
+                                Dikirim
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterStatus === 'diterima' }"
+                                @click="filterStatus = 'diterima'"
+                            >
+                                Diterima
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterStatus === 'selesai' }"
+                                @click="filterStatus = 'selesai'"
+                            >
+                                Selesai
+                            </button>
+
+                            <button
+                                type="button"
+                                class="filter-button"
+                                :class="{ active: filterStatus === 'dibatalkan' }"
+                                @click="filterStatus = 'dibatalkan'"
+                            >
+                                Dibatalkan
+                            </button>
+                        </div>
                     </div>
 
                 </div>
 
-
-                <!-- EMPTY -->
                 <div
-                    v-if="props.pesanans.length === 0"
+                    v-if="pesananTersaring.length === 0"
                     class="empty-orders"
                 >
                     <div class="empty-orders-icon">
@@ -274,19 +437,17 @@ const updateStatus = (pesanan) => {
                 </div>
 
 
-                <!-- LIST -->
                 <div
                     v-else
                     class="order-list"
                 >
 
                     <article
-                        v-for="pesanan in props.pesanans"
+                        v-for="pesanan in pesananTersaring"
                         :key="pesanan.id"
                         class="order-card"
                     >
 
-                        <!-- ORDER HEADER -->
                         <div class="order-top">
 
                             <div class="order-number">
@@ -986,7 +1147,73 @@ const updateStatus = (pesanan) => {
 
     font-size: 10px;
 }
+.order-filters {
+    margin-bottom: 22px;
+    padding: 16px;
 
+    background: #ffffff;
+    border: 1px solid #e2eeee;
+    border-radius: 12px;
+
+    box-shadow: 0 8px 20px rgba(100, 130, 130, .035);
+}
+
+.filter-group + .filter-group {
+    margin-top: 14px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 8px;
+
+    color: #8a9c9a;
+    font-size: 9px;
+}
+
+.filter-list {
+    display: flex;
+    gap: 7px;
+
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.filter-list::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-button {
+    flex: 0 0 auto;
+
+    padding: 8px 13px;
+
+    border: 1px solid #dceeee;
+    border-radius: 20px;
+
+    background: #ffffff;
+    color: #7b8c8a;
+
+    font-size: 9px;
+
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.filter-button:hover {
+    background: #f3fafa;
+    color: #6f9d9d;
+}
+
+.filter-button.active {
+    background: #6f9d9d;
+    border-color: #6f9d9d;
+    color: #ffffff;
+}
+
+.status-diterima {
+    background: #eef8f6;
+    color: #5d8986;
+}
 
 .empty-orders {
     min-height: 350px;

@@ -1,7 +1,7 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { ShoppingCart, Package } from 'lucide-vue-next';
+import { ShoppingCart, Package, Bell, ShoppingBag } from 'lucide-vue-next';
 
 const props = defineProps({
     authUser: Object,
@@ -20,16 +20,36 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+
+        notifications: {
+        type: Array,
+        default: () => [],
+    },
+
+    notificationCount: {
+        type: Number,
+        default: 0,
+    },
 });
 
 const logoUrl = '/images/logo.jpg';
 
 
 const sidebarOpen = ref(false);
+const showNotifications = ref(false);
 const logoutForm = useForm({});
 
 const logout = () => {
     logoutForm.post('/logout');
+};
+const bukaNotifikasi = (notification) => {
+    router.put(
+        `/admin/notifications/${notification.id}/read`,
+        {},
+        {
+            preserveScroll: true,
+        }
+    );
 };
 </script>
 
@@ -177,6 +197,83 @@ const logout = () => {
     </div>
 
     </div>
+    <div class="notification-wrapper">
+
+    <button
+        type="button"
+        class="notification-button"
+        @click="showNotifications = !showNotifications"
+    >
+        <Bell :size="21" />
+
+        <span
+            v-if="props.notificationCount > 0"
+            class="notification-badge"
+        >
+            {{ props.notificationCount }}
+        </span>
+    </button>
+
+    <div
+        v-if="showNotifications"
+        class="notification-dropdown"
+    >
+
+        <div class="notification-header">
+            <strong>Notifikasi</strong>
+
+            <span>
+                {{ props.notificationCount }} baru
+            </span>
+        </div>
+
+        <div
+            v-if="props.notifications.length === 0"
+            class="notification-empty"
+        >
+            Tidak ada notifikasi baru.
+        </div>
+
+        <div
+            v-else
+            class="notification-list"
+        >
+
+            <button
+                v-for="notification in props.notifications"
+                :key="notification.id"
+                type="button"
+                class="notification-item"
+                @click="bukaNotifikasi(notification)"
+            >
+
+                <div class="notification-icon">
+                    <ShoppingBag :size="16" />
+                </div>
+
+                <div class="notification-content">
+
+                    <strong>Pesanan baru</strong>
+
+                    <span>
+                        Pesanan #{{ notification.pesanan?.id }}
+                        —
+                        {{ notification.pesanan?.items?.[0]?.parfum?.nama ?? 'Produk' }}
+                    </span>
+
+                    <small>
+                        {{ notification.pesanan?.user?.name ?? 'Pelanggan' }}
+                    </small>
+
+                </div>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
     </header>
 
@@ -261,10 +358,6 @@ const logout = () => {
 
                     <div>
                         <h2>Grafik Penjualan</h2>
-
-                        <p>
-                            Ringkasan perkembangan penjualan.
-                        </p>
                     </div>
 
                     <select class="period-select">
@@ -330,7 +423,6 @@ const logout = () => {
                     <div class="info-header">
                         <div>
                             <h2>Pesanan Terbaru</h2>
-                            <p>Pesanan yang baru masuk.</p>
                         </div>
 
                         <Link href="/admin/pesanan">
@@ -353,7 +445,6 @@ const logout = () => {
                     <div class="info-header">
                         <div>
                             <h2>Stok Terendah</h2>
-                            <p>Parfum dengan stok paling sedikit.</p>
                         </div>
 
                         <Link href="/admin/stok">
@@ -408,6 +499,186 @@ const logout = () => {
     min-height: 100vh;
     background: #edf3f2;
     color: #526363;
+}
+.notification-wrapper {
+    position: relative;
+    margin-left: auto;
+}
+
+.notification-button {
+    position: relative;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+    color: #6f9d9d;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.notification-button:hover {
+    color: #477c79;
+    background: transparent;
+}
+
+.notification-badge {
+    position: absolute;
+
+    top: -3px;
+    right: -4px;
+
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #5d8986;
+    color: #ffffff;
+
+    font-size: 8px;
+    font-weight: 700;
+
+    border: 2px solid #edf3f2;
+}
+
+.notification-dropdown {
+    position: absolute;
+
+    top: calc(100% + 10px);
+    right: 0;
+
+    width: 330px;
+    max-height: 420px;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border: 1px solid #e2eeee;
+    border-radius: 13px;
+
+    box-shadow:
+        0 18px 45px rgba(80, 110, 110, .14);
+
+    z-index: 2000;
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 15px 16px;
+
+    border-bottom: 1px solid #edf2f2;
+}
+
+.notification-header strong {
+    color: #526363;
+    font-size: 12px;
+}
+
+.notification-header span {
+    color: #94a5a3;
+    font-size: 9px;
+}
+
+.notification-item {
+    width: 100%;
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    padding: 13px 15px;
+
+    border: none;
+    border-bottom: 1px solid #f0f4f3;
+
+    background: #ffffff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.notification-item:hover {
+    background: #f4f9f8;
+}
+
+.notification-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #edf7f5;
+    color: #5d8986;
+}
+
+.notification-content {
+    min-width: 0;
+}
+
+.notification-content strong {
+    display: block;
+    margin-bottom: 4px;
+
+    color: #536462;
+    font-size: 10px;
+}
+
+.notification-content span {
+    display: block;
+    margin-bottom: 3px;
+
+    color: #758785;
+    font-size: 9px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-content small {
+    color: #a0aeac;
+    font-size: 8px;
+}
+
+.notification-empty {
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #9baaa8;
+    font-size: 10px;
 }
 
 .sidebar {

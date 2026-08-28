@@ -5,7 +5,9 @@ use Inertia\Inertia;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Admin\ParfumController;
 use App\Models\Parfum;
+use App\Models\KeranjangItem;
 use App\Models\Pesanan;
+use App\Models\AdminNotification;
 use App\Http\Controllers\Pelanggan\KeranjangController;
 use App\Http\Controllers\Pelanggan\AlamatController;
 use App\Http\Controllers\Admin\PesananController;
@@ -37,6 +39,16 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     $totalPesanan = Pesanan::count();
 
+    $notifications = AdminNotification::with([
+    'pesanan.user:id,name',
+    'pesanan.items.parfum:id,nama',
+    ])
+        ->where('is_read', false)
+        ->latest()
+        ->get();
+
+    $notificationCount = $notifications->count();
+
     return Inertia::render('Admin/Dashboard', [
         'authUser' => request()->user(),
         'totalStok' => $totalStok,
@@ -63,6 +75,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::put('/admin/pesanan/{pesanan}/status', [PesananController::class, 'updateStatus'])
     ->name('admin.pesanan.status');
+
+    Route::put('/admin/notifications/{notification}/read',[PesananController::class, 'markNotificationAsRead']
+    )->name('admin.notifications.read');
 });
 Route::get('/Pelanggan', function () {
 
@@ -76,9 +91,14 @@ Route::get('/Pelanggan', function () {
         'foto',
     ]);
 
+    $cartCount = auth()->check()
+        ? KeranjangItem::where('user_id', auth()->id())->count()
+        : 0;
+
     return Inertia::render('Pelanggan/Index', [
         'parfums' => $parfums,
         'authUser' => auth()->user(),
+        'cartCount' => $cartCount,
     ]);
 
 })->name('pelanggan');
