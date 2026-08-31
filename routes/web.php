@@ -8,6 +8,7 @@ use App\Models\Parfum;
 use App\Models\KeranjangItem;
 use App\Models\Pesanan;
 use App\Models\AdminNotification;
+use Carbon\Carbon;
 use App\Http\Controllers\Pelanggan\KeranjangController;
 use App\Http\Controllers\Pelanggan\AlamatController;
 use App\Http\Controllers\Admin\PesananController;
@@ -36,8 +37,115 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->get(['id', 'nama', 'stok']);
 
     $totalStok = Parfum::sum('stok');
-
     $totalPesanan = Pesanan::count();
+    $totalPenghasilan = Pesanan::where('status', 'selesai')->sum('total_harga');
+    $pesananSelesai = Pesanan::where('status', 'selesai')
+    ->orderBy('created_at')
+    ->get(['total_harga', 'created_at']);
+
+$now = Carbon::now();
+
+$mingguIni = collect();
+
+$awalMinggu = $now->copy()->startOfWeek(Carbon::MONDAY);
+
+for ($i = 0; $i < 7; $i++) {
+    $tanggal = $awalMinggu->copy()->addDays($i);
+
+    $total = $pesananSelesai
+        ->filter(fn ($pesanan) =>
+            Carbon::parse($pesanan->created_at)->isSameDay($tanggal)
+        )
+        ->sum('total_harga');
+
+    $mingguIni->push([
+        'label' => $tanggal->translatedFormat('D'),
+        'value' => $total,
+    ]);
+}
+
+$bulanIni = collect();
+
+$awalBulan = $now->copy()->startOfMonth();
+$akhirBulan = $now->copy()->endOfMonth();
+
+$jumlahMinggu = (int) ceil(
+    $awalBulan->diffInDays($akhirBulan) / 7
+);
+
+for ($i = 0; $i < $jumlahMinggu; $i++) {
+
+    $mulai = $awalBulan->copy()->addDays($i * 7);
+    $selesai = $mulai->copy()->addDays(6);
+
+    if ($selesai->gt($akhirBulan)) {
+        $selesai = $akhirBulan->copy();
+    }
+
+    $total = $pesananSelesai
+        ->filter(function ($pesanan) use ($mulai, $selesai) {
+            $tanggal = Carbon::parse($pesanan->created_at);
+
+            return $tanggal->betweenIncluded(
+                $mulai->copy()->startOfDay(),
+                $selesai->copy()->endOfDay()
+            );
+        })
+        ->sum('total_harga');
+
+    $bulanIni->push([
+        'label' => 'Minggu ' . ($i + 1),
+        'value' => $total,
+    ]);
+}
+
+$tahunIni = collect();
+
+for ($i = 1; $i <= 12; $i++) {
+
+    $total = $pesananSelesai
+        ->filter(fn ($pesanan) =>
+            Carbon::parse($pesanan->created_at)->year === $now->year &&
+            Carbon::parse($pesanan->created_at)->month === $i
+        )
+        ->sum('total_harga');
+
+    $tanggalBulan = Carbon::create(
+        $now->year,
+        $i,
+        1
+    );
+
+    $tahunIni->push([
+        'label' => $tanggalBulan->translatedFormat('M'),
+        'value' => $total,
+    ]);
+}
+
+$semua = $pesananSelesai
+    ->groupBy(fn ($pesanan) =>
+        Carbon::parse($pesanan->created_at)->format('Y-m')
+    )
+    ->map(function ($items, $key) {
+
+        $tanggal = Carbon::createFromFormat(
+            'Y-m',
+            $key
+        );
+
+        return [
+            'label' => $tanggal->translatedFormat('M Y'),
+            'value' => $items->sum('total_harga'),
+        ];
+    })
+    ->values();
+
+$grafikPenghasilan = [
+    'minggu_ini' => $mingguIni,
+    'bulan_ini' => $bulanIni,
+    'tahun_ini' => $tahunIni,
+    'semua' => $semua,
+];
 
     $notifications = AdminNotification::with([
     'pesanan.user:id,name',
@@ -54,6 +162,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         'totalStok' => $totalStok,
         'parfumsTerendah' => $parfumsTerendah,
         'totalPesanan' => $totalPesanan,
+        'totalPenghasilan' => $totalPenghasilan,
+        'grafikPenghasilan' => $grafikPenghasilan,
+        
     ]);
 
     })->name('admin.dashboard');

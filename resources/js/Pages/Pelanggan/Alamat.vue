@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
+import { ArrowLeft } from 'lucide-vue-next';
 
 const regencies = ref([]);
 const districts = ref([]);
@@ -196,9 +197,9 @@ const submit = () => {
 
     <Link
         href="/pelanggan/checkout"
-        class="back-link"
+        class="back-button"
     >
-        ←
+        <ArrowLeft :size="20" />
     </Link>
 
     <div class="address-title">
@@ -208,8 +209,8 @@ const submit = () => {
             <p>
                 {{
                     isEditing
-                        ? 'Lengkapi atau ubah alamat pengiriman.'
-                        : 'Alamat pengiriman akun kamu.'
+                        ? ''
+                        : ''
                 }}
             </p>
         </div>
@@ -488,7 +489,7 @@ const submit = () => {
 
 .address-page {
     min-height: 100vh;
-    padding: 30px 6% 60px;
+    padding: 45px 3% 60px;
     background: #f5f8f7;
     color: #304c4b;
 }
@@ -498,8 +499,9 @@ const submit = () => {
     margin: 0 auto 25px;
 
     display: flex;
-    align-items: flex-start;
-    gap: 25px;
+    align-items: center;
+
+    gap: 15px;
 }
 .address-title {
     flex: 1;
@@ -592,11 +594,29 @@ const submit = () => {
     font-size: 11px;
     line-height: 1.8;
 }
-.back-link {
+.back-button {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
     color: #477c79;
-    text-decoration: none;
-    font-size: 11px;
-    white-space: nowrap;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.back-button:hover {
+    background: #edf4f2;
 }
 
 .address-header h1 {

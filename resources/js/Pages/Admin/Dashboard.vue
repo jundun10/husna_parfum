@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { ShoppingCart, Package, Bell, ShoppingBag } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -12,6 +12,11 @@ const props = defineProps({
     },
 
     totalPesanan: {
+        type: Number,
+        default: 0,
+    },
+
+    totalPenghasilan: {
         type: Number,
         default: 0,
     },
@@ -30,6 +35,15 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    grafikPenghasilan: {
+    type: Object,
+        default: () => ({
+            minggu_ini: [],
+            bulan_ini: [],
+            tahun_ini: [],
+            semua: [],
+        }),
+    },
 });
 
 const logoUrl = '/images/logo.jpg';
@@ -37,6 +51,7 @@ const logoUrl = '/images/logo.jpg';
 
 const sidebarOpen = ref(false);
 const showNotifications = ref(false);
+const periodeGrafik = ref('minggu_ini');
 const logoutForm = useForm({});
 
 const logout = () => {
@@ -50,6 +65,42 @@ const bukaNotifikasi = (notification) => {
             preserveScroll: true,
         }
     );
+};
+const dataGrafikAktif = computed(() => {
+    return props.grafikPenghasilan?.[periodeGrafik.value] ?? [];
+});
+
+const nilaiMaksimumGrafik = computed(() => {
+    const nilai = dataGrafikAktif.value.map(item =>
+        Number(item.value) || 0
+    );
+
+    return Math.max(...nilai, 1);
+});
+
+const formatGrafikRupiah = (value) => {
+    const angka = Number(value) || 0;
+
+    if (angka >= 1000000) {
+        return `Rp ${(angka / 1000000).toFixed(1)}jt`;
+    }
+
+    if (angka >= 1000) {
+        return `Rp ${(angka / 1000).toFixed(0)}rb`;
+    }
+
+    return `Rp ${Math.round(angka).toLocaleString('id-ID')}`;
+};
+
+const tinggiBar = (value) => {
+    if (!nilaiMaksimumGrafik.value) {
+        return 0;
+    }
+
+    const tinggi =
+        (Number(value) / nilaiMaksimumGrafik.value) * 100;
+
+    return Math.max(tinggi, Number(value) > 0 ? 5 : 0);
 };
 </script>
 
@@ -342,75 +393,11 @@ const bukaNotifikasi = (notification) => {
                         </span>
                     </div>
 
-                    <h2>Rp0</h2>
+                    <h2> Rp{{ Number(props.totalPenghasilan).toLocaleString('id-ID') }}</h2>
 
                     <p>
                         Total penghasilan
                     </p>
-
-                </div>
-
-            </section>
-
-            <section class="chart-card">
-
-                <div class="section-header">
-
-                    <div>
-                        <h2>Grafik Penjualan</h2>
-                    </div>
-
-                    <select class="period-select">
-                        <option>Minggu ini</option>
-                        <option>Bulan ini</option>
-                        <option>Tahun ini</option>
-                    </select>
-
-                </div>
-
-                <div class="chart">
-
-                    <div class="chart-y-axis">
-                        <span>Rp 1jt</span>
-                        <span>Rp 750rb</span>
-                        <span>Rp 500rb</span>
-                        <span>Rp 250rb</span>
-                        <span>Rp 0</span>
-                    </div>
-
-                    <div class="chart-content">
-
-                        <div class="grid-line line-1"></div>
-                        <div class="grid-line line-2"></div>
-                        <div class="grid-line line-3"></div>
-                        <div class="grid-line line-4"></div>
-                        <div class="grid-line line-5"></div>
-
-                        <div class="empty-chart">
-                            <div class="empty-icon">
-                                📊
-                            </div>
-
-                            <p>
-                                Belum ada data penjualan
-                            </p>
-
-                            <span>
-                                Grafik akan terisi setelah transaksi tersedia.
-                            </span>
-                        </div>
-
-                        <div class="chart-days">
-                            <span>Sen</span>
-                            <span>Sel</span>
-                            <span>Rab</span>
-                            <span>Kam</span>
-                            <span>Jum</span>
-                            <span>Sab</span>
-                            <span>Min</span>
-                        </div>
-
-                    </div>
 
                 </div>
 
@@ -1134,99 +1121,6 @@ const bukaNotifikasi = (notification) => {
     color: #aaa;
 }
 
-.chart-card {
-    padding: 25px;
-
-    margin-bottom: 25px;
-
-    background: #ffffff;
-
-    border: 1px solid #e2eeee;
-
-    border-radius: 14px;
-
-    box-shadow: 0 8px 25px rgba(100, 130, 130, 0.045);
-}
-
-.section-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    margin-bottom: 25px;
-}
-
-.section-header h2 {
-    margin: 0 0 5px;
-
-    font-family: Georgia, serif;
-
-    font-size: 20px;
-
-    font-weight: normal;
-
-    color: #666;
-}
-
-.section-header p {
-    margin: 0;
-
-    font-size: 10px;
-
-    color: #aaa;
-}
-
-.period-select {
-    padding: 9px 12px;
-
-    border: 1px solid #dceeee;
-
-    border-radius: 7px;
-
-    background: #ffffff;
-
-    color: #777;
-
-    font-size: 10px;
-
-    outline: none;
-
-    cursor: pointer;
-}
-
-
-.chart {
-    height: 300px;
-
-    display: flex;
-
-    position: relative;
-}
-
-.chart-y-axis {
-    width: 55px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    padding: 0 10px 28px 0;
-
-    color: #bbb;
-
-    font-size: 8px;
-
-    text-align: right;
-}
-
-.chart-content {
-    position: relative;
-
-    flex: 1;
-
-    border-bottom: 1px solid #e7eeee;
-}
-
 .grid-line {
     position: absolute;
 
@@ -1288,25 +1182,6 @@ const bukaNotifikasi = (notification) => {
 
     color: #bbb;
 }
-
-.chart-days {
-    position: absolute;
-
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    display: grid;
-
-    grid-template-columns: repeat(7, 1fr);
-
-    text-align: center;
-
-    color: #aaa;
-
-    font-size: 8px;
-}
-
 
 .bottom-grid {
     display: grid;
