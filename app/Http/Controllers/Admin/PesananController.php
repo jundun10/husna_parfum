@@ -102,12 +102,17 @@ class PesananController extends Controller
 
         $notificationCount = $notifications->count();
 
-        return Inertia::render('Admin/Pesanan', [
+        return Inertia::render(
+        request()->is('super-admin/*')
+            ? 'SuperAdmin/Pesanan'
+            : 'Admin/Pesanan',
+        [
             'pesanans' => $pesanans,
             'authUser' => request()->user(),
             'notifications' => $notifications,
             'notificationCount' => $notificationCount,
-        ]);
+        ]
+        );
     }
 
     private function getParentCode(

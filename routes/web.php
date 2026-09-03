@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use App\Http\Controllers\Pelanggan\KeranjangController;
 use App\Http\Controllers\Pelanggan\AlamatController;
 use App\Http\Controllers\Admin\PesananController;
+use App\Http\Controllers\SuperAdmin\UserController;
+
 
 Route::get('/', function () {
     return Inertia::render('Home');
@@ -237,10 +239,71 @@ Route::get('/pelanggan/pesan/{parfum}', function (Parfum $parfum) {
 })->middleware('auth')->name('pelanggan.pesan');
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
+
     Route::get('/super-admin/dashboard', function () {
-        return Inertia::render('SuperAdmin/Dashboard');
+
+        $parfumsTerendah = Parfum::orderBy('stok', 'asc')
+            ->take(5)
+            ->get(['id', 'nama', 'stok']);
+
+        $totalStok = Parfum::sum('stok');
+
+        $totalPesanan = Pesanan::count();
+
+        $totalPenghasilan = Pesanan::where('status', 'selesai')
+            ->sum('total_harga');
+
+        $notifications = AdminNotification::with([
+            'pesanan.user:id,name',
+            'pesanan.items.parfum:id,nama',
+        ])
+            ->where('is_read', false)
+            ->latest()
+            ->get();
+
+        $notificationCount = $notifications->count();
+
+        return Inertia::render('SuperAdmin/Dashboard', [
+            'authUser' => request()->user(),
+            'totalStok' => $totalStok,
+            'parfumsTerendah' => $parfumsTerendah,
+            'totalPesanan' => $totalPesanan,
+            'totalPenghasilan' => $totalPenghasilan,
+            'notifications' => $notifications,
+            'notificationCount' => $notificationCount,
+        ]);
+
     })->name('superadmin.dashboard');
+
+    Route::get('/super-admin/pesanan', [PesananController::class, 'index'])
+    ->name('superadmin.pesanan');
+
+    Route::put('/super-admin/pesanan/{pesanan}/status', [PesananController::class, 'updateStatus'])
+        ->name('superadmin.pesanan.status');
+
+    Route::get('/super-admin/stok', [ParfumController::class, 'index'])
+        ->name('superadmin.stok');
+
+    Route::post('/super-admin/stok', [ParfumController::class, 'store'])
+        ->name('superadmin.stok.store');
+
+    Route::put('/super-admin/stok/{parfum}', [ParfumController::class, 'update'])
+        ->name('superadmin.stok.update');
+
+    Route::delete('/super-admin/stok/{parfum}', [ParfumController::class, 'destroy'])
+        ->name('superadmin.stok.destroy');
     
+    Route::get( '/super-admin/pengguna',[UserController::class, 'index'])
+        ->name('superadmin.pengguna');
+    Route::put('/super-admin/pengguna/{user}/role',[UserController::class, 'updateRole'])
+        ->name('superadmin.pengguna.role');
+
+    Route::delete('/super-admin/pengguna/{user}',[UserController::class, 'destroy'])
+        ->name('superadmin.pengguna.destroy');
+    
+    Route::post('/super-admin/pengguna',[\App\Http\Controllers\SuperAdmin\UserController::class, 'store'])
+        ->name('superadmin.pengguna.store');
+
 });
 
 Route::middleware('auth')->group(function () {

@@ -15,10 +15,15 @@ class ParfumController extends Controller
 {
     $parfums = Parfum::latest()->get();
 
-    return Inertia::render('Admin/Stok', [
+    return Inertia::render(
+    request()->is('super-admin/*')
+        ? 'SuperAdmin/Stok'
+        : 'Admin/Stok',
+    [
         'parfums' => $parfums,
         'authUser' => request()->user(),
-    ]);
+    ]
+    );
 }
 
     public function store(Request $request): RedirectResponse
