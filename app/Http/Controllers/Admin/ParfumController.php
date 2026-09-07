@@ -49,7 +49,7 @@ class ParfumController extends Controller
         return back()->with('success', 'Stok parfum berhasil ditambahkan.');
     }
 
-    public function update(Request $request, Parfum $parfum): RedirectResponse
+   public function update(Request $request, Parfum $parfum): RedirectResponse
 {
     $validated = $request->validate([
         'nama' => ['required', 'string', 'max:255'],
@@ -72,10 +72,14 @@ class ParfumController extends Controller
         (float) $validated['harga_per_ml']
     );
 
+    // Hanya update foto kalau user memilih foto baru
     if ($request->hasFile('foto')) {
         $validated['foto'] = $request
             ->file('foto')
             ->store('parfum', 'public');
+    } else {
+        // Jangan ubah foto lama
+        unset($validated['foto']);
     }
 
     $parfum->update($validated);

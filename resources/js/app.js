@@ -5,7 +5,6 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 
-
 createInertiaApp({
     title: (title) => `${title} - Lamore Perfumes`,
 
@@ -27,5 +26,25 @@ createInertiaApp({
         })
             .use(plugin)
             .mount(el);
+
+        // Register Service Worker untuk Web Push
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker
+                    .register('/sw.js')
+                    .then((registration) => {
+                        console.log(
+                            'Service Worker berhasil didaftarkan:',
+                            registration.scope
+                        );
+                    })
+                    .catch((error) => {
+                        console.error(
+                            'Gagal mendaftarkan Service Worker:',
+                            error
+                        );
+                    });
+            });
+        }
     },
 });

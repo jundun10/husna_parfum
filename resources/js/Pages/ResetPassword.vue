@@ -32,8 +32,8 @@ const submit = () => {
 
             <div class="logo">
                 <img
-                    :src="'/images/logo.jpg'"
-                    alt="Lamore Perfumes"
+                    :src="'/images/logo-hf.png'"
+                    alt="HF Parfum"
                 >
             </div>
 
@@ -41,7 +41,7 @@ const submit = () => {
                 <h1>Reset Password</h1>
 
                 <p>
-                    Buat password baru untuk akun Lamore Perfumes kamu.
+                    Buat password baru untuk akun HF Parfum kamu.
                 </p>
             </div>
 

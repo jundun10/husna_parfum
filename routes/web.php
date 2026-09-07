@@ -13,11 +13,16 @@ use App\Http\Controllers\Pelanggan\KeranjangController;
 use App\Http\Controllers\Pelanggan\AlamatController;
 use App\Http\Controllers\Admin\PesananController;
 use App\Http\Controllers\SuperAdmin\UserController;
-
+use App\Http\Controllers\MidtransController;
 
 Route::get('/', function () {
     return Inertia::render('Home');
 })->name('home');
+
+Route::post(
+    '/midtrans/notification',
+    [MidtransController::class, 'notification']
+)->name('midtrans.notification');
 
 
 Route::get('/test-vue', function () {
@@ -171,6 +176,18 @@ $grafikPenghasilan = [
 
     })->name('admin.dashboard');
 
+        Route::get('/admin/pengaturan', function () {
+        return Inertia::render('Admin/Pengaturan', [
+            'authUser' => request()->user(),
+            'pengaturanToko' => [
+                'nama_toko' => 'HF Parfum',
+                'no_whatsapp' => '',
+                'email_toko' => '',
+                'alamat_toko' => '',
+            ],
+        ]);
+    })->name('admin.pengaturan');
+
     Route::get('/admin/stok', [ParfumController::class, 'index'])
         ->name('admin.stok');
 
@@ -274,6 +291,18 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
         ]);
 
     })->name('superadmin.dashboard');
+
+        Route::get('/super-admin/pengaturan', function () {
+        return Inertia::render('SuperAdmin/Pengaturan', [
+            'authUser' => request()->user(),
+            'pengaturanToko' => [
+                'nama_toko' => 'HF Parfum',
+                'no_whatsapp' => '',
+                'email_toko' => '',
+                'alamat_toko' => '',
+            ],
+        ]);
+    })->name('superadmin.pengaturan');
 
     Route::get('/super-admin/pesanan', [PesananController::class, 'index'])
     ->name('superadmin.pesanan');

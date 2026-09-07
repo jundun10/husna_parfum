@@ -27,7 +27,6 @@ const kategori = [
     'Pria',
     'Wanita',
     'Unisex',
-    'Parfum Lain',
 ];
 
 const formatRupiah = (value) => {
@@ -291,85 +290,83 @@ const populer = computed(() => {
 
     <div class="customer-page">
 
-        <header class="customer-header">
+        <header class="site-header">
 
-    <Link
-        href="/"
-        class="brand"
-    >
-        <h1>
-            Lamore
-            <span>Perfumes</span>
-        </h1>
-    </Link>
+            <div class="header-inner">
 
-    <div class="header-actions">
+                <Link
+                    href="/"
+                    class="brand"
+                >
+                    <span class="brand-mark">HF</span>
+                    <span class="brand-word">Parfum</span>
+                </Link>
 
-        <button
-            ref="cartButtonRef"
-            type="button"
-            class="cart-button"
-            :class="{ 'cart-bounce': cartAnimating }"
-            @click="bukaKeranjang"
-        >
-            <ShoppingCart :size="19" />
+                <div class="header-actions">
 
-            <span
-                v-if="props.cartCount > 0"
-                class="cart-badge"
-            >
-                {{ props.cartCount }}
-            </span>
-        </button>
+                    <button
+                        ref="cartButtonRef"
+                        type="button"
+                        class="cart-button"
+                        :class="{ 'cart-bounce': cartAnimating }"
+                        @click="bukaKeranjang"
+                        aria-label="Keranjang"
+                    >
+                        <ShoppingCart :size="18" :stroke-width="1.6" />
 
-       <div class="profile-wrapper">
+                        <span
+                            v-if="props.cartCount > 0"
+                            class="cart-badge"
+                        >
+                            {{ props.cartCount }}
+                        </span>
+                    </button>
 
-            <button
-                type="button"
-                class="profile-button"
-                @click="bukaProfil"
-                aria-label="Profil"
-            >
+                    <div class="profile-wrapper">
 
-            <span
-                v-if="props.authUser"
-                class="profile-avatar"
-            >
-                {{ props.authUser.name?.charAt(0).toUpperCase() }}
-            </span>
+                        <button
+                            type="button"
+                            class="profile-button"
+                            @click="bukaProfil"
+                            aria-label="Profil"
+                        >
 
-            <UserRound
-                v-else
-                :size="19"
-                :stroke-width="1.8"
-            />
+                            <span
+                                v-if="props.authUser"
+                                class="profile-avatar"
+                            >
+                                {{ props.authUser.name?.charAt(0).toUpperCase() }}
+                            </span>
 
-         </button>
+                            <UserRound
+                                v-else
+                                :size="17"
+                                :stroke-width="1.6"
+                            />
 
-        </div>
+                        </button>
 
-    </div>
+                    </div>
 
-</header>
+                </div>
 
-        <section class="collection-heading">
+            </div>
 
-            <span class="section-label">
-                KOLEKSI LAMORE
-            </span>
+        </header>
 
-            <h2>
-                Koleksi Parfum
-            </h2>
+        <section class="intro">
+
+            <h2>Aroma yang menjadi identitas kamu.</h2>
 
             <p>
-                Temukan aroma yang sesuai dengan
-                karakter dan kepribadianmu.
+                Koleksi parfum pilihan dengan bahan berkualitas,
+                diracik untuk menemani setiap momen — dari yang
+                santai hingga yang paling berkesan.
             </p>
 
         </section>
 
-        <section class="category-section">
+        <nav class="category-nav" aria-label="Kategori parfum">
 
             <div class="category-list">
 
@@ -377,10 +374,8 @@ const populer = computed(() => {
                     v-for="item in kategori"
                     :key="item"
                     type="button"
-                    class="category-button"
-                    :class="{
-                        active: kategoriAktif === item
-                    }"
+                    class="category-tab"
+                    :class="{ active: kategoriAktif === item }"
                     @click="kategoriAktif = item"
                 >
                     {{ item }}
@@ -388,23 +383,19 @@ const populer = computed(() => {
 
             </div>
 
-        </section>
+        </nav>
 
         <section class="collection-section">
 
             <div class="collection-top">
 
-                <div>
-
-                    <span class="section-label">
-                        {{ kategoriAktif.toUpperCase() }}
-                    </span>
-
-                    <h3>
-                        Pilihan untukmu
-                    </h3>
-
-                </div>
+                <h3>
+                    {{
+                        kategoriAktif === 'Semua'
+                            ? 'Semua Koleksi'
+                            : `Parfum ${kategoriAktif}`
+                    }}
+                </h3>
 
                 <span class="product-count">
                     {{ produkTampil.length }} produk
@@ -415,75 +406,66 @@ const populer = computed(() => {
 
             <div
                 v-if="produkTampil.length"
-                class="horizontal-products"
+                class="product-grid"
             >
 
                 <article
                     v-for="parfum in produkTampil"
                     :key="parfum.id"
-                    class="product-card horizontal-card"
+                    class="product-card"
                 >
-
-                    <div class="product-number">
-                        {{ String(parfum.id).padStart(2, '0') }}
-                    </div>
 
                     <div class="product-visual">
 
-                    <img
-                        v-if="parfum.foto"
-                        :src="`/storage/${parfum.foto}`"
-                        :alt="parfum.nama"
-                    >
+                        <img
+                            v-if="parfum.foto"
+                            :src="`/storage/${parfum.foto}`"
+                            :alt="parfum.nama"
+                        >
 
-                    <span
-                        v-else
-                        class="photo-placeholder"
-                    >
-                        FOTO PARFUM
-                    </span>
+                        <span
+                            v-else
+                            class="photo-placeholder"
+                        >
+                            Foto belum tersedia
+                        </span>
+
+                        <span
+                            v-if="parfum.kategori"
+                            class="product-tag"
+                        >
+                            {{ parfum.kategori }}
+                        </span>
+
+                        <button
+                            type="button"
+                            class="quick-cart"
+                            title="Masukkan ke keranjang"
+                            @click="masukkanKeranjang(parfum, $event)"
+                        >
+                            <ShoppingCart :size="15" :stroke-width="1.7" />
+                        </button>
 
                     </div>
 
 
                     <div class="product-info">
 
-                        <span class="product-label">
-                            LAMORE PERFUMES
-                        </span>
-
                         <h4>
                             {{ parfum.nama }}
                         </h4>
 
-                        <strong class="product-price">
-                            {{ formatRupiah(parfum.harga) }}
-                        </strong>
+                        <div class="product-meta">
 
-                        <div class="product-stock">
-
-                            <span>
-                                Stok
-                            </span>
-
-                            <strong>
-                                {{ parfum.stok }}
+                            <strong class="product-price">
+                                {{ formatRupiah(parfum.harga) }}
                             </strong>
 
+                            <span class="product-stock">
+                                Stok {{ parfum.stok }}
+                            </span>
+
                         </div>
-
-                    </div>
-
-                    <div class="product-actions">
-
-                        <button
-                            type="button"
-                            class="cart-small"
-                            title="Masukkan ke keranjang"
-                            @click="masukkanKeranjang(parfum, $event)"
-                        >
-                            <ShoppingCart :size="17" />
-                        </button>
 
                         <button
                             type="button"
@@ -493,7 +475,7 @@ const populer = computed(() => {
                         >
                             {{
                                 parfum.stok > 0
-                                    ? 'Pesan'
+                                    ? 'Pesan Sekarang'
                                     : 'Stok Habis'
                             }}
                         </button>
@@ -509,436 +491,409 @@ const populer = computed(() => {
                 v-else
                 class="empty-product"
             >
-                Belum ada parfum tersedia.
+                Belum ada parfum tersedia untuk kategori ini.
             </div>
 
         </section>
 
 
-        <section class="special-section">
+        <section class="shelf-section">
 
-    <div class="special-header">
+            <div class="shelf-header">
 
-        <div>
-            <span class="section-label">
-                PILIHAN LAMORE
-            </span>
+                <h3>Rekomendasi Untuk Kamu</h3>
 
-            <h3>
-                Rekomendasi Untuk Kamu
-            </h3>
-        </div>
-    </div>
-
-
-    <div class="horizontal-products">
-
-        <article
-            v-for="parfum in rekomendasi"
-            :key="`recommend-${parfum.id}`"
-            class="product-card horizontal-card"
-        >
-
-            <div class="product-number">
-                {{ String(parfum.id).padStart(2, '0') }}
-            </div>
-
-
-            <div class="product-visual">
-
-    <img
-        v-if="parfum.foto"
-        :src="`/storage/${parfum.foto}`"
-        :alt="parfum.nama"
-    >
-
-        <span
-            v-else
-            class="photo-placeholder"
-        >
-            FOTO PARFUM
-        </span>
-
-        </div>
-
-
-            <div class="product-info">
-
-                <span class="product-label">
-                    LAMORE PERFUMES
-                </span>
-
-                <h4>
-                    {{ parfum.nama }}
-                </h4>
-
-                <strong class="product-price">
-                    {{ formatRupiah(parfum.harga) }}
-                </strong>
-
-                <div class="product-stock">
-
-                    <span>
-                        Stok
-                    </span>
-
-                    <strong>
-                        {{ parfum.stok }}
-                    </strong>
-
-                </div>
+                <span class="scroll-hint">Geser untuk lihat lainnya</span>
 
             </div>
 
-            <div class="product-actions">
 
-                <button
-                    type="button"
-                    class="cart-small"
-                    @click="masukkanKeranjang(parfum)"
+            <div class="horizontal-products">
+
+                <article
+                    v-for="parfum in rekomendasi"
+                    :key="`recommend-${parfum.id}`"
+                    class="product-card horizontal-card"
                 >
-                    <ShoppingCart :size="17" />
-                </button>
 
-                <button
-                    type="button"
-                    class="order-button"
-                    :disabled="parfum.stok <= 0"
-                    @click="pesanParfum(parfum)"
+                    <div class="product-visual">
+
+                        <img
+                            v-if="parfum.foto"
+                            :src="`/storage/${parfum.foto}`"
+                            :alt="parfum.nama"
+                        >
+
+                        <span
+                            v-else
+                            class="photo-placeholder"
+                        >
+                            Foto belum tersedia
+                        </span>
+
+                        <span
+                            v-if="parfum.kategori"
+                            class="product-tag"
+                        >
+                            {{ parfum.kategori }}
+                        </span>
+
+                        <button
+                            type="button"
+                            class="quick-cart"
+                            title="Masukkan ke keranjang"
+                            @click="masukkanKeranjang(parfum)"
+                        >
+                            <ShoppingCart :size="15" :stroke-width="1.7" />
+                        </button>
+
+                    </div>
+
+                    <div class="product-info">
+
+                        <h4>
+                            {{ parfum.nama }}
+                        </h4>
+
+                        <div class="product-meta">
+
+                            <strong class="product-price">
+                                {{ formatRupiah(parfum.harga) }}
+                            </strong>
+
+                            <span class="product-stock">
+                                Stok {{ parfum.stok }}
+                            </span>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="order-button"
+                            :disabled="parfum.stok <= 0"
+                            @click="pesanParfum(parfum)"
+                        >
+                            {{
+                                parfum.stok > 0
+                                    ? 'Pesan Sekarang'
+                                    : 'Stok Habis'
+                            }}
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <section class="shelf-section">
+
+            <div class="shelf-header">
+
+                <h3>Parfum Paling Diminati</h3>
+
+                <span class="scroll-hint">Geser untuk lihat lainnya</span>
+
+            </div>
+
+
+            <div class="horizontal-products">
+
+                <article
+                    v-for="parfum in populer"
+                    :key="`popular-${parfum.id}`"
+                    class="product-card horizontal-card"
                 >
-                    {{
-                        parfum.stok > 0
-                            ? 'Pesan'
-                            : 'Stok Habis'
-                    }}
-                </button>
+
+                    <div class="product-visual">
+
+                        <img
+                            v-if="parfum.foto"
+                            :src="`/storage/${parfum.foto}`"
+                            :alt="parfum.nama"
+                        >
+
+                        <span v-else class="photo-placeholder">
+                            Foto belum tersedia
+                        </span>
+
+                        <span
+                            v-if="parfum.kategori"
+                            class="product-tag"
+                        >
+                            {{ parfum.kategori }}
+                        </span>
+
+                        <button
+                            type="button"
+                            class="quick-cart"
+                            title="Masukkan ke keranjang"
+                            @click="masukkanKeranjang(parfum)"
+                        >
+                            <ShoppingCart :size="15" :stroke-width="1.7" />
+                        </button>
+
+                    </div>
+
+                    <div class="product-info">
+
+                        <h4>
+                            {{ parfum.nama }}
+                        </h4>
+
+                        <div class="product-meta">
+
+                            <strong class="product-price">
+                                {{ formatRupiah(parfum.harga) }}
+                            </strong>
+
+                            <span class="product-stock">
+                                Stok {{ parfum.stok }}
+                            </span>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="order-button"
+                            :disabled="parfum.stok <= 0"
+                            @click="pesanParfum(parfum)"
+                        >
+                            {{
+                                parfum.stok > 0
+                                    ? 'Pesan Sekarang'
+                                    : 'Stok Habis'
+                            }}
+                        </button>
+
+                    </div>
+
+                </article>
 
             </div>
 
-        </article>
+        </section>
 
     </div>
 
-</section>
 
-<section class="special-section">
-
-    <div class="special-header">
-
-        <div>
-            <span class="section-label">
-                FAVORIT PELANGGAN
-            </span>
-
-            <h3>
-                Parfum Paling Laris
-            </h3>
-        </div>
-
-        <span class="scroll-hint">
-            Geser untuk melihat lainnya →
-        </span>
-
-    </div>
-
-
-    <div class="horizontal-products">
-
-        <article
-            v-for="parfum in populer"
-            :key="`popular-${parfum.id}`"
-            class="product-card horizontal-card"
-        >
-
-            <div class="product-number">
-                {{ String(parfum.id).padStart(2, '0') }}
-            </div>
-
-
-            <div class="product-visual">
-
-            <img
-                v-if="parfum.foto"
-                :src="`/storage/${parfum.foto}`"
-                :alt="parfum.nama"
-            >
-
-            <span v-else class="photo-placeholder">
-                FOTO PARFUM
-            </span>
-
-            </div>
-
-            <div class="product-info">
-
-                <span class="product-label">
-                    LAMORE PERFUMES
-                </span>
-
-                <h4>
-                    {{ parfum.nama }}
-                </h4>
-
-                <strong class="product-price">
-                    {{ formatRupiah(parfum.harga) }}
-                </strong>
-
-                <div class="product-stock">
-
-                    <span>
-                        Stok
-                    </span>
-
-                    <strong>
-                        {{ parfum.stok }}
-                    </strong>
-
-                </div>
-
-            </div>
-
-            <div class="product-actions">
-
-                <button
-                    type="button"
-                    class="cart-small"
-                    @click="masukkanKeranjang(parfum)"
-                >
-                    <ShoppingCart :size="17" />
-                </button>
-
-                <button
-                    type="button"
-                    class="order-button"
-                    :disabled="parfum.stok <= 0"
-                    @click="pesanParfum(parfum)"
-                >
-                    {{
-                        parfum.stok > 0
-                            ? 'Pesan'
-                            : 'Stok Habis'
-                    }}
-                </button>
-
-            </div>
-
-        </article>
-
-    </div>
-
-</section>
-
-    </div>
     <div
-    v-if="showLoginModal"
-    class="login-modal-overlay"
-    @click.self="tutupLoginModal"
->
-    <div class="login-modal">
+        v-if="showLoginModal"
+        class="login-modal-overlay"
+        @click.self="tutupLoginModal"
+    >
+        <div class="login-modal">
 
-        <div class="login-modal-icon">
-            🛒
-        </div>
-
-        <h3>Login Terlebih Dahulu</h3>
-
-        <p>
-            Silakan login terlebih dahulu untuk melihat
-            dan mengelola keranjang belanja kamu.
-        </p>
-
-        <div class="login-modal-actions">
-            <button
-                type="button"
-                class="modal-cancel"
-                @click="tutupLoginModal"
-            >
-                Batal
-            </button>
-
-            <button
-                type="button"
-                class="modal-login"
-                @click="lanjutLogin"
-            >
-                Login
-            </button>
-        </div>
-
-    </div>
-</div>
-<div
-    v-if="showPesanModal"
-    class="login-modal-overlay"
-    @click.self="tutupPesanModal"
->
-    <div class="login-modal">
-
-        <div class="login-modal-icon">
-            🛍️
-        </div>
-
-        <h3>Login Terlebih Dahulu</h3>
-
-        <p>
-            Silakan login terlebih dahulu untuk memesan
-            parfum yang kamu pilih.
-        </p>
-
-        <div class="login-modal-actions">
-            <button
-                type="button"
-                class="modal-cancel"
-                @click="tutupPesanModal"
-            >
-                Batal
-            </button>
-
-            <button
-                type="button"
-                class="modal-login"
-                @click="lanjutLoginPesan"
-            >
-                Login
-            </button>
-        </div>
-
-    </div>
-</div>
-<div
-    v-if="showUkuranModal"
-    class="size-modal-overlay"
-    @click.self="tutupUkuranModal"
->
-    <div class="size-modal">
-
-        <button
-            type="button"
-            class="size-modal-close"
-            @click="tutupUkuranModal"
-        >
-            ×
-        </button>
-
-
-        <div class="size-modal-product">
-
-            <div class="size-modal-image">
-
-                <img
-                    v-if="parfumUkuranDipilih?.foto"
-                    :src="`/storage/${parfumUkuranDipilih.foto}`"
-                    :alt="parfumUkuranDipilih.nama"
-                >
-
-                <span v-else>
-                    FOTO
-                </span>
-
+            <div class="login-modal-icon">
+                <ShoppingCart :size="20" :stroke-width="1.6" />
             </div>
 
+            <h3>Masuk Terlebih Dahulu</h3>
 
-            <div class="size-modal-info">
+            <p>
+                Silakan login terlebih dahulu untuk melihat
+                dan mengelola keranjang belanja kamu.
+            </p>
 
-                <span>
-                    LAMORE PERFUMES
-                </span>
-
-                <h3>
-                     {{ formatRupiah(hargaUkuranDipilih) }}
-                </h3>
-
-                <p>
-                    Stok:
-                    {{ parfumUkuranDipilih?.stok ?? 0 }}
-                    botol
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="size-section">
-
-            <h4>
-                Ukuran
-            </h4>
-
-            <div class="size-list">
-
+            <div class="login-modal-actions">
                 <button
-                    v-for="ml in ukuranTersedia"
-                    :key="ml"
                     type="button"
-                    class="size-button"
-                    :class="{
-                        active: ukuranMlDipilih === ml
-                    }"
-                    @click="ukuranMlDipilih = ml"
+                    class="modal-cancel"
+                    @click="tutupLoginModal"
                 >
-                    {{ ml }} ml
+                    Batal
                 </button>
-
-            </div>
-
-        </div>
-
-
-        <div class="quantity-section">
-
-            <h4>
-                Jumlah Botol
-            </h4>
-
-            <div class="modal-quantity">
 
                 <button
                     type="button"
-                    @click="kurangiBotol"
-                    :disabled="jumlahBotolDipilih <= 1"
+                    class="modal-login"
+                    @click="lanjutLogin"
                 >
-                    −
+                    Login
                 </button>
-
-                <span>
-                    {{ jumlahBotolDipilih }}
-                </span>
-
-                <button
-                    type="button"
-                    @click="tambahBotol"
-                    :disabled="
-                        jumlahBotolDipilih >=
-                        (parfumUkuranDipilih?.stok ?? 0)
-                    "
-                >
-                    +
-                </button>
-
             </div>
 
         </div>
-
-
-        <button
-            type="button"
-            class="size-modal-submit"
-            @click="
-                modeUkuranModal === 'pesan'
-                    ? pesanSekarang()
-                    : konfirmasiKeranjang()
-            "
-        >
-            {{
-                modeUkuranModal === 'pesan'
-                    ? 'Pesan Sekarang'
-                    : 'Masukkan ke Keranjang'
-            }}
-        </button>
-
     </div>
-</div>
+
+    <div
+        v-if="showPesanModal"
+        class="login-modal-overlay"
+        @click.self="tutupPesanModal"
+    >
+        <div class="login-modal">
+
+            <div class="login-modal-icon">
+                <UserRound :size="20" :stroke-width="1.6" />
+            </div>
+
+            <h3>Masuk Terlebih Dahulu</h3>
+
+            <p>
+                Silakan login terlebih dahulu untuk memesan
+                parfum yang kamu pilih.
+            </p>
+
+            <div class="login-modal-actions">
+                <button
+                    type="button"
+                    class="modal-cancel"
+                    @click="tutupPesanModal"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="button"
+                    class="modal-login"
+                    @click="lanjutLoginPesan"
+                >
+                    Login
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div
+        v-if="showUkuranModal"
+        class="size-modal-overlay"
+        @click.self="tutupUkuranModal"
+    >
+        <div class="size-modal">
+
+            <button
+                type="button"
+                class="size-modal-close"
+                @click="tutupUkuranModal"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+
+
+            <div class="size-modal-product">
+
+                <div class="size-modal-image">
+
+                    <img
+                        v-if="parfumUkuranDipilih?.foto"
+                        :src="`/storage/${parfumUkuranDipilih.foto}`"
+                        :alt="parfumUkuranDipilih.nama"
+                    >
+
+                    <span v-else>
+                        Foto
+                    </span>
+
+                </div>
+
+
+                <div class="size-modal-info">
+
+                    <span class="size-modal-name">
+                        {{ parfumUkuranDipilih?.nama }}
+                    </span>
+
+                    <h3>
+                        {{ formatRupiah(hargaUkuranDipilih) }}
+                    </h3>
+
+                    <p>
+                        Stok tersedia:
+                        {{ parfumUkuranDipilih?.stok ?? 0 }}
+                        botol
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="size-section">
+
+                <h4>
+                    Pilih Ukuran
+                </h4>
+
+                <div class="size-list">
+
+                    <button
+                        v-for="ml in ukuranTersedia"
+                        :key="ml"
+                        type="button"
+                        class="size-button"
+                        :class="{
+                            active: ukuranMlDipilih === ml
+                        }"
+                        @click="ukuranMlDipilih = ml"
+                    >
+                        {{ ml }} ml
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="quantity-section">
+
+                <h4>
+                    Jumlah Botol
+                </h4>
+
+                <div class="modal-quantity">
+
+                    <button
+                        type="button"
+                        @click="kurangiBotol"
+                        :disabled="jumlahBotolDipilih <= 1"
+                        aria-label="Kurangi jumlah"
+                    >
+                        −
+                    </button>
+
+                    <span>
+                        {{ jumlahBotolDipilih }}
+                    </span>
+
+                    <button
+                        type="button"
+                        @click="tambahBotol"
+                        :disabled="
+                            jumlahBotolDipilih >=
+                            (parfumUkuranDipilih?.stok ?? 0)
+                        "
+                        aria-label="Tambah jumlah"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="size-modal-submit"
+                @click="
+                    modeUkuranModal === 'pesan'
+                        ? pesanSekarang()
+                        : konfirmasiKeranjang()
+                "
+            >
+                {{
+                    modeUkuranModal === 'pesan'
+                        ? 'Pesan Sekarang'
+                        : 'Masukkan ke Keranjang'
+                }}
+            </button>
+
+        </div>
+    </div>
 
 
 </template>
@@ -946,76 +901,93 @@ const populer = computed(() => {
 
 <style scoped>
 
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
 * {
     box-sizing: border-box;
 }
 
 .customer-page {
+    --forest: #23423a;
+    --forest-deep: #1a332c;
+    --sage: #7d9d8a;
+    --sage-soft: #e9f0e8;
+    --ivory: #faf9f4;
+    --line: #e1e6dd;
+    --text: #2c3a35;
+    --text-muted: #75847b;
+
     min-height: 100vh;
 
-    padding: 30px 6% 70px;
+    padding: 40px 6% 80px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #f7faf9 0%,
-            #eef5f3 100%
-        );
+    background: var(--ivory);
 
-    color: #304c4b;
+    color: var(--text);
+
+    font-family: 'Inter', Arial, sans-serif;
 }
 
+.customer-page h1,
+.customer-page h2,
+.customer-page h3,
+.customer-page h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+}
 
-.customer-header {
+.site-header {
+    max-width: 1200px;
+
+    margin: 0 auto 50px;
+}
+
+.header-inner {
     display: flex;
 
     align-items: center;
     justify-content: space-between;
 
-    max-width: 1300px;
+    padding-bottom: 18px;
 
-    margin: 0 auto 55px;
+    border-bottom: 1px solid var(--line);
 }
 
 .brand {
+    display: flex;
+    align-items: baseline;
+
+    gap: 6px;
+
     text-decoration: none;
+    color: var(--forest);
 }
 
-.brand h1 {
-    margin: 0;
+.brand-mark {
+    font-size: 24px;
+    font-weight: 600;
 
-    font-family: Georgia, serif;
-
-    font-size: 25px;
-
-    font-weight: normal;
-
-    letter-spacing: 1px;
-
-    color: #304c4b;
+    letter-spacing: .5px;
 }
 
-.brand h1 span {
-    display: block;
+.brand-word {
+    font-size: 14px;
 
-    margin-top: -2px;
+    color: var(--sage);
 
-    font-family: Arial, sans-serif;
+    letter-spacing: .5px;
+}
 
-    font-size: 8px;
-
-    letter-spacing: 4px;
-
-    text-align: center;
-
-    color: #668b89;
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
 
 .cart-button {
     position: relative;
 
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
 
     display: flex;
     align-items: center;
@@ -1026,19 +998,23 @@ const populer = computed(() => {
     border: none;
     background: transparent;
 
-    color: #477c7a;
+    color: var(--forest);
 
     cursor: pointer;
-    transition: .2s;
+    transition: color .2s ease;
+}
+
+.cart-button:hover {
+    color: var(--sage);
 }
 
 .cart-badge {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: -2px;
+    right: -4px;
 
-    min-width: 17px;
-    height: 17px;
+    min-width: 16px;
+    height: 16px;
 
     padding: 0 4px;
 
@@ -1048,16 +1024,23 @@ const populer = computed(() => {
 
     border-radius: 50%;
 
-    background: #5d8986;
+    background: var(--forest);
     color: #ffffff;
 
-    font-size: 8px;
-    font-weight: 700;
+    font-size: 9px;
+    font-weight: 600;
     line-height: 1;
 }
 
 .cart-bounce {
     animation: cartBounce .45s ease;
+}
+
+@keyframes cartBounce {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.2) rotate(-6deg); }
+    65% { transform: scale(.94) rotate(4deg); }
+    100% { transform: scale(1); }
 }
 
 .flying-product-image {
@@ -1069,8 +1052,7 @@ const populer = computed(() => {
 
     border-radius: 50%;
 
-    box-shadow:
-        0 8px 25px rgba(60, 90, 85, .20);
+    box-shadow: 0 8px 22px rgba(35, 66, 58, .18);
 
     transition:
         left 1.2s cubic-bezier(.22, .61, .36, 1),
@@ -1081,42 +1063,9 @@ const populer = computed(() => {
         transform 1.2s ease;
 }
 
-@keyframes cartBounce {
-    0% {
-        transform: scale(1);
-    }
-
-    35% {
-        transform: scale(1.25) rotate(-7deg);
-    }
-
-    65% {
-        transform: scale(.92) rotate(5deg);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-.cart-button:hover {
-    color: #6f9d9d;
-    background: transparent;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.profile-wrapper {
-    position: relative;
-}
-
 .profile-button {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
 
     display: flex;
     align-items: center;
@@ -1124,18 +1073,19 @@ const populer = computed(() => {
 
     padding: 0;
 
-    border: 1px solid #d1dfdc;
+    border: 1px solid var(--line);
     border-radius: 50%;
 
     background: #ffffff;
-    color: #477c7a;
+    color: var(--forest);
 
     cursor: pointer;
-    transition: .2s;
+    transition: border-color .2s ease, background .2s ease;
 }
 
 .profile-button:hover {
-    background: #edf4f2;
+    border-color: var(--sage);
+    background: var(--sage-soft);
 }
 
 .profile-avatar {
@@ -1148,283 +1098,162 @@ const populer = computed(() => {
 
     border-radius: 50%;
 
-    background: #eaf7f7;
-    color: #6f9d9d;
+    background: var(--sage-soft);
+    color: var(--forest);
 
-    font-family: Georgia, serif;
+    font-family: 'Cormorant Garamond', Georgia, serif;
     font-size: 15px;
+    font-weight: 600;
 }
 
-.profile-menu {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
+.intro {
+    max-width: 620px;
 
-    width: 230px;
-
-    padding: 14px;
-
-    background: #ffffff;
-
-    border: 1px solid #dce7e5;
-    border-radius: 12px;
-
-    box-shadow: 0 15px 35px rgba(80, 110, 100, .12);
-
-    z-index: 100;
+    margin: 0 auto 42px;
 }
 
-.profile-info strong {
-    display: block;
+.intro h2 {
+    margin: 0 0 12px;
 
-    margin-bottom: 5px;
+    font-size: 34px;
+    font-weight: 500;
+    line-height: 1.25;
 
-    color: #445858;
-    font-size: 12px;
+    color: var(--forest-deep);
 }
 
-.profile-info span {
-    display: block;
-
-    color: #99a8a6;
-    font-size: 9px;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.profile-divider {
-    height: 1px;
-
-    margin: 12px 0;
-
-    background: #edf2f1;
-}
-
-.profile-logout {
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
-
-    padding: 9px 10px;
-
-    border: 1px solid #f0dddd;
-    border-radius: 8px;
-
-    background: #ffffff;
-    color: #b77777;
-
-    font-size: 10px;
-    cursor: pointer;
-}
-
-.profile-logout:hover {
-    background: #fff8f8;
-}
-
-.profile-login {
-    display: block;
-
-    padding: 9px 10px;
-
-    border-radius: 8px;
-
-    background: #7fbd6c;
-
-    color: #ffffff;
-
-    text-align: center;
-
-    text-decoration: none;
-
-    font-size: 10px;
-}
-
-.profile-login:hover {
-    background: #6daa5c;
-}
-.collection-heading {
-    max-width: 1300px;
-
-    margin: 0 auto 30px;
-
-    text-align: center;
-}
-
-.section-label {
-    display: block;
-
-    font-size: 8px;
-
-    letter-spacing: 3px;
-
-    color: #7c9c99;
-}
-
-.collection-heading h2 {
-    margin: 10px 0 7px;
-
-    font-family: Georgia, serif;
-
-    font-size: 40px;
-
-    font-weight: normal;
-
-    letter-spacing: 1px;
-
-    color: #304c4b;
-}
-
-.collection-heading p {
+.intro p {
     margin: 0;
 
-    font-size: 12px;
+    max-width: 46ch;
 
-    color: #839997;
+    font-size: 13.5px;
+    line-height: 1.75;
+
+    color: var(--text-muted);
 }
 
-.category-section {
-    max-width: 1300px;
-    margin: 0 auto 25px;
+.category-nav {
+    max-width: 1200px;
+
+    margin: 0 auto 40px;
 
     overflow-x: auto;
 
     scrollbar-width: none;
 }
 
-.category-section::-webkit-scrollbar {
+.category-nav::-webkit-scrollbar {
     display: none;
 }
 
 .category-list {
     display: flex;
 
+    gap: 26px;
+
     width: max-content;
-    min-width: 100%;
 
-    border: 1px solid #dce7e5;
-    border-radius: 11px;
-
-    overflow: hidden;
-
-    background: rgba(255, 255, 255, .75);
+    border-bottom: 1px solid var(--line);
 }
 
-.category-button {
-    flex: 0 0 auto;
+.category-tab {
+    position: relative;
 
-    min-width: 115px;
-
-    padding: 13px 18px;
+    padding: 0 2px 12px;
 
     border: none;
-    border-right: 1px solid #e2ebe9;
-
     background: transparent;
 
-    color: #6e8583;
+    color: var(--text-muted);
 
-    font-size: 10px;
+    font-size: 13px;
+    font-family: 'Inter', Arial, sans-serif;
 
     white-space: nowrap;
 
     cursor: pointer;
-
-    transition: .2s;
+    transition: color .2s ease;
 }
 
-.category-button:last-child {
-    border-right: none;
+.category-tab:hover {
+    color: var(--forest);
 }
 
-.category-button:hover {
-    background: #edf5f3;
+.category-tab::after {
+    content: '';
+
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+
+    width: 100%;
+    height: 2px;
+
+    background: var(--forest);
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition: transform .25s ease;
 }
 
-.category-button.active {
-    background: #416f6d;
+.category-tab.active {
+    color: var(--forest-deep);
+    font-weight: 500;
+}
 
-    color: white;
+.category-tab.active::after {
+    transform: scaleX(1);
 }
 
 .collection-section {
-    max-width: 1300px;
+    max-width: 1200px;
 
-    margin: 0 auto 45px;
+    margin: 0 auto 60px;
 }
 
 .collection-top {
     display: flex;
 
-    align-items: flex-end;
-
+    align-items: baseline;
     justify-content: space-between;
 
-    margin-bottom: 18px;
+    margin-bottom: 22px;
 }
 
 .collection-top h3 {
-    margin: 6px 0 0;
+    margin: 0;
 
-    font-family: Georgia, serif;
+    font-size: 24px;
+    font-weight: 500;
 
-    font-size: 25px;
-
-    font-weight: normal;
+    color: var(--forest-deep);
 }
 
 .product-count {
-    font-size: 10px;
+    font-size: 11px;
 
-    color: #8a9e9c;
+    color: var(--text-muted);
 }
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(5, 190px);
-    gap: 12px;
+
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+
+    gap: 24px 20px;
 }
 
 .product-card {
-    position: relative;
-
-    padding: 10px;
-
-    border: 1px solid #dce7e5;
-
-    border-radius: 14px;
-
-    background: #ffffff;
-
-    transition: .25s;
-
-    overflow: hidden;
-}
-
-.product-card:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-.product-number {
-    position: absolute;
-
-    top: 13px;
-    right: 15px;
-
-    font-family: Georgia, serif;
-
-    font-size: 10px;
-
-    color: #b4c5c3;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-visual {
-    height: 145px;
+    position: relative;
+
+    height: 230px;
 
     display: flex;
     align-items: center;
@@ -1432,9 +1261,9 @@ const populer = computed(() => {
 
     overflow: hidden;
 
-    border-radius: 10px;
+    border-radius: 6px;
 
-    background: #f5f8f7;
+    background: var(--sage-soft);
 }
 
 .product-visual img {
@@ -1446,310 +1275,140 @@ const populer = computed(() => {
     object-fit: cover;
     object-position: center;
 
-    border-radius: 10px;
+    transition: transform .5s ease;
 }
 
-.bottle-shape {
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
+.product-card:hover .product-visual img {
+    transform: scale(1.045);
 }
 
-.bottle-cap {
-    width: 30px;
-    height: 27px;
+.photo-placeholder {
+    font-size: 11px;
 
-    border-radius: 4px 4px 2px 2px;
-
-    background: #263d3c;
+    color: var(--text-muted);
 }
 
-.bottle-body {
-    width: 72px;
-    height: 82px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 9px 9px 12px 12px;
-
-    border: 1px solid #aabdb9;
-
-    background:
-        linear-gradient(
-            145deg,
-            #dfeae7,
-            #ffffff
-        );
-
-    color: #507673;
-
-    font-family: Georgia, serif;
-
-    font-size: 9px;
-
-    letter-spacing: 1px;
-}
-
-.bottle-body small {
-    margin-top: 4px;
-
-    font-family: Arial, sans-serif;
-
-    font-size: 4px;
-
-    letter-spacing: 2px;
-}
-
-.product-info {
-    padding: 13px 3px 0;
-}
-
-.product-label {
-    font-size: 7px;
-
-    letter-spacing: 2px;
-
-    color: #8da3a1;
-}
-
-.product-info h4 {
-    margin: 7px 0;
-
-    font-family: Georgia, serif;
-
-    font-size: 17px;
-
-    font-weight: normal;
-
-    color: #304c4b;
-}
-
-.product-price {
-    font-size: 12px;
-
-    color: #4a807d;
-}
-
-.product-stock {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-top: 10px;
-
-    padding-top: 9px;
-
-    border-top: 1px solid #edf2f1;
-
-    font-size: 9px;
-
-    color: #91a3a1;
-}
-
-.product-stock strong {
-    color: #536e6c;
-
-    font-size: 10px;
-}
-
-.product-actions {
-    display: flex;
-
-    gap: 7px;
-
-    margin-top: 12px;
-}
-
-.cart-small {
-    width: 38px;
-    height: 34px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #cbdcd9;
-
-    border-radius: 7px;
-
-    background: white;
-
-    color: #477c79;
-
-    cursor: pointer;
-}
-
-.order-button {
-    flex: 1;
-
-    height: 34px;
-
-    border: none;
-
-    border-radius: 7px;
-
-    background: #477c79;
-
-    color: white;
-
-    font-size: 10px;
-
-    cursor: pointer;
-}
-
-.order-button:disabled {
-    background: #c7d3d1;
-
-    cursor: not-allowed;
-}
-
-.special-section {
-    max-width: 1300px;
-
-    margin: 0 auto 25px;
-
-    padding: 24px;
-
-    border: 1px solid #dce7e5;
-
-    border-radius: 15px;
-
-    background: rgba(255,255,255,.82);
-}
-
-.special-header {
-    display: flex;
-
-    align-items: flex-end;
-
-    justify-content: space-between;
-
-    margin-bottom: 18px;
-}
-
-.special-header h3 {
-    margin: 6px 0 0;
-
-    font-family: Georgia, serif;
-
-    font-size: 22px;
-
-    font-weight: normal;
-}
-
-.see-all {
-    border: none;
-
-    background: none;
-
-    color: #568381;
-
-    font-size: 10px;
-
-    cursor: pointer;
-}
-
-.small-product-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 15px;
-}
-
-.small-product {
-    display: flex;
-
-    align-items: center;
-
-    gap: 14px;
-
-    padding: 10px;
-
-    border-radius: 10px;
-
-    background: #f8faf9;
-}
-
-.small-bottle {
-    width: 60px;
-    height: 75px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: flex-end;
-
-    flex-shrink: 0;
-}
-
-.small-cap {
-    width: 17px;
-    height: 15px;
+.product-tag {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+
+    padding: 4px 9px;
 
     border-radius: 3px;
 
-    background: #2c4140;
+    background: rgba(250, 249, 244, .92);
+
+    color: var(--forest);
+
+    font-size: 9.5px;
+    letter-spacing: .3px;
 }
 
-.small-body {
-    width: 40px;
-    height: 45px;
+.quick-cart {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+
+    width: 32px;
+    height: 32px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
-    border-radius: 5px 5px 8px 8px;
+    border: none;
+    border-radius: 50%;
 
-    border: 1px solid #aebfbc;
+    background: rgba(250, 249, 244, .92);
+    color: var(--forest);
 
-    background: white;
+    cursor: pointer;
 
-    font-family: Georgia, serif;
+    opacity: 0;
+    transform: translateY(4px);
 
+    transition: opacity .2s ease, transform .2s ease, background .2s ease;
+}
+
+.product-card:hover .quick-cart {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.quick-cart:hover {
+    background: var(--forest);
+    color: #ffffff;
+}
+
+.product-info {
+    padding-top: 14px;
+}
+
+.product-info h4 {
+    margin: 0 0 8px;
+
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.3;
+
+    color: var(--text);
+}
+
+.product-meta {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+}
+
+.product-price {
+    font-family: 'Inter', Arial, sans-serif;
     font-size: 13px;
+    font-weight: 600;
 
-    color: #527774;
+    color: var(--forest);
 }
 
-.small-bottle.popular .small-body {
-    background: #edf4f2;
+.product-stock {
+    font-size: 10.5px;
+
+    color: var(--text-muted);
 }
 
-.small-product h4 {
-    margin: 0 0 5px;
+.order-button {
+    width: 100%;
+    height: 38px;
 
-    font-family: Georgia, serif;
+    border: 1px solid var(--forest);
+    border-radius: 5px;
 
-    font-size: 14px;
+    background: transparent;
+    color: var(--forest);
 
-    font-weight: normal;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .2px;
 
-    color: #3c5654;
+    cursor: pointer;
+
+    transition: background .2s ease, color .2s ease;
 }
 
-.small-product p {
-    margin: 0;
+.order-button:hover:not(:disabled) {
+    background: var(--forest);
+    color: #ffffff;
+}
 
-    font-size: 10px;
+.order-button:disabled {
+    border-color: var(--line);
 
-    color: #5d8986;
+    color: var(--text-muted);
+
+    cursor: not-allowed;
 }
 
 .empty-product {
@@ -1757,67 +1416,63 @@ const populer = computed(() => {
 
     text-align: center;
 
-    border: 1px solid #dce7e5;
+    border: 1px solid var(--line);
+    border-radius: 8px;
 
-    border-radius: 14px;
+    background: #ffffff;
 
-    background: white;
+    color: var(--text-muted);
 
-    color: #899c9a;
-
-    font-size: 11px;
-}
-.special-section {
-    max-width: 1300px;
-
-    margin: 0 auto 45px;
+    font-size: 12px;
 }
 
-.special-header {
+.shelf-section {
+    max-width: 1200px;
+
+    margin: 0 auto 50px;
+}
+
+.shelf-header {
     display: flex;
 
-    align-items: flex-end;
+    align-items: baseline;
     justify-content: space-between;
 
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
-.special-header h3 {
-    margin: 6px 0 0;
+.shelf-header h3 {
+    margin: 0;
 
-    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
 
-    font-size: 25px;
-
-    font-weight: normal;
-
-    color: #304c4b;
+    color: var(--forest-deep);
 }
 
 .scroll-hint {
-    font-size: 9px;
+    font-size: 10.5px;
 
-    color: #91a3a1;
+    color: var(--text-muted);
 }
 
 .horizontal-products {
     display: flex;
 
-    gap: 15px;
+    gap: 20px;
 
     overflow-x: auto;
 
-    padding: 5px 3px 15px;
+    padding: 2px 2px 14px;
 
     scroll-behavior: smooth;
 
     scrollbar-width: thin;
-
-    scrollbar-color: #b9ceca transparent;
+    scrollbar-color: var(--sage) transparent;
 }
 
 .horizontal-products::-webkit-scrollbar {
-    height: 5px;
+    height: 4px;
 }
 
 .horizontal-products::-webkit-scrollbar-track {
@@ -1825,23 +1480,26 @@ const populer = computed(() => {
 }
 
 .horizontal-products::-webkit-scrollbar-thumb {
-    background: #b9ceca;
-
+    background: var(--sage);
     border-radius: 10px;
 }
+
 .horizontal-card {
-    flex: 0 0 220px;
-    width: 220px;
-    min-width: 220px;
+    flex: 0 0 210px;
+    width: 210px;
+    min-width: 210px;
 }
-.photo-placeholder {
-    font-size: 8px;
 
-    letter-spacing: 2px;
-
-    color: #9aadaa;
-}
 .login-modal-overlay {
+    --forest: #23423a;
+    --forest-deep: #1a332c;
+    --sage: #7d9d8a;
+    --sage-soft: #e9f0e8;
+    --ivory: #faf9f4;
+    --line: #e1e6dd;
+    --text: #2c3a35;
+    --text-muted: #75847b;
+
     position: fixed;
     inset: 0;
     z-index: 9999;
@@ -1852,31 +1510,34 @@ const populer = computed(() => {
 
     padding: 20px;
 
-    background: rgba(40, 55, 45, 0.35);
-    backdrop-filter: blur(4px);
+    background: rgba(26, 51, 44, .38);
+
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+.login-modal-overlay h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 .login-modal {
     width: 100%;
-    max-width: 360px;
+    max-width: 340px;
 
-    padding: 30px 28px;
+    padding: 32px 28px;
 
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 10px;
 
     text-align: center;
 
-    box-shadow: 0 20px 60px rgba(60, 90, 65, 0.15);
-
-    animation: modalIn .2s ease;
+    animation: modalIn .18s ease;
 }
 
 .login-modal-icon {
-    width: 52px;
-    height: 52px;
+    width: 46px;
+    height: 46px;
 
-    margin: 0 auto 16px;
+    margin: 0 auto 18px;
 
     display: flex;
     align-items: center;
@@ -1884,31 +1545,28 @@ const populer = computed(() => {
 
     border-radius: 50%;
 
-    background: #edf7ec;
-
-    font-size: 22px;
+    background: var(--sage-soft);
+    color: var(--forest);
 }
 
 .login-modal h3 {
     margin: 0 0 10px;
 
-    font-family: Georgia, serif;
+    font-size: 21px;
+    font-weight: 500;
 
-    font-size: 22px;
-    font-weight: normal;
-
-    color: #555;
+    color: var(--forest-deep);
 }
 
 .login-modal p {
-    margin: 0 auto 25px;
+    margin: 0 auto 24px;
 
-    max-width: 280px;
+    max-width: 260px;
 
-    font-size: 11px;
+    font-size: 11.5px;
     line-height: 1.7;
 
-    color: #888;
+    color: var(--text-muted);
 }
 
 .login-modal-actions {
@@ -1921,40 +1579,48 @@ const populer = computed(() => {
 
     padding: 11px;
 
-    border-radius: 8px;
+    border-radius: 5px;
 
+    font-family: 'Inter', Arial, sans-serif;
     font-size: 11px;
+    font-weight: 500;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: background .2s ease, border-color .2s ease;
 }
 
 .modal-cancel {
-    border: 1px solid #dce8d8;
-
+    border: 1px solid var(--line);
     background: #ffffff;
-
-    color: #777;
+    color: var(--text-muted);
 }
 
 .modal-cancel:hover {
-    background: #f7faf7;
+    background: var(--ivory);
 }
 
 .modal-login {
-    border: none;
-
-    background: #7fbd6c;
-
+    border: 1px solid var(--forest);
+    background: var(--forest);
     color: #ffffff;
 }
 
 .modal-login:hover {
-    background: #6daa5c;
+    background: var(--forest-deep);
+    border-color: var(--forest-deep);
 }
 
 .size-modal-overlay {
+    --forest: #23423a;
+    --forest-deep: #1a332c;
+    --sage: #7d9d8a;
+    --sage-soft: #e9f0e8;
+    --ivory: #faf9f4;
+    --line: #e1e6dd;
+    --text: #2c3a35;
+    --text-muted: #75847b;
+
     position: fixed;
     inset: 0;
     z-index: 10000;
@@ -1965,28 +1631,28 @@ const populer = computed(() => {
 
     padding: 20px;
 
-    background: rgba(31, 47, 43, .40);
+    background: rgba(26, 51, 44, .42);
 
-    backdrop-filter: blur(6px);
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+.size-modal-overlay h3,
+.size-modal-overlay h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 .size-modal {
     position: relative;
 
-    width: min(560px, 100%);
+    width: min(500px, 100%);
     max-height: 90vh;
 
     overflow-y: auto;
 
-    padding: 24px;
+    padding: 28px;
 
     background: #ffffff;
-
-    border: 1px solid #e3ece9;
-    border-radius: 18px;
-
-    box-shadow:
-        0 25px 70px rgba(40, 65, 60, .18);
+    border-radius: 10px;
 
     animation: sizeModalIn .2s ease;
 }
@@ -1994,46 +1660,47 @@ const populer = computed(() => {
 .size-modal-close {
     position: absolute;
 
-    top: 13px;
-    right: 13px;
+    top: 14px;
+    right: 14px;
 
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
 
     border: none;
     border-radius: 50%;
 
-    background: #f4f8f7;
+    background: var(--ivory);
+    color: var(--text-muted);
 
-    color: #718481;
-
-    font-size: 23px;
+    font-size: 20px;
     line-height: 1;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: background .2s ease, color .2s ease;
 }
 
 .size-modal-close:hover {
-    background: #eaf3f1;
-    color: #405d5a;
+    background: var(--sage-soft);
+    color: var(--forest);
 }
 
 .size-modal-product {
     display: flex;
     align-items: center;
 
-    gap: 17px;
+    gap: 16px;
 
-    margin-bottom: 24px;
+    margin-bottom: 26px;
+    padding-bottom: 22px;
+    padding-right: 30px;
 
-    padding-right: 35px;
+    border-bottom: 1px solid var(--line);
 }
 
 .size-modal-image {
-    width: 92px;
-    height: 92px;
+    width: 86px;
+    height: 86px;
 
     flex-shrink: 0;
 
@@ -2043,9 +1710,9 @@ const populer = computed(() => {
 
     overflow: hidden;
 
-    border-radius: 12px;
+    border-radius: 6px;
 
-    background: #f3f7f6;
+    background: var(--sage-soft);
 }
 
 .size-modal-image img {
@@ -2058,38 +1725,35 @@ const populer = computed(() => {
 }
 
 .size-modal-image span {
-    color: #9aa9a7;
-    font-size: 8px;
+    color: var(--text-muted);
+    font-size: 9px;
 }
 
-.size-modal-info span {
+.size-modal-name {
     display: block;
 
     margin-bottom: 5px;
 
-    font-size: 7px;
-    letter-spacing: 2px;
+    font-size: 13px;
 
-    color: #8da3a1;
+    color: var(--text);
 }
 
 .size-modal-info h3 {
     margin: 0 0 6px;
 
-    font-family: Arial, sans-serif;
-
-    font-size: 22px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 20px;
     font-weight: 600;
 
-    color: #4f817d;
+    color: var(--forest);
 }
 
 .size-modal-info p {
     margin: 0;
 
-    color: #91a3a1;
-
-    font-size: 10px;
+    color: var(--text-muted);
+    font-size: 10.5px;
 }
 
 .size-section {
@@ -2098,9 +1762,10 @@ const populer = computed(() => {
 
 .size-section h4,
 .quantity-section h4 {
-    margin: 0 0 10px;
+    margin: 0 0 12px;
 
-    color: #405d5a;
+    font-family: 'Inter', Arial, sans-serif;
+    color: var(--text);
 
     font-size: 12px;
     font-weight: 600;
@@ -2109,10 +1774,9 @@ const populer = computed(() => {
 .size-list {
     display: grid;
 
-    grid-template-columns:
-        repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
 
-    gap: 7px;
+    gap: 8px;
 
     max-height: 190px;
 
@@ -2122,34 +1786,31 @@ const populer = computed(() => {
 }
 
 .size-button {
-    min-height: 38px;
+    min-height: 36px;
 
-    border: 1px solid #dce7e5;
-    border-radius: 8px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
 
     background: #ffffff;
 
-    color: #6d8582;
+    color: var(--text-muted);
 
-    font-size: 9px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 10px;
 
     cursor: pointer;
 
-    transition: .15s ease;
+    transition: border-color .15s ease, background .15s ease, color .15s ease;
 }
 
 .size-button:hover {
-    border-color: #a8c7c3;
-    background: #f5faf9;
+    border-color: var(--sage);
 }
 
 .size-button.active {
-    border-color: #5d8986;
-
-    background: #5d8986;
-
+    border-color: var(--forest);
+    background: var(--forest);
     color: #ffffff;
-
     font-weight: 600;
 }
 
@@ -2161,12 +1822,10 @@ const populer = computed(() => {
 
     gap: 15px;
 
-    margin-bottom: 18px;
+    margin-bottom: 22px;
+    padding: 16px 0;
 
-    padding: 15px 0;
-
-    border-top: 1px solid #edf2f1;
-    border-bottom: 1px solid #edf2f1;
+    border-bottom: 1px solid var(--line);
 }
 
 .modal-quantity {
@@ -2175,43 +1834,42 @@ const populer = computed(() => {
 
     overflow: hidden;
 
-    border: 1px solid #dce7e5;
-    border-radius: 9px;
-
-    background: #f8faf9;
+    border: 1px solid var(--line);
+    border-radius: 6px;
 }
 
 .modal-quantity button {
-    width: 38px;
-    height: 36px;
+    width: 36px;
+    height: 34px;
 
     border: none;
 
     background: transparent;
+    color: var(--forest);
 
-    color: #668b89;
-
-    font-size: 18px;
+    font-size: 17px;
 
     cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .modal-quantity button:hover:not(:disabled) {
-    background: #edf4f2;
+    background: var(--sage-soft);
 }
 
 .modal-quantity button:disabled {
-    color: #ccd8d6;
-
+    color: var(--line);
     cursor: not-allowed;
 }
 
 .modal-quantity span {
-    width: 40px;
+    width: 38px;
 
     text-align: center;
 
-    color: #526b69;
+    font-family: 'Inter', Arial, sans-serif;
+    color: var(--text);
 
     font-size: 11px;
     font-weight: 600;
@@ -2219,61 +1877,67 @@ const populer = computed(() => {
 
 .size-modal-submit {
     width: 100%;
-    height: 48px;
+    height: 46px;
 
     border: none;
-    border-radius: 10px;
+    border-radius: 6px;
 
-    background: #5d8986;
-
+    background: var(--forest);
     color: #ffffff;
 
-    font-size: 11px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11.5px;
     font-weight: 600;
+    letter-spacing: .2px;
 
     cursor: pointer;
 
-    transition: .2s ease;
+    transition: background .2s ease;
 }
 
 .size-modal-submit:hover {
-    background: #477c79;
+    background: var(--forest-deep);
 }
 
 @keyframes sizeModalIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px) scale(.98);
-    }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+.category-tab:focus-visible,
+.order-button:focus-visible,
+.quick-cart:focus-visible,
+.cart-button:focus-visible,
+.profile-button:focus-visible,
+.size-button:focus-visible,
+.modal-login:focus-visible,
+.modal-cancel:focus-visible,
+.size-modal-submit:focus-visible {
+    outline: 2px solid var(--sage);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .product-visual img,
+    .quick-cart,
+    .cart-bounce,
+    .login-modal,
+    .size-modal {
+        animation: none !important;
+        transition: none !important;
     }
 }
+
 
 @media (max-width: 1050px) {
 
     .product-grid {
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
-    }
-
-    .small-product-grid {
-        grid-template-columns:
-            repeat(2, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
 }
@@ -2281,48 +1945,51 @@ const populer = computed(() => {
 @media (max-width: 750px) {
 
     .customer-page {
-        padding: 25px 18px 50px;
+        padding: 28px 20px 60px;
+    }
+
+    .intro h2 {
+        font-size: 28px;
     }
 
     .product-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-    .collection-heading h2 {
-        font-size: 32px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 14px;
     }
 
 }
 
 @media (max-width: 520px) {
 
-    .customer-header {
-        margin-bottom: 35px;
+    .site-header {
+        margin-bottom: 34px;
     }
 
-    .brand h1 {
-        font-size: 21px;
+    .brand-mark {
+        font-size: 20px;
     }
 
-    .cart-button span {
-        display: none;
+    .intro h2 {
+        font-size: 24px;
     }
 
     .product-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 10px;
     }
 
-    .small-product-grid {
-        grid-template-columns: 1fr;
+    .product-visual {
+        height: 170px;
     }
 
-    .special-section {
-        padding: 18px;
+    .horizontal-card {
+        flex: 0 0 165px;
+        width: 165px;
+        min-width: 165px;
     }
+
     .size-modal {
-    padding: 20px;
-    border-radius: 15px;
+        padding: 22px;
     }
 
     .size-modal-product {
@@ -2330,13 +1997,12 @@ const populer = computed(() => {
     }
 
     .size-modal-image {
-        width: 78px;
-        height: 78px;
+        width: 74px;
+        height: 74px;
     }
 
     .size-list {
-        grid-template-columns:
-            repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
 }

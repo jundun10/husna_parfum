@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { Plus, Pencil, Trash2, Search, X } from 'lucide-vue-next';
 
 const props = defineProps({
     users: {
@@ -22,7 +23,7 @@ const errorMessage = ref('');
 const showConfirm = ref(false);
 const selectedUser = ref(null);
 
-const logoUrl = '/images/logo.jpg';
+const logoUrl = '/images/logo-hf.png';
 const logoutForm = useForm({});
 
 const logout = () => {
@@ -129,6 +130,150 @@ const roleLabel = (role) => {
     if (role === 'admin') return 'Admin';
     return 'Pengguna';
 };
+
+/* ===================================================
+   SEARCH & FILTER
+   (dilakukan di data yang sudah tersedia dari props,
+   tidak ada request/endpoint baru)
+=================================================== */
+
+const searchQuery = ref('');
+const filterRole = ref('Semua');
+
+const usersFiltered = computed(() => {
+    const keyword = searchQuery.value.trim().toLowerCase();
+
+    return props.users.filter((user) => {
+        const cocokKeyword =
+            !keyword ||
+            user.name?.toLowerCase().includes(keyword) ||
+            user.email?.toLowerCase().includes(keyword);
+
+        const cocokRole =
+            filterRole.value === 'Semua' ||
+            user.role === filterRole.value;
+
+        return cocokKeyword && cocokRole;
+    });
+});
+
+/* ===================================================
+   TAMBAH PENGGUNA
+   POST /super-admin/pengguna
+=================================================== */
+
+const showAddModal = ref(false);
+
+const addForm = useForm({
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+    role: 'admin',
+});
+
+const openAddModal = () => {
+    addForm.reset();
+    addForm.clearErrors();
+    showAddModal.value = true;
+};
+
+const closeAddModal = () => {
+    if (addForm.processing) return;
+
+    showAddModal.value = false;
+    addForm.reset();
+    addForm.clearErrors();
+};
+
+const submitAdd = () => {
+    addForm.post('/super-admin/pengguna', {
+        preserveScroll: true,
+
+        onSuccess: () => {
+            closeAddModal();
+            showSuccessNotification('Pengguna baru berhasil ditambahkan.');
+        },
+
+        onError: (errors) => {
+            const firstError = Object.values(errors)[0];
+
+            showErrorNotification(
+                firstError || 'Pengguna gagal ditambahkan.'
+            );
+        },
+    });
+};
+
+/* ===================================================
+   EDIT PENGGUNA (nama, email, role, password opsional)
+   Memakai ulang route PUT /super-admin/pengguna/{user}/role
+   yang sudah ada -- backend method di route ini sekarang
+   menerima name/email/password/role sekaligus.
+=================================================== */
+
+const showEditModal = ref(false);
+const userSedangDiedit = ref(null);
+
+const editForm = useForm({
+    name: '',
+    email: '',
+    role: 'admin',
+    password: '',
+    password_confirmation: '',
+});
+
+const openEditModal = (user) => {
+    userSedangDiedit.value = user;
+
+    editForm.clearErrors();
+
+    editForm.name = user.name;
+    editForm.email = user.email;
+    editForm.role = user.role;
+    editForm.password = '';
+    editForm.password_confirmation = '';
+
+    showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+    if (editForm.processing) return;
+
+    showEditModal.value = false;
+    userSedangDiedit.value = null;
+    editForm.reset();
+    editForm.clearErrors();
+};
+
+const submitEdit = () => {
+    if (!userSedangDiedit.value) return;
+
+    if (
+        userSedangDiedit.value.id === props.authUser?.id &&
+        editForm.role !== userSedangDiedit.value.role
+    ) {
+        showErrorNotification('Role akun sendiri tidak dapat diubah.');
+        return;
+    }
+
+    editForm.put(`/super-admin/pengguna/${userSedangDiedit.value.id}/role`, {
+        preserveScroll: true,
+
+        onSuccess: () => {
+            closeEditModal();
+            showSuccessNotification('Data pengguna berhasil diperbarui.');
+        },
+
+        onError: (errors) => {
+            const firstError = Object.values(errors)[0];
+
+            showErrorNotification(
+                firstError || 'Data pengguna gagal diperbarui.'
+            );
+        },
+    });
+};
 </script>
 
 <template>
@@ -150,11 +295,11 @@ const roleLabel = (role) => {
                 <div class="brand">
                     <img
                         :src="logoUrl"
-                        alt="Lamore Perfumes"
+                        alt="HF Parfum"
                     >
 
                     <div>
-                        <h2>Lamore</h2>
+                        <h2>HF Parfum</h2>
                     </div>
                 </div>
 
@@ -217,13 +362,6 @@ const roleLabel = (role) => {
                 </Link>
 
                 <Link
-                    href="/super-admin/laporan"
-                    class="menu-item"
-                >
-                    <span>Laporan</span>
-                </Link>
-
-                <Link
                     href="/super-admin/pengaturan"
                     class="menu-item"
                 >
@@ -264,10 +402,42 @@ const roleLabel = (role) => {
                         <h1>Kelola Pengguna</h1>
                     </div>
                 </div>
+
+                <button
+                    type="button"
+                    class="add-user-button"
+                    @click="openAddModal"
+                >
+                    <Plus :size="16" :stroke-width="2" />
+                    <span>Tambah Pengguna</span>
+                </button>
             </header>
 
+            <div class="toolbar">
+
+                <div class="search-box">
+                    <Search :size="15" :stroke-width="1.8" />
+
+                    <input
+                        type="text"
+                        v-model="searchQuery"
+                        placeholder="Cari nama atau email..."
+                    >
+                </div>
+
+                <select
+                    v-model="filterRole"
+                    class="filter-select"
+                >
+                    <option value="Semua">Semua Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="super_admin">Super Admin</option>
+                </select>
+
+            </div>
+
             <section
-                v-if="users.length === 0"
+                v-if="props.users.length === 0"
                 class="empty-card"
             >
                 <div class="empty-icon">
@@ -278,6 +448,22 @@ const roleLabel = (role) => {
 
                 <p>
                     Belum ada pengguna yang terdaftar.
+                </p>
+            </section>
+
+            <section
+                v-else-if="usersFiltered.length === 0"
+                class="empty-card"
+            >
+                <div class="empty-icon">
+                    <Search :size="26" :stroke-width="1.4" />
+                </div>
+
+                <h2>Tidak Ditemukan</h2>
+
+                <p>
+                    Tidak ada pengguna yang cocok dengan pencarian
+                    atau filter yang dipilih.
                 </p>
             </section>
 
@@ -293,14 +479,14 @@ const roleLabel = (role) => {
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Tanggal Daftar</th>
+                                <th>Bergabung</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             <tr
-                                v-for="user in users"
+                                v-for="user in usersFiltered"
                                 :key="user.id"
                             >
                                 <td>
@@ -319,13 +505,10 @@ const roleLabel = (role) => {
                                     <select
                                         :value="user.role"
                                         class="role-select"
+                                        :class="`role-select-${user.role}`"
                                         :disabled="user.id === props.authUser?.id || roleForm.processing"
                                         @change="updateRole(user, $event.target.value)"
                                     >
-                                        <option value="user">
-                                            Pengguna
-                                        </option>
-
                                         <option value="admin">
                                             Admin
                                         </option>
@@ -341,14 +524,28 @@ const roleLabel = (role) => {
                                 </td>
 
                                 <td>
-                                    <button
-                                        type="button"
-                                        class="delete-button"
-                                        :disabled="user.id === props.authUser?.id"
-                                        @click="confirmDelete(user)"
-                                    >
-                                        Hapus
-                                    </button>
+                                    <div class="action-buttons">
+
+                                        <button
+                                            type="button"
+                                            class="icon-button edit-icon-button"
+                                            title="Edit pengguna"
+                                            @click="openEditModal(user)"
+                                        >
+                                            <Pencil :size="14" :stroke-width="1.8" />
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="icon-button delete-icon-button"
+                                            title="Hapus pengguna"
+                                            :disabled="user.id === props.authUser?.id"
+                                            @click="confirmDelete(user)"
+                                        >
+                                            <Trash2 :size="14" :stroke-width="1.8" />
+                                        </button>
+
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -356,6 +553,280 @@ const roleLabel = (role) => {
 
                 </div>
             </section>
+
+            <!-- Modal: Tambah Pengguna -->
+            <div
+                v-if="showAddModal"
+                class="modal-overlay"
+                @click.self="closeAddModal"
+            >
+                <div class="form-modal">
+
+                    <div class="form-modal-header">
+                        <h2>Tambah Pengguna</h2>
+
+                        <button
+                            type="button"
+                            class="modal-close"
+                            @click="closeAddModal"
+                            aria-label="Tutup"
+                        >
+                            <X :size="18" :stroke-width="1.8" />
+                        </button>
+                    </div>
+
+                    <form
+                        class="user-form"
+                        @submit.prevent="submitAdd"
+                    >
+
+                        <div class="form-field">
+                            <label>Nama</label>
+
+                            <input
+                                type="text"
+                                v-model="addForm.name"
+                                placeholder="Nama lengkap"
+                            >
+
+                            <span
+                                v-if="addForm.errors.name"
+                                class="field-error"
+                            >
+                                {{ addForm.errors.name }}
+                            </span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Email</label>
+
+                            <input
+                                type="email"
+                                v-model="addForm.email"
+                                placeholder="nama@email.com"
+                            >
+
+                            <span
+                                v-if="addForm.errors.email"
+                                class="field-error"
+                            >
+                                {{ addForm.errors.email }}
+                            </span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Password</label>
+
+                            <input
+                                type="password"
+                                v-model="addForm.password"
+                                placeholder="Minimal 8 karakter"
+                            >
+
+                            <span
+                                v-if="addForm.errors.password"
+                                class="field-error"
+                            >
+                                {{ addForm.errors.password }}
+                            </span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Konfirmasi Password</label>
+
+                            <input
+                                type="password"
+                                v-model="addForm.password_confirmation"
+                                placeholder="Ulangi password"
+                            >
+                        </div>
+
+                        <div class="form-field">
+                            <label>Role</label>
+
+                            <select v-model="addForm.role">
+                                <option value="admin">Admin</option>
+                                <option value="super_admin">Super Admin</option>
+                            </select>
+
+                            <span
+                                v-if="addForm.errors.role"
+                                class="field-error"
+                            >
+                                {{ addForm.errors.role }}
+                            </span>
+                        </div>
+
+                        <div class="form-actions">
+
+                            <button
+                                type="button"
+                                class="cancel-button"
+                                @click="closeAddModal"
+                            >
+                                Batal
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="submit-button"
+                                :disabled="addForm.processing"
+                            >
+                                {{
+                                    addForm.processing
+                                        ? 'Menyimpan...'
+                                        : 'Simpan'
+                                }}
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Modal: Edit Pengguna -->
+            <div
+                v-if="showEditModal"
+                class="modal-overlay"
+                @click.self="closeEditModal"
+            >
+                <div class="form-modal">
+
+                    <div class="form-modal-header">
+                        <h2>Edit Pengguna</h2>
+
+                        <button
+                            type="button"
+                            class="modal-close"
+                            @click="closeEditModal"
+                            aria-label="Tutup"
+                        >
+                            <X :size="18" :stroke-width="1.8" />
+                        </button>
+                    </div>
+
+                    <form
+                        class="user-form"
+                        @submit.prevent="submitEdit"
+                    >
+
+                        <div class="form-field">
+                            <label>Nama</label>
+
+                            <input
+                                type="text"
+                                v-model="editForm.name"
+                                placeholder="Nama lengkap"
+                            >
+
+                            <span
+                                v-if="editForm.errors.name"
+                                class="field-error"
+                            >
+                                {{ editForm.errors.name }}
+                            </span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Email</label>
+
+                            <input
+                                type="email"
+                                v-model="editForm.email"
+                                placeholder="nama@email.com"
+                            >
+
+                            <span
+                                v-if="editForm.errors.email"
+                                class="field-error"
+                            >
+                                {{ editForm.errors.email }}
+                            </span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Role</label>
+
+                            <select
+                                v-model="editForm.role"
+                                :disabled="userSedangDiedit?.id === props.authUser?.id"
+                            >
+                                <option value="admin">Admin</option>
+                                <option value="super_admin">Super Admin</option>
+                            </select>
+
+                            <span
+                                v-if="userSedangDiedit?.id === props.authUser?.id"
+                                class="field-hint"
+                            >
+                                Role akun sendiri tidak dapat diubah.
+                            </span>
+
+                            <span
+                                v-else-if="editForm.errors.role"
+                                class="field-error"
+                            >
+                                {{ editForm.errors.role }}
+                            </span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Password Baru (opsional)</label>
+
+                            <input
+                                type="password"
+                                v-model="editForm.password"
+                                placeholder="Kosongkan jika tidak diubah"
+                            >
+
+                            <span
+                                v-if="editForm.errors.password"
+                                class="field-error"
+                            >
+                                {{ editForm.errors.password }}
+                            </span>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Konfirmasi Password Baru</label>
+
+                            <input
+                                type="password"
+                                v-model="editForm.password_confirmation"
+                                placeholder="Ulangi password baru"
+                            >
+                        </div>
+
+                        <div class="form-actions">
+
+                            <button
+                                type="button"
+                                class="cancel-button"
+                                @click="closeEditModal"
+                            >
+                                Batal
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="submit-button"
+                                :disabled="editForm.processing"
+                            >
+                                {{
+                                    editForm.processing
+                                        ? 'Menyimpan...'
+                                        : 'Simpan Perubahan'
+                                }}
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
 
             <div
                 v-if="showConfirm"
@@ -456,7 +927,7 @@ const roleLabel = (role) => {
     transform: translateX(-100%);
     transition: transform .3s ease;
     z-index: 1000;
-    box-shadow: 8px 0 30px rgba(100, 130, 130, .08);
+    box-shadow: 8px 0 24px rgba(100, 130, 130, .06);
     overflow-y: auto;
 }
 
@@ -571,7 +1042,7 @@ const roleLabel = (role) => {
     display: flex;
     align-items: center;
     padding: 13px 14px;
-    border-radius: 9px;
+    border-radius: 8px;
     color: #777;
     text-decoration: none;
     font-size: 12px;
@@ -598,7 +1069,7 @@ const roleLabel = (role) => {
     width: 100%;
     padding: 13px 14px;
     border: 1px solid #f0dddd;
-    border-radius: 9px;
+    border-radius: 8px;
     background: #ffffff;
     color: #b77777;
     font-size: 12px;
@@ -621,6 +1092,7 @@ const roleLabel = (role) => {
     min-height: 100vh;
     background: #edf3f2;
     color: #526363;
+    font-family: Arial, sans-serif;
 }
 
 .main-content {
@@ -632,7 +1104,8 @@ const roleLabel = (role) => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 35px;
+    gap: 16px;
+    margin-bottom: 22px;
 }
 
 .topbar-left {
@@ -645,7 +1118,7 @@ const roleLabel = (role) => {
     width: 45px;
     height: 45px;
     border: 1px solid #dceeee;
-    border-radius: 10px;
+    border-radius: 9px;
     background: #ffffff;
     color: #6f9d9d;
     font-size: 20px;
@@ -660,17 +1133,99 @@ const roleLabel = (role) => {
 .topbar h1 {
     margin: 0;
     font-family: Georgia, serif;
-    font-size: 29px;
+    font-size: 27px;
     font-weight: normal;
-    color: #666;
+    color: #526363;
+}
+
+.add-user-button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+
+    padding: 11px 17px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #6f9d9d;
+    color: #ffffff;
+
+    font-size: 11.5px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.add-user-button:hover {
+    background: #5c8686;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-bottom: 18px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex: 1;
+    min-width: 220px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #d4e2e0;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #8b9999;
+}
+
+.search-box input {
+    flex: 1;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #526363;
+    font-size: 11.5px;
+}
+
+.search-box input::placeholder {
+    color: #a9b6b6;
+}
+
+.filter-select {
+    padding: 10px 12px;
+
+    border: 1px solid #d4e2e0;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #526363;
+
+    font-size: 11px;
+
+    cursor: pointer;
 }
 
 .table-card {
     width: 100%;
     background: #fbfdfc;
     border: 1px solid #d7e3e1;
-    border-radius: 14px;
-    box-shadow: 0 8px 25px rgba(50, 90, 90, .05);
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(50, 90, 90, .04);
     overflow: hidden;
 }
 
@@ -731,12 +1286,31 @@ const roleLabel = (role) => {
     min-width: 135px;
     padding: 8px 10px;
     border: 1px solid #d4e2e0;
-    border-radius: 8px;
+    border-radius: 6px;
     outline: none;
     background: #ffffff;
     color: #526363;
     font-size: 10px;
+    font-weight: 500;
     cursor: pointer;
+}
+
+.role-select-user {
+    background: #f3f6f6;
+    border-color: #dfe7e6;
+    color: #6f8080;
+}
+
+.role-select-admin {
+    background: #eef4fb;
+    border-color: #d3e2f2;
+    color: #5a7cad;
+}
+
+.role-select-super_admin {
+    background: #eaf7f4;
+    border-color: #cbe6de;
+    color: #3f8a72;
 }
 
 .role-select:focus {
@@ -745,33 +1319,53 @@ const roleLabel = (role) => {
 }
 
 .role-select:disabled {
-    background: #f4f6f6;
-    color: #a2adad;
+    opacity: .7;
     cursor: not-allowed;
 }
 
-.delete-button {
-    padding: 7px 11px;
-    border: 1px solid #efd4d4;
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.icon-button {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #dce8e6;
     border-radius: 6px;
+
     background: #ffffff;
-    color: #b87575;
-    font-size: 9px;
+    color: #6f8585;
+
     cursor: pointer;
-    transition: .2s;
+    transition: .2s ease;
 }
 
-.delete-button:hover:not(:disabled) {
+.edit-icon-button:hover {
+    background: #f2f9f9;
+    border-color: #b9d6d6;
+    color: #47807e;
+}
+
+.delete-icon-button:hover:not(:disabled) {
     background: #fff5f5;
+    border-color: #efd4d4;
+    color: #b87575;
 }
 
-.delete-button:disabled {
-    opacity: .45;
+.icon-button:disabled {
+    opacity: .4;
     cursor: not-allowed;
 }
 
 .empty-card {
-    min-height: 500px;
+    min-height: 420px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -779,27 +1373,27 @@ const roleLabel = (role) => {
     padding: 40px;
     background: #fbfdfc;
     border: 1px solid #d7e3e1;
-    border-radius: 16px;
+    border-radius: 10px;
     text-align: center;
 }
 
 .empty-icon {
-    width: 75px;
-    height: 75px;
+    width: 70px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     border-radius: 50%;
     background: #eaf3f2;
     color: #6f9d9d;
-    font-size: 30px;
+    font-size: 28px;
 }
 
 .empty-card h2 {
     margin: 0 0 9px;
     font-family: Georgia, serif;
-    font-size: 22px;
+    font-size: 21px;
     font-weight: normal;
     color: #344747;
 }
@@ -810,14 +1404,16 @@ const roleLabel = (role) => {
     color: #8b9999;
 }
 
+/* Modals */
+
 .modal-overlay {
     position: fixed;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 25px;
-    background: rgba(24, 49, 49, .45);
+    padding: 20px;
+    background: rgba(24, 49, 49, .42);
     z-index: 2000;
 }
 
@@ -827,29 +1423,29 @@ const roleLabel = (role) => {
     padding: 30px;
     background: #fbfdfc;
     border: 1px solid #d7e3e1;
-    border-radius: 17px;
+    border-radius: 12px;
     text-align: center;
-    box-shadow: 0 25px 70px rgba(20, 50, 50, .2);
+    box-shadow: 0 20px 55px rgba(20, 50, 50, .16);
 }
 
 .confirm-icon {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 17px;
+    margin: 0 auto 16px;
     border-radius: 50%;
     background: #eaf3f2;
     color: #477878;
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 600;
 }
 
 .confirm-modal h2 {
     margin: 0 0 10px;
     font-family: Georgia, serif;
-    font-size: 21px;
+    font-size: 20px;
     font-weight: normal;
     color: #344747;
 }
@@ -866,14 +1462,16 @@ const roleLabel = (role) => {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-top: 25px;
+    margin-top: 24px;
 }
 
 .cancel-button,
-.confirm-delete-button {
+.confirm-delete-button,
+.submit-button {
     padding: 11px 20px;
-    border-radius: 8px;
-    font-size: 10px;
+    border-radius: 7px;
+    font-size: 10.5px;
+    font-weight: 600;
     cursor: pointer;
     transition: .2s;
 }
@@ -898,6 +1496,143 @@ const roleLabel = (role) => {
     background: #a46262;
 }
 
+.submit-button {
+    border: none;
+    background: #6f9d9d;
+    color: #ffffff;
+}
+
+.submit-button:hover:not(:disabled) {
+    background: #5c8686;
+}
+
+.submit-button:disabled {
+    background: #b9cccc;
+    cursor: not-allowed;
+}
+
+/* Form modal (Tambah / Edit) */
+
+.form-modal {
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    padding: 26px;
+
+    background: #fbfdfc;
+    border: 1px solid #d7e3e1;
+    border-radius: 12px;
+
+    box-shadow: 0 20px 55px rgba(20, 50, 50, .16);
+}
+
+.form-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.form-modal-header h2 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: 19px;
+    font-weight: normal;
+    color: #344747;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+    color: #93a0a0;
+
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.modal-close:hover {
+    background: #f0f5f4;
+}
+
+.user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field label {
+    color: #6f8080;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .2px;
+}
+
+.form-field input,
+.form-field select {
+    padding: 10px 12px;
+
+    border: 1px solid #d4e2e0;
+    border-radius: 7px;
+
+    background: #ffffff;
+    color: #344747;
+
+    font-size: 11.5px;
+
+    outline: none;
+
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    border-color: #7eabab;
+    box-shadow: 0 0 0 3px rgba(126, 171, 171, .12);
+}
+
+.form-field select:disabled {
+    background: #f4f6f6;
+    color: #a2adad;
+    cursor: not-allowed;
+}
+
+.field-error {
+    color: #b5675f;
+    font-size: 9.5px;
+}
+
+.field-hint {
+    color: #8b9999;
+    font-size: 9.5px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    margin-top: 6px;
+}
+
 .success-overlay {
     position: fixed;
     inset: 0;
@@ -913,21 +1648,21 @@ const roleLabel = (role) => {
     width: 330px;
     padding: 35px 30px;
     background: #ffffff;
-    border-radius: 20px;
+    border-radius: 14px;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, .15);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .14);
 }
 
 .success-icon,
 .error-mark {
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
     margin: 0 auto 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size: 45px;
+    font-size: 40px;
     font-weight: 300;
 }
 
@@ -942,7 +1677,7 @@ const roleLabel = (role) => {
 .success-modal h3 {
     margin: 0 0 8px;
     font-family: Georgia, serif;
-    font-size: 25px;
+    font-size: 23px;
     font-weight: normal;
     color: #31504f;
 }
@@ -976,7 +1711,7 @@ const roleLabel = (role) => {
 @keyframes successIn {
     from {
         opacity: 0;
-        transform: scale(.8);
+        transform: scale(.85);
     }
 
     to {
@@ -993,13 +1728,36 @@ const roleLabel = (role) => {
 
     to {
         opacity: 0;
-        transform: scale(.9);
+        transform: scale(.92);
     }
 }
 
 @media (max-width: 750px) {
+
     .main-content {
         padding: 22px 15px;
     }
+
+    .topbar {
+        flex-wrap: wrap;
+    }
+
+    .add-user-button span {
+        display: none;
+    }
+
+    .add-user-button {
+        padding: 11px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+
 }
 </style>

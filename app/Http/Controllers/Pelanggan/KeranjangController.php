@@ -13,6 +13,8 @@ use App\Models\PesananItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Models\AdminNotification;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 
 class KeranjangController extends Controller
@@ -403,10 +405,7 @@ public function showCheckout(Request $request)
                 'total_harga' => $totalHarga,
                 'status' => 'menunggu',
                 'metode_pembayaran' => $validated['metode_pembayaran'],
-                'status_pembayaran' =>
-                    $validated['metode_pembayaran'] === 'cod'
-                        ? 'belum_bayar'
-                        : 'sudah_bayar',
+                'status_pembayaran' => 'belum_bayar',
             ]);
 
             AdminNotification::create([
@@ -445,71 +444,93 @@ public function showCheckout(Request $request)
             return $pesanan;
         });
 
-    } catch (\Exception $e) {
+   } catch (\Exception $e) {
+    return back()->with(
+        'error',
+        $e->getMessage()
+    );
+}
 
-        return back()->with(
-            'error',
-            $e->getMessage()
-        );
+    if ($validated['metode_pembayaran'] === 'transfer') {
+    Config::$serverKey = config('services.midtrans.server_key');
+    Config::$isProduction = config('services.midtrans.is_production');
+    Config::$isSanitized = true;
+    Config::$is3ds = true;
+
+    $snapToken = Snap::getSnapToken([
+        'transaction_details' => [
+            'order_id' => 'ORDER-' . $pesanan->id,
+            'gross_amount' => (int) $pesanan->total_harga,
+        ],
+        'customer_details' => [
+            'first_name' => $user->name,
+            'email' => $user->email,
+        ],
+    ]);
+
+    return redirect()
+        ->route('pelanggan.checkout.success', $pesanan->id)
+        ->with('snap_token', $snapToken);
     }
 
     return redirect()->route(
         'pelanggan.checkout.success',
         $pesanan->id
     );
-}
-    public function success(Request $request, Pesanan $pesanan)
-{
-    if ($pesanan->user_id !== $request->user()->id) {
-        abort(403);
     }
+        public function success(Request $request, Pesanan $pesanan)
+    {
+        if ($pesanan->user_id !== $request->user()->id) {
+            abort(403);
+        }
 
-    return Inertia::render('Pelanggan/CheckoutSuccess', [
-        'pesanan' => $pesanan,
-    ]);
-}
-public function pesanSekarang(
-    Request $request,
-    Parfum $parfum
-): RedirectResponse {
-    if ($parfum->stok <= 0) {
-        return back()->with(
-            'error',
-            'Stok parfum sedang habis.'
-        );
+        return Inertia::render('Pelanggan/CheckoutSuccess', [
+            'pesanan' => $pesanan,
+            'snap_token' => session('snap_token'),
+        ]);
     }
+    public function pesanSekarang(
+        Request $request,
+        Parfum $parfum
+    ): RedirectResponse {
+        if ($parfum->stok <= 0) {
+            return back()->with(
+                'error',
+                'Stok parfum sedang habis.'
+            );
+        }
 
-    $validated = $request->validate([
-        'ukuran_ml' => [
-            'required',
-            'integer',
-            'in:1,5,10,15,20,25,50',
-        ],
+        $validated = $request->validate([
+            'ukuran_ml' => [
+                'required',
+                'integer',
+                'in:1,5,10,15,20,25,50',
+            ],
 
-        'jumlah' => [
-            'required',
-            'integer',
-            'min:1',
-        ],
-    ]);
+            'jumlah' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+        ]);
 
-    if ($validated['jumlah'] > $parfum->stok) {
-        return back()->with(
-            'error',
-            'Jumlah botol melebihi stok yang tersedia.'
-        );
+        if ($validated['jumlah'] > $parfum->stok) {
+            return back()->with(
+                'error',
+                'Jumlah botol melebihi stok yang tersedia.'
+            );
+        }
+
+        session([
+            'direct_checkout' => [
+                'parfum_id' => $parfum->id,
+                'ukuran_ml' => $validated['ukuran_ml'],
+                'jumlah' => $validated['jumlah'],
+            ],
+        ]);
+
+        session()->forget('checkout_item_ids');
+
+        return redirect()->route('pelanggan.checkout');
     }
-
-    session([
-        'direct_checkout' => [
-            'parfum_id' => $parfum->id,
-            'ukuran_ml' => $validated['ukuran_ml'],
-            'jumlah' => $validated['jumlah'],
-        ],
-    ]);
-
-    session()->forget('checkout_item_ids');
-
-    return redirect()->route('pelanggan.checkout');
-}
-}
+    }

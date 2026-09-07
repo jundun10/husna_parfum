@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -33,27 +35,24 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', 'in:admin,super_admin'],
         ]);
 
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-            'role' => 'admin',
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
         ]);
 
         return back()->with(
             'success',
-            'Admin berhasil ditambahkan.'
+            'Pengguna berhasil ditambahkan.'
         );
     }
 
     public function updateRole(Request $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'role' => ['required', 'in:user,admin,super_admin'],
-        ]);
-
         if ($user->id === request()->user()->id) {
             return back()->with(
                 'error',
@@ -61,13 +60,33 @@ class UserController extends Controller
             );
         }
 
-        $user->update([
-            'role' => $validated['role'],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'role' => ['required', 'in:admin,super_admin'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
+
+        $data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+        ];
+
+        if (!empty($validated['password'])) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($data);
 
         return back()->with(
             'success',
-            'Role pengguna berhasil diperbarui.'
+            'Data pengguna berhasil diperbarui.'
         );
     }
 

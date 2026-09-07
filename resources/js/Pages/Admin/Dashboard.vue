@@ -46,7 +46,7 @@ const props = defineProps({
     },
 });
 
-const logoUrl = '/images/logo.jpg';
+const logoUrl = '/images/logo-hf.png';
 
 
 const sidebarOpen = ref(false);
@@ -125,11 +125,11 @@ const tinggiBar = (value) => {
                 <div class="brand">
                     <img
                         :src="logoUrl"
-                        alt="Lamore Perfumes"
+                        alt="HF Parfum"
                     >
 
                     <div>
-                        <h2>Lamore</h2>
+                        <h2>HF Parfum</h2>
                     </div>
                 </div>
 
@@ -194,13 +194,6 @@ const tinggiBar = (value) => {
                 </Link>
 
                 <Link
-                    href="/admin/laporan"
-                    class="menu-item"
-                >
-                    <span>Laporan</span>
-                </Link>
-
-                <Link
                     href="/admin/pengaturan"
                     class="menu-item"
                 >
@@ -239,152 +232,141 @@ const tinggiBar = (value) => {
                         ☰
                     </button>
 
-                    <div>
-        <h1   h1>Dashboard</h1>
-
-        <p>
-            Kelola dan pantau aktivitas Lamore Perfumes.
-        </p>
-    </div>
-
-    </div>
-    <div class="notification-wrapper">
-
-    <button
-        type="button"
-        class="notification-button"
-        @click="showNotifications = !showNotifications"
-    >
-        <Bell :size="21" />
-
-        <span
-            v-if="props.notificationCount > 0"
-            class="notification-badge"
-        >
-            {{ props.notificationCount }}
-        </span>
-    </button>
-
-    <div
-        v-if="showNotifications"
-        class="notification-dropdown"
-    >
-
-        <div class="notification-header">
-            <strong>Notifikasi</strong>
-
-            <span>
-                {{ props.notificationCount }} baru
-            </span>
-        </div>
-
-        <div
-            v-if="props.notifications.length === 0"
-            class="notification-empty"
-        >
-            Tidak ada notifikasi baru.
-        </div>
-
-        <div
-            v-else
-            class="notification-list"
-        >
-
-            <button
-                v-for="notification in props.notifications"
-                :key="notification.id"
-                type="button"
-                class="notification-item"
-                @click="bukaNotifikasi(notification)"
-            >
-
-                <div class="notification-icon">
-                    <ShoppingBag :size="16" />
-                </div>
-
-                <div class="notification-content">
-
-                    <strong>Pesanan baru</strong>
-
-                    <span>
-                        Pesanan #{{ notification.pesanan?.id }}
-                        —
-                        {{ notification.pesanan?.items?.[0]?.parfum?.nama ?? 'Produk' }}
-                    </span>
-
-                    <small>
-                        {{ notification.pesanan?.user?.name ?? 'Pelanggan' }}
-                    </small>
+                    <div class="topbar-heading">
+                        <h1>Dashboard</h1>
+                    </div>
 
                 </div>
 
-            </button>
+                <div class="notification-wrapper">
 
-        </div>
+                    <button
+                        type="button"
+                        class="notification-button"
+                        @click="showNotifications = !showNotifications"
+                    >
+                        <Bell :size="20" />
 
-    </div>
+                        <span
+                            v-if="props.notificationCount > 0"
+                            class="notification-badge"
+                        >
+                            {{ props.notificationCount }}
+                        </span>
+                    </button>
 
-</div>
+                    <div
+                        v-if="showNotifications"
+                        class="notification-dropdown"
+                    >
 
-    </header>
+                        <div class="notification-header">
+                            <strong>Notifikasi</strong>
 
-    <section class="stats-grid">
+                            <span>
+                                {{ props.notificationCount }} baru
+                            </span>
+                        </div>
 
-        <div class="stat-card">
+                        <div
+                            v-if="props.notifications.length === 0"
+                            class="notification-empty"
+                        >
+                            Tidak ada notifikasi baru.
+                        </div>
 
-            <div class="stat-top">
+                        <div
+                            v-else
+                            class="notification-list"
+                        >
 
-                <div class="stat-icon">
-                    <ShoppingCart
-                        :size="20"
-                        :stroke-width="1.8"
-                    />
+                            <button
+                                v-for="notification in props.notifications"
+                                :key="notification.id"
+                                type="button"
+                                class="notification-item"
+                                @click="bukaNotifikasi(notification)"
+                            >
+
+                                <div class="notification-icon">
+                                    <ShoppingBag :size="15" />
+                                </div>
+
+                                <div class="notification-content">
+
+                                    <strong>Pesanan baru</strong>
+
+                                    <span>
+                                        Pesanan #{{ notification.pesanan?.id }}
+                                        —
+                                        {{ notification.pesanan?.items?.[0]?.parfum?.nama ?? 'Produk' }}
+                                    </span>
+
+                                    <small>
+                                        {{ notification.pesanan?.user?.name ?? 'Pelanggan' }}
+                                    </small>
+
+                                </div>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <span class="stat-label">
-                    Pesanan
-                </span>
+            </header>
 
-            </div>
+            <section class="stats-grid">
 
-            <h2>{{ props.totalPesanan }}</h2>
-
-            <p>
-                Total pesanan
-            </p>
-
-        </div>
-
-    <div class="stat-card">
-
-        <div class="stat-top">
-
-            <div class="stat-icon">
-                <Package
-                    :size="20"
-                    :stroke-width="1.8"
-                />
-            </div>
-
-            <span class="stat-label">
-                Stok
-            </span>
-
-        </div>
-
-        <h2>{{ props.totalStok }}</h2>
-
-        <p>
-            Total stok parfum
-        </p>
-
-    </div>
-
-                
                 <div class="stat-card">
 
                     <div class="stat-top">
+
                         <div class="stat-icon">
+                            <ShoppingCart
+                                :size="19"
+                                :stroke-width="1.8"
+                            />
+                        </div>
+
+                        <span class="stat-label">
+                            Pesanan
+                        </span>
+
+                    </div>
+
+                    <h2>{{ props.totalPesanan }}</h2>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div class="stat-icon">
+                            <Package
+                                :size="19"
+                                :stroke-width="1.8"
+                            />
+                        </div>
+
+                        <span class="stat-label">
+                            Stok
+                        </span>
+
+                    </div>
+
+                    <h2>{{ props.totalStok }}</h2>
+
+                </div>
+
+
+                <div class="stat-card stat-card--highlight">
+
+                    <div class="stat-top">
+                        <div class="stat-icon stat-icon--accent">
                             Rp
                         </div>
 
@@ -393,11 +375,7 @@ const tinggiBar = (value) => {
                         </span>
                     </div>
 
-                    <h2> Rp{{ Number(props.totalPenghasilan).toLocaleString('id-ID') }}</h2>
-
-                    <p>
-                        Total penghasilan
-                    </p>
+                    <h2>Rp{{ Number(props.totalPenghasilan).toLocaleString('id-ID') }}</h2>
 
                 </div>
 
@@ -483,10 +461,28 @@ const tinggiBar = (value) => {
 }
 
 .admin-page {
+    --hf-green: #3f6e69;
+    --hf-green-dark: #2f5652;
+    --hf-sage: #cddbd6;
+    --hf-sage-soft: #eef4f2;
+    --hf-bg: #f5f8f7;
+    --hf-ink: #2c3f3d;
+    --hf-ink-soft: #5f7472;
+    --hf-ink-faint: #97a6a4;
+    --hf-border: #e3ece9;
+    --hf-red: #b5504b;
+    --hf-red-bg: #fbeeee;
+
     min-height: 100vh;
-    background: #edf3f2;
-    color: #526363;
+
+    background: var(--hf-bg);
+    color: var(--hf-ink);
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* ---------- Notifications ---------- */
+
 .notification-wrapper {
     position: relative;
     margin-left: auto;
@@ -495,8 +491,8 @@ const tinggiBar = (value) => {
 .notification-button {
     position: relative;
 
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
 
     display: flex;
     align-items: center;
@@ -504,20 +500,20 @@ const tinggiBar = (value) => {
 
     padding: 0;
 
-    border: none;
+    border: 1px solid var(--hf-border);
     border-radius: 50%;
 
-    background: transparent;
-    color: #6f9d9d;
+    background: #ffffff;
+    color: var(--hf-green);
 
     cursor: pointer;
 
-    transition: .2s ease;
+    transition: background .15s ease, border-color .15s ease;
 }
 
 .notification-button:hover {
-    color: #477c79;
-    background: transparent;
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-sage);
 }
 
 .notification-badge {
@@ -537,13 +533,13 @@ const tinggiBar = (value) => {
 
     border-radius: 50%;
 
-    background: #5d8986;
+    background: var(--hf-green);
     color: #ffffff;
 
     font-size: 8px;
     font-weight: 700;
 
-    border: 2px solid #edf3f2;
+    border: 2px solid var(--hf-bg);
 }
 
 .notification-dropdown {
@@ -559,13 +555,28 @@ const tinggiBar = (value) => {
 
     background: #ffffff;
 
-    border: 1px solid #e2eeee;
-    border-radius: 13px;
+    border: 1px solid var(--hf-border);
+    border-radius: 12px;
 
-    box-shadow:
-        0 18px 45px rgba(80, 110, 110, .14);
+    box-shadow: 0 18px 40px rgba(47, 86, 82, .12);
 
     z-index: 2000;
+
+    animation: fadeInDown .15s ease both;
+}
+
+@keyframes fadeInDown {
+
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
 }
 
 .notification-header {
@@ -573,18 +584,18 @@ const tinggiBar = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    padding: 15px 16px;
+    padding: 14px 16px;
 
-    border-bottom: 1px solid #edf2f2;
+    border-bottom: 1px solid var(--hf-border);
 }
 
 .notification-header strong {
-    color: #526363;
+    color: var(--hf-ink);
     font-size: 12px;
 }
 
 .notification-header span {
-    color: #94a5a3;
+    color: var(--hf-ink-faint);
     font-size: 9px;
 }
 
@@ -599,7 +610,7 @@ const tinggiBar = (value) => {
     padding: 13px 15px;
 
     border: none;
-    border-bottom: 1px solid #f0f4f3;
+    border-bottom: 1px solid var(--hf-border);
 
     background: #ffffff;
 
@@ -607,11 +618,15 @@ const tinggiBar = (value) => {
 
     cursor: pointer;
 
-    transition: .2s ease;
+    transition: background .15s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
 }
 
 .notification-item:hover {
-    background: #f4f9f8;
+    background: var(--hf-sage-soft);
 }
 
 .notification-icon {
@@ -626,8 +641,8 @@ const tinggiBar = (value) => {
 
     border-radius: 9px;
 
-    background: #edf7f5;
-    color: #5d8986;
+    background: var(--hf-sage-soft);
+    color: var(--hf-green);
 }
 
 .notification-content {
@@ -638,16 +653,16 @@ const tinggiBar = (value) => {
     display: block;
     margin-bottom: 4px;
 
-    color: #536462;
-    font-size: 10px;
+    color: var(--hf-ink);
+    font-size: 10.5px;
 }
 
 .notification-content span {
     display: block;
     margin-bottom: 3px;
 
-    color: #758785;
-    font-size: 9px;
+    color: var(--hf-ink-soft);
+    font-size: 9.5px;
 
     white-space: nowrap;
     overflow: hidden;
@@ -655,7 +670,7 @@ const tinggiBar = (value) => {
 }
 
 .notification-content small {
-    color: #a0aeac;
+    color: var(--hf-ink-faint);
     font-size: 8px;
 }
 
@@ -664,33 +679,33 @@ const tinggiBar = (value) => {
 
     text-align: center;
 
-    color: #9baaa8;
+    color: var(--hf-ink-faint);
     font-size: 10px;
 }
+
+/* ---------- Sidebar ---------- */
 
 .sidebar {
     position: fixed;
     top: 0;
     left: 0;
 
-    width: 275px;
+    width: 270px;
     height: 100vh;
 
-    padding: 25px 18px;
+    padding: 24px 16px;
 
     display: flex;
     flex-direction: column;
 
     background: #ffffff;
 
-    border-right: 1px solid #e2eeee;
+    border-right: 1px solid var(--hf-border);
 
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform .25s ease;
 
     z-index: 1000;
-
-    box-shadow: 8px 0 30px rgba(100, 130, 130, 0.08);
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -698,6 +713,8 @@ const tinggiBar = (value) => {
 
 .sidebar.sidebar-open {
     transform: translateX(0);
+
+    box-shadow: 10px 0 34px rgba(47, 86, 82, .12);
 }
 
 
@@ -706,7 +723,7 @@ const tinggiBar = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 38px;
+    margin-bottom: 30px;
 }
 .admin-info {
     display: flex;
@@ -714,13 +731,16 @@ const tinggiBar = (value) => {
 
     width: 100%;
 
-    margin: 5px 0 28px;
-    padding: 0 8px;
+    margin: 4px 0 24px;
+    padding: 13px;
+
+    border-radius: 10px;
+    background: var(--hf-bg);
 }
 
 .admin-avatar {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
 
     flex-shrink: 0;
 
@@ -728,17 +748,17 @@ const tinggiBar = (value) => {
     align-items: center;
     justify-content: center;
 
-    margin-right: 13px;
+    margin-right: 12px;
 
     border-radius: 50%;
 
-    background: #eaf7f7;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
     font-family: Georgia, serif;
 
-    font-size: 21px;
+    font-size: 18px;
 }
 
 .admin-details {
@@ -748,33 +768,36 @@ const tinggiBar = (value) => {
 .admin-details strong {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    color: #344747;
+    color: var(--hf-ink);
 
-    font-size: 14px;
+    font-size: 12.5px;
 
     font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .admin-details span {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 600;
 }
 
 .admin-details small {
     display: block;
 
-    max-width: 190px;
-
     overflow: hidden;
 
-    color: #9aa8a8;
+    color: var(--hf-ink-faint);
 
     font-size: 9px;
 
@@ -791,8 +814,8 @@ const tinggiBar = (value) => {
 }
 
 .brand img {
-    width: 43px;
-    height: 43px;
+    width: 40px;
+    height: 40px;
 
     object-fit: contain;
 
@@ -806,18 +829,18 @@ const tinggiBar = (value) => {
 
     font-family: Georgia, serif;
 
-    font-size: 18px;
+    font-size: 16px;
     font-weight: normal;
 
-    color: #6f9d9d;
+    color: var(--hf-ink);
 }
 
 .brand span {
     font-size: 9px;
 
-    color: #aaa;
-
-    letter-spacing: 0.3px;
+    color: var(--hf-ink-faint);
+    letter-spacing: .06em;
+    text-transform: uppercase;
 }
 
 
@@ -830,71 +853,66 @@ const tinggiBar = (value) => {
 
     background: transparent;
 
-    color: #999;
+    color: var(--hf-ink-faint);
 
-    font-size: 25px;
+    font-size: 22px;
+    line-height: 1;
 
     cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .close-button:hover {
-    background: #f3f9f9;
+    background: var(--hf-sage-soft);
 }
 
 .sidebar-menu {
     display: flex;
     flex-direction: column;
 
-    gap: 6px;
+    gap: 3px;
 }
 
 .menu-item {
     display: flex;
     align-items: center;
 
-    gap: 13px;
+    gap: 12px;
 
-    padding: 13px 14px;
+    padding: 12px 13px;
 
-    border-radius: 9px;
+    border-radius: 8px;
 
-    color: #777;
+    color: var(--hf-ink-soft);
 
     text-decoration: none;
 
     font-size: 12px;
+    font-weight: 500;
 
-    transition: all 0.2s ease;
-}
-
-.menu-icon {
-    width: 20px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 14px;
+    transition: background .15s ease, color .15s ease;
 }
 
 .menu-item:hover {
-    background: #f2f9f9;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 }
 
 .menu-item.active {
-    background: #eaf7f7;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green-dark);
 
-    font-weight: 500;
+    font-weight: 700;
 }
 
 
 .sidebar-footer {
-    margin-top: 25px;
-    padding-top: 15px;
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hf-border);
 }
 
 .logout-button {
@@ -902,28 +920,35 @@ const tinggiBar = (value) => {
 
     display: flex;
     align-items: center;
+    justify-content: center;
 
-    gap: 13px;
+    gap: 10px;
 
-    padding: 13px 14px;
+    padding: 12px 14px;
 
-    border: 1px solid #f0dddd;
+    border: 1px solid var(--hf-red-bg);
 
     border-radius: 9px;
 
-    background: #ffffff;
+    background: var(--hf-red-bg);
 
-    color: #b77777;
+    color: var(--hf-red);
 
     font-size: 12px;
+    font-weight: 600;
 
     cursor: pointer;
 
-    transition: 0.2s;
+    transition: background .15s ease;
 }
 
 .logout-button:hover {
-    background: #fff8f8;
+    background: #f6e2e1;
+}
+
+.logout-button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
 }
 
 .overlay {
@@ -931,7 +956,7 @@ const tinggiBar = (value) => {
 
     inset: 0;
 
-    background: rgba(0, 0, 0, 0.22);
+    background: rgba(30, 45, 43, .32);
 
     z-index: 999;
 }
@@ -940,7 +965,7 @@ const tinggiBar = (value) => {
 .main-content {
     min-height: 100vh;
 
-    padding: 30px 35px;
+    padding: 30px 4%;
 }
 
 .topbar {
@@ -948,105 +973,64 @@ const tinggiBar = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 35px;
+    margin-bottom: 28px;
 }
 
 .topbar-left {
     display: flex;
     align-items: center;
 
-    gap: 17px;
+    gap: 16px;
 }
 
 .toggle-button {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
 
-    border: 1px solid #dceeee;
+    border: 1px solid var(--hf-border);
 
     border-radius: 10px;
 
     background: #ffffff;
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 20px;
+    font-size: 17px;
 
     cursor: pointer;
 
-    transition: 0.2s;
-
-    box-shadow: 0 5px 18px rgba(100, 130, 130, 0.04);
+    transition: background .15s ease;
 }
 
 .toggle-button:hover {
-    background: #effafa;
+    background: var(--hf-sage-soft);
+}
+
+.topbar-heading {
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar-eyebrow {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+
+    color: var(--hf-ink-faint);
+    margin-bottom: 2px;
 }
 
 .topbar h1 {
-    margin: 0 0 5px;
+    margin: 0;
 
     font-family: Georgia, serif;
 
-    font-size: 29px;
+    font-size: 25px;
 
     font-weight: normal;
 
-    color: #666;
-}
-
-.topbar p {
-    margin: 0;
-
-    font-size: 11px;
-
-    color: #999;
-}
-
-.admin-profile {
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-}
-
-.profile-avatar {
-    width: 38px;
-    height: 38px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: #eaf7f7;
-
-    color: #6f9d9d;
-
-    font-family: Georgia, serif;
-
-    font-size: 16px;
-}
-
-.profile-info strong {
-    display: block;
-
-    font-size: 11px;
-
-    font-weight: 500;
-
-    color: #666;
-}
-
-.profile-info span {
-    display: block;
-
-    margin-top: 2px;
-
-    font-size: 9px;
-
-    color: #aaa;
+    color: var(--hf-ink);
 }
 
 
@@ -1055,21 +1039,24 @@ const tinggiBar = (value) => {
 
     grid-template-columns: repeat(3, 1fr);
 
-    gap: 20px;
+    gap: 16px;
 
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .stat-card {
-    padding: 22px;
+    padding: 20px;
 
     background: #ffffff;
 
-    border: 1px solid #e2eeee;
+    border: 1px solid var(--hf-border);
 
-    border-radius: 14px;
+    border-radius: 12px;
+}
 
-    box-shadow: 0 8px 25px rgba(100, 130, 130, 0.045);
+.stat-card--highlight {
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-sage);
 }
 
 .stat-top {
@@ -1077,12 +1064,12 @@ const tinggiBar = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 17px;
+    margin-bottom: 16px;
 }
 
 .stat-icon {
-    width: 43px;
-    height: 43px;
+    width: 40px;
+    height: 40px;
 
     display: flex;
     align-items: center;
@@ -1090,97 +1077,43 @@ const tinggiBar = (value) => {
 
     border-radius: 10px;
 
-    background: #effafa;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 17px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.stat-icon--accent {
+    background: #ffffff;
 }
 
 .stat-label {
-    font-size: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
 
-    color: #aaa;
+    color: var(--hf-ink-faint);
+    letter-spacing: .02em;
+    text-transform: uppercase;
 }
 
 .stat-card h2 {
-    margin: 0 0 6px;
-
-    font-size: 24px;
-
-    font-weight: 500;
-
-    color: #6f9d9d;
-}
-
-.stat-card p {
     margin: 0;
 
-    font-size: 9px;
+    font-size: 23px;
 
-    color: #aaa;
+    font-weight: 700;
+
+    color: var(--hf-ink);
+
+    letter-spacing: -.01em;
 }
 
-.grid-line {
-    position: absolute;
-
-    left: 0;
-    right: 0;
-
-    border-top: 1px dashed #e7eeee;
-}
-
-.line-1 {
-    top: 0;
-}
-
-.line-2 {
-    top: 25%;
-}
-
-.line-3 {
-    top: 50%;
-}
-
-.line-4 {
-    top: 75%;
-}
-
-.line-5 {
-    bottom: 28px;
-}
-
-.empty-chart {
-    position: absolute;
-
-    top: 42%;
-    left: 50%;
-
-    transform: translate(-50%, -50%);
-
-    text-align: center;
-
-    color: #aaa;
-}
-
-.empty-icon {
-    margin-bottom: 10px;
-
-    font-size: 28px;
-
-    opacity: 0.65;
-}
-
-.empty-chart p {
-    margin: 0 0 5px;
-
-    font-size: 11px;
-}
-
-.empty-chart span {
-    font-size: 9px;
-
-    color: #bbb;
+.stat-card--highlight h2 {
+    color: var(--hf-green-dark);
+    font-size: 20px;
+    word-break: break-word;
 }
 
 .bottom-grid {
@@ -1188,21 +1121,19 @@ const tinggiBar = (value) => {
 
     grid-template-columns: repeat(2, 1fr);
 
-    gap: 20px;
+    gap: 16px;
 }
 
 .info-card {
-    min-height: 250px;
+    min-height: 240px;
 
-    padding: 23px;
+    padding: 22px;
 
     background: #ffffff;
 
-    border: 1px solid #e2eeee;
+    border: 1px solid var(--hf-border);
 
-    border-radius: 14px;
-
-    box-shadow: 0 8px 25px rgba(100, 130, 130, 0.045);
+    border-radius: 12px;
 }
 
 .info-header {
@@ -1210,39 +1141,41 @@ const tinggiBar = (value) => {
     align-items: flex-start;
     justify-content: space-between;
 
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+
+    padding-bottom: 14px;
+
+    border-bottom: 1px solid var(--hf-border);
 }
 
 .info-header h2 {
-    margin: 0 0 5px;
+    margin: 0;
 
     font-family: Georgia, serif;
 
-    font-size: 18px;
+    font-size: 15.5px;
 
     font-weight: normal;
 
-    color: #666;
-}
-
-.info-header p {
-    margin: 0;
-
-    font-size: 9px;
-
-    color: #aaa;
+    color: var(--hf-ink);
 }
 
 .info-header a {
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 9px;
+    font-size: 10.5px;
+    font-weight: 600;
 
     text-decoration: none;
+
+    padding-bottom: 1px;
+    border-bottom: 1px solid transparent;
+
+    transition: border-color .15s ease;
 }
 
 .info-header a:hover {
-    text-decoration: underline;
+    border-bottom-color: var(--hf-green);
 }
 
 .empty-state {
@@ -1253,21 +1186,21 @@ const tinggiBar = (value) => {
     align-items: center;
     justify-content: center;
 
-    color: #aaa;
+    color: var(--hf-ink-faint);
 }
 
 .empty-state span {
     margin-bottom: 10px;
 
-    font-size: 25px;
+    font-size: 24px;
 
-    opacity: 0.7;
+    opacity: .6;
 }
 
 .empty-state p {
     margin: 0;
 
-    font-size: 10px;
+    font-size: 10.5px;
 }
 
 .lowest-stock-list {
@@ -1280,9 +1213,9 @@ const tinggiBar = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    padding: 13px 4px;
+    padding: 12px 2px;
 
-    border-bottom: 1px solid #edf2f2;
+    border-bottom: 1px solid var(--hf-border);
 }
 
 .lowest-stock-item:last-child {
@@ -1290,8 +1223,8 @@ const tinggiBar = (value) => {
 }
 
 .lowest-stock-name {
-    color: #666;
-    font-size: 11px;
+    color: var(--hf-ink-soft);
+    font-size: 11.5px;
 
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1299,7 +1232,7 @@ const tinggiBar = (value) => {
 }
 
 .lowest-stock-number {
-    color: #6f9d9d;
+    color: var(--hf-green-dark);
     font-size: 13px;
     font-weight: 700;
 
@@ -1315,10 +1248,6 @@ const tinggiBar = (value) => {
     .bottom-grid {
         grid-template-columns: 1fr;
     }
-
-    .admin-profile {
-        display: none;
-    }
 }
 
 @media (max-width: 600px) {
@@ -1328,25 +1257,20 @@ const tinggiBar = (value) => {
     }
 
     .topbar {
-        margin-bottom: 25px;
+        margin-bottom: 22px;
     }
 
     .topbar h1 {
-        font-size: 24px;
+        font-size: 21px;
     }
 
-    .chart-card,
+    .notification-dropdown {
+        width: calc(100vw - 32px);
+        right: -8px;
+    }
+
     .info-card {
         padding: 18px;
     }
-
-    .section-header {
-        gap: 15px;
-    }
-
-    .period-select {
-        flex-shrink: 0;
-    }
-
 }
 </style>

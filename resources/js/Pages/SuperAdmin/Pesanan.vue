@@ -34,7 +34,7 @@ const props = defineProps({
 });
 
 
-const logoUrl = '/images/logo.jpg';
+const logoUrl = '/images/logo-hf.png';
 
 const sidebarOpen = ref(false);
 const openOrders = ref([]);
@@ -162,11 +162,11 @@ const bukaNotifikasi = (notification) => {
                 <div class="brand">
                     <img
                         :src="logoUrl"
-                        alt="Lamore Perfumes"
+                        alt="HF Parfum"
                     >
 
                     <div>
-                        <h2>Lamore</h2>
+                        <h2>HF Parfum</h2>
                     </div>
                 </div>
 
@@ -213,14 +213,14 @@ const bukaNotifikasi = (notification) => {
                 </Link>
 
                 <Link
-                    href="/super-admin/pesanan"
+                     href="/super-admin/pesanan"
                     class="menu-item active"
                 >
                     <span>Pesanan</span>
                 </Link>
 
                 <Link
-                    href="/super-admin/stok"
+                     href="/super-admin/stok"
                     class="menu-item"
                 >
                     <span>Kelola Stok</span>
@@ -234,14 +234,7 @@ const bukaNotifikasi = (notification) => {
                 </Link>
 
                 <Link
-                    href="/super-admin/laporan"
-                    class="menu-item"
-                >
-                    <span>Laporan</span>
-                </Link>
-
-                <Link
-                    href="/super-admin/pengaturan"
+                    href="/admin/pengaturan"
                     class="menu-item"
                 >
                     <span>Pengaturan</span>
@@ -286,9 +279,8 @@ const bukaNotifikasi = (notification) => {
                         ☰
                     </button>
 
-                    <div>
+                    <div class="topbar-heading">
                         <h1>Pesanan</h1>
-
                     </div>
 
                 </div>
@@ -302,7 +294,6 @@ const bukaNotifikasi = (notification) => {
 
                     <div>
                         <h2>Daftar Pesanan</h2>
-
                     </div>
 
                     <div class="order-count">
@@ -310,6 +301,7 @@ const bukaNotifikasi = (notification) => {
                     </div>
 
                 </div>
+
                 <div class="order-filters">
 
                     <div class="filter-group">
@@ -430,7 +422,7 @@ const bukaNotifikasi = (notification) => {
                     class="empty-orders"
                 >
                     <div class="empty-orders-icon">
-                        <ShoppingBag :size="30" />
+                        <ShoppingBag :size="28" />
                     </div>
 
                     <h3>
@@ -460,7 +452,7 @@ const bukaNotifikasi = (notification) => {
                             <div class="order-number">
 
                                 <div class="order-icon">
-                                    <ShoppingBag :size="18" />
+                                    <ShoppingBag :size="17" />
                                 </div>
 
                                 <div>
@@ -490,12 +482,13 @@ const bukaNotifikasi = (notification) => {
                         </div>
 
 
-                        <!-- CUSTOMER -->
                         <div class="customer-row">
 
                             <div class="customer-info">
 
-                                <User :size="16" />
+                                <div class="customer-icon">
+                                    <User :size="15" />
+                                </div>
 
                                 <div>
                                     <strong>
@@ -525,7 +518,6 @@ const bukaNotifikasi = (notification) => {
                         </div>
 
 
-                        <!-- ACTION -->
                         <div class="order-actions">
 
                             <button
@@ -541,17 +533,16 @@ const bukaNotifikasi = (notification) => {
 
                                 <ChevronUp
                                     v-if="isOpen(pesanan.id)"
-                                    :size="15"
+                                    :size="14"
                                 />
 
                                 <ChevronDown
                                     v-else
-                                    :size="15"
+                                    :size="14"
                                 />
                             </button>
 
 
-                            <!-- STATUS -->
                             <select
                                 class="status-select"
                                 :value="pesanan.status"
@@ -608,7 +599,7 @@ const bukaNotifikasi = (notification) => {
                                 <div class="detail-box">
 
                                     <div class="detail-title">
-                                        <MapPin :size="16" />
+                                        <MapPin :size="15" />
 
                                         <span>
                                             Alamat Pengiriman
@@ -639,15 +630,16 @@ const bukaNotifikasi = (notification) => {
                                         rel="noopener noreferrer"
                                         class="maps-button"
                                     >
-                                        <MapPin :size="14" />
+                                        <MapPin :size="13" />
                                         Buka di Maps
                                     </a>
+
                                 </div>
 
                                 <div class="detail-box">
 
                                     <div class="detail-title">
-                                        <Mail :size="16" />
+                                        <Mail :size="15" />
 
                                         <span>
                                             Data Pelanggan
@@ -665,10 +657,11 @@ const bukaNotifikasi = (notification) => {
                                 </div>
 
                             </div>
-                            <div class="detail-box">
+
+                            <div class="detail-box detail-box--payment">
 
                                 <div class="detail-title">
-                                    <CreditCard :size="16" />
+                                    <CreditCard :size="15" />
 
                                     <span>
                                         Pembayaran
@@ -685,7 +678,13 @@ const bukaNotifikasi = (notification) => {
                                     }}
                                 </strong>
 
-                                <span>
+                                <span
+                                    class="payment-status"
+                                    :class="{
+                                        'payment-status--paid':
+                                            pesanan.status_pembayaran === 'sudah_bayar'
+                                    }"
+                                >
                                     Status:
                                     {{
                                         pesanan.status_pembayaran === 'sudah_bayar'
@@ -697,7 +696,7 @@ const bukaNotifikasi = (notification) => {
                             </div>
 
                             <div class="detail-title products-title">
-                                <Package :size="17" />
+                                <Package :size="16" />
 
                                 <span>
                                     Produk Dipesan
@@ -722,7 +721,7 @@ const bukaNotifikasi = (notification) => {
 
                                         <Package
                                             v-else
-                                            :size="20"
+                                            :size="18"
                                         />
 
                                     </div>
@@ -774,18 +773,31 @@ const bukaNotifikasi = (notification) => {
 * {
     box-sizing: border-box;
 }
-.product-size {
-    display: block;
-    margin-bottom: 3px;
-    color: #5d8986;
-    font-size: 9px;
-}
+
 .admin-page {
+    --hf-green: #3f6e69;
+    --hf-green-dark: #2f5652;
+    --hf-sage: #cddbd6;
+    --hf-sage-soft: #eef4f2;
+    --hf-bg: #f5f8f7;
+    --hf-ink: #2c3f3d;
+    --hf-ink-soft: #5f7472;
+    --hf-ink-faint: #97a6a4;
+    --hf-border: #e3ece9;
+    --hf-red: #b5504b;
+    --hf-red-bg: #fbeeee;
+    --hf-amber: #b8862f;
+    --hf-amber-bg: #f7f0e2;
+    --hf-blue: #5c76a3;
+    --hf-blue-bg: #edf1f8;
+
     min-height: 100vh;
 
-    background: #edf3f2;
+    background: var(--hf-bg);
 
-    color: #526363;
+    color: var(--hf-ink);
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .sidebar {
@@ -794,31 +806,32 @@ const bukaNotifikasi = (notification) => {
     top: 0;
     left: 0;
 
-    width: 275px;
+    width: 270px;
     height: 100vh;
 
-    padding: 25px 18px;
+    padding: 24px 16px;
 
     display: flex;
     flex-direction: column;
 
     background: #ffffff;
 
-    border-right: 1px solid #e2eeee;
+    border-right: 1px solid var(--hf-border);
 
     transform: translateX(-100%);
 
-    transition: transform .3s ease;
+    transition: transform .25s ease;
 
     z-index: 1000;
 
-    box-shadow: 8px 0 30px rgba(100, 130, 130, .08);
-
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .sidebar.sidebar-open {
     transform: translateX(0);
+
+    box-shadow: 10px 0 34px rgba(47, 86, 82, .12);
 }
 
 .sidebar-header {
@@ -827,7 +840,7 @@ const bukaNotifikasi = (notification) => {
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 38px;
+    margin-bottom: 30px;
 }
 
 .brand {
@@ -839,8 +852,8 @@ const bukaNotifikasi = (notification) => {
 }
 
 .brand img {
-    width: 43px;
-    height: 43px;
+    width: 40px;
+    height: 40px;
 
     object-fit: contain;
 
@@ -850,15 +863,23 @@ const bukaNotifikasi = (notification) => {
 }
 
 .brand h2 {
-    margin: 0;
+    margin: 0 0 2px;
 
     font-family: Georgia, serif;
 
-    font-size: 18px;
+    font-size: 16px;
 
     font-weight: normal;
 
-    color: #6f9d9d;
+    color: var(--hf-ink);
+}
+
+.brand span {
+    font-size: 9px;
+
+    color: var(--hf-ink-faint);
+    letter-spacing: .06em;
+    text-transform: uppercase;
 }
 
 .close-button {
@@ -871,15 +892,18 @@ const bukaNotifikasi = (notification) => {
 
     background: transparent;
 
-    color: #999;
+    color: var(--hf-ink-faint);
 
-    font-size: 25px;
+    font-size: 22px;
+    line-height: 1;
 
     cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .close-button:hover {
-    background: #f3f9f9;
+    background: var(--hf-sage-soft);
 }
 
 
@@ -890,31 +914,36 @@ const bukaNotifikasi = (notification) => {
 
     width: 100%;
 
-    margin: 5px 0 28px;
+    margin: 4px 0 24px;
 
-    padding: 0 8px;
+    padding: 13px;
+
+    border-radius: 10px;
+    background: var(--hf-bg);
 }
 
 .admin-avatar {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
 
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    margin-right: 13px;
+    margin-right: 12px;
 
     border-radius: 50%;
 
-    background: #eaf7f7;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
     font-family: Georgia, serif;
 
-    font-size: 21px;
+    font-size: 18px;
 }
 
 .admin-details {
@@ -924,33 +953,36 @@ const bukaNotifikasi = (notification) => {
 .admin-details strong {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    color: #344747;
+    color: var(--hf-ink);
 
-    font-size: 14px;
+    font-size: 12.5px;
 
     font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .admin-details span {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 600;
 }
 
 .admin-details small {
     display: block;
 
-    max-width: 190px;
-
     overflow: hidden;
 
-    color: #9aa8a8;
+    color: var(--hf-ink-faint);
 
     font-size: 9px;
 
@@ -964,7 +996,7 @@ const bukaNotifikasi = (notification) => {
 
     flex-direction: column;
 
-    gap: 6px;
+    gap: 3px;
 }
 
 .menu-item {
@@ -972,39 +1004,42 @@ const bukaNotifikasi = (notification) => {
 
     align-items: center;
 
-    gap: 13px;
+    gap: 12px;
 
-    padding: 13px 14px;
+    padding: 12px 13px;
 
-    border-radius: 9px;
+    border-radius: 8px;
 
-    color: #777;
+    color: var(--hf-ink-soft);
 
     text-decoration: none;
 
     font-size: 12px;
+    font-weight: 500;
 
-    transition: all .2s ease;
+    transition: background .15s ease, color .15s ease;
 }
 
 .menu-item:hover {
-    background: #f2f9f9;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 }
 
 .menu-item.active {
-    background: #eaf7f7;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green-dark);
 
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .sidebar-footer {
-    margin-top: 25px;
+    margin-top: 22px;
 
-    padding-top: 15px;
+    padding-top: 14px;
+
+    border-top: 1px solid var(--hf-border);
 }
 
 .logout-button {
@@ -1013,24 +1048,35 @@ const bukaNotifikasi = (notification) => {
     display: flex;
 
     align-items: center;
+    justify-content: center;
 
-    padding: 13px 14px;
+    gap: 10px;
 
-    border: 1px solid #f0dddd;
+    padding: 12px 14px;
+
+    border: 1px solid var(--hf-red-bg);
 
     border-radius: 9px;
 
-    background: #ffffff;
+    background: var(--hf-red-bg);
 
-    color: #b77777;
+    color: var(--hf-red);
 
     font-size: 12px;
+    font-weight: 600;
 
     cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .logout-button:hover {
-    background: #fff8f8;
+    background: #f6e2e1;
+}
+
+.logout-button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
 }
 
 .overlay {
@@ -1038,15 +1084,17 @@ const bukaNotifikasi = (notification) => {
 
     inset: 0;
 
-    background: rgba(0, 0, 0, .22);
+    background: rgba(30, 45, 43, .32);
 
     z-index: 999;
 }
 
+/* ---------- Main / topbar ---------- */
+
 .main-content {
     min-height: 100vh;
 
-    padding: 30px 35px;
+    padding: 30px 4%;
 }
 
 .topbar {
@@ -1054,7 +1102,7 @@ const bukaNotifikasi = (notification) => {
 
     align-items: center;
 
-    margin-bottom: 35px;
+    margin-bottom: 26px;
 }
 
 .topbar-left {
@@ -1062,54 +1110,63 @@ const bukaNotifikasi = (notification) => {
 
     align-items: center;
 
-    gap: 17px;
+    gap: 16px;
 }
 
 .toggle-button {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
 
-    border: 1px solid #dceeee;
+    border: 1px solid var(--hf-border);
 
     border-radius: 10px;
 
     background: #ffffff;
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 20px;
+    font-size: 17px;
 
     cursor: pointer;
 
-    box-shadow: 0 5px 18px rgba(100, 130, 130, .04);
+    transition: background .15s ease;
 }
 
 .toggle-button:hover {
-    background: #effafa;
+    background: var(--hf-sage-soft);
+}
+
+.topbar-heading {
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar-eyebrow {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+
+    color: var(--hf-ink-faint);
+    margin-bottom: 2px;
 }
 
 .topbar h1 {
-    margin: 0 0 5px;
+    margin: 0;
 
     font-family: Georgia, serif;
 
-    font-size: 29px;
+    font-size: 25px;
 
     font-weight: normal;
 
-    color: #666;
+    color: var(--hf-ink);
 }
 
-.topbar p {
-    margin: 0;
-
-    font-size: 11px;
-
-    color: #999;
-}
+/* ---------- Order section ---------- */
 
 .order-section {
-    max-width: 1200px;
+    max-width: 1180px;
 
     margin: 0 auto;
 }
@@ -1120,49 +1177,41 @@ const bukaNotifikasi = (notification) => {
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .section-heading h2 {
-    margin: 0 0 5px;
+    margin: 0;
 
     font-family: Georgia, serif;
 
-    font-size: 21px;
+    font-size: 19px;
 
     font-weight: normal;
 
-    color: #666;
-}
-
-.section-heading p {
-    margin: 0;
-
-    font-size: 10px;
-
-    color: #aaa;
+    color: var(--hf-ink);
 }
 
 .order-count {
-    padding: 9px 13px;
+    padding: 8px 13px;
 
     border-radius: 8px;
 
-    background: #eaf7f7;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green-dark);
 
-    font-size: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
 }
+
 .order-filters {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     padding: 16px;
 
     background: #ffffff;
-    border: 1px solid #e2eeee;
+    border: 1px solid var(--hf-border);
     border-radius: 12px;
-
-    box-shadow: 0 8px 20px rgba(100, 130, 130, .035);
 }
 
 .filter-group + .filter-group {
@@ -1173,8 +1222,11 @@ const bukaNotifikasi = (notification) => {
     display: block;
     margin-bottom: 8px;
 
-    color: #8a9c9a;
-    font-size: 9px;
+    color: var(--hf-ink-faint);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
 }
 
 .filter-list {
@@ -1194,36 +1246,34 @@ const bukaNotifikasi = (notification) => {
 
     padding: 8px 13px;
 
-    border: 1px solid #dceeee;
-    border-radius: 20px;
+    border: 1px solid var(--hf-border);
+    border-radius: 7px;
 
     background: #ffffff;
-    color: #7b8c8a;
+    color: var(--hf-ink-soft);
 
-    font-size: 9px;
+    font-size: 10.5px;
+    font-weight: 500;
 
     cursor: pointer;
-    transition: .2s ease;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
 .filter-button:hover {
-    background: #f3fafa;
-    color: #6f9d9d;
+    background: var(--hf-sage-soft);
+    color: var(--hf-green);
 }
 
 .filter-button.active {
-    background: #6f9d9d;
-    border-color: #6f9d9d;
+    background: var(--hf-green);
+    border-color: var(--hf-green);
     color: #ffffff;
 }
 
-.status-diterima {
-    background: #eef8f6;
-    color: #5d8986;
-}
+/* ---------- Empty state ---------- */
 
 .empty-orders {
-    min-height: 350px;
+    min-height: 300px;
 
     display: flex;
 
@@ -1236,18 +1286,16 @@ const bukaNotifikasi = (notification) => {
 
     background: #ffffff;
 
-    border: 1px solid #e2eeee;
+    border: 1px solid var(--hf-border);
 
-    border-radius: 14px;
+    border-radius: 12px;
 
     text-align: center;
-
-    box-shadow: 0 8px 25px rgba(100, 130, 130, .045);
 }
 
 .empty-orders-icon {
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
 
     display: flex;
 
@@ -1256,33 +1304,35 @@ const bukaNotifikasi = (notification) => {
 
     margin-bottom: 14px;
 
-    border-radius: 14px;
+    border-radius: 12px;
 
-    background: #effafa;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 }
 
 .empty-orders h3 {
-    margin: 0 0 7px;
+    margin: 0 0 6px;
 
     font-family: Georgia, serif;
 
-    font-size: 20px;
+    font-size: 17px;
 
     font-weight: normal;
 
-    color: #666;
+    color: var(--hf-ink);
 }
 
 .empty-orders p {
     margin: 0;
 
-    font-size: 10px;
+    font-size: 10.5px;
 
-    color: #aaa;
+    color: var(--hf-ink-faint);
 }
 
+
+/* ---------- Order cards ---------- */
 
 .order-list {
     display: flex;
@@ -1295,13 +1345,11 @@ const bukaNotifikasi = (notification) => {
 .order-card {
     background: #ffffff;
 
-    border: 1px solid #e2eeee;
+    border: 1px solid var(--hf-border);
 
-    border-radius: 14px;
+    border-radius: 12px;
 
     overflow: hidden;
-
-    box-shadow: 0 8px 25px rgba(100, 130, 130, .045);
 }
 
 .order-top {
@@ -1311,9 +1359,11 @@ const bukaNotifikasi = (notification) => {
 
     justify-content: space-between;
 
-    padding: 18px 20px;
+    gap: 12px;
 
-    border-bottom: 1px solid #edf2f2;
+    padding: 16px 18px;
+
+    border-bottom: 1px solid var(--hf-border);
 }
 
 .order-number {
@@ -1325,74 +1375,88 @@ const bukaNotifikasi = (notification) => {
 }
 
 .order-icon {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
 
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    border-radius: 10px;
+    border-radius: 9px;
 
-    background: #effafa;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 }
 
 .order-number strong {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    font-size: 12px;
+    font-size: 12.5px;
+    font-weight: 600;
 
-    color: #4e6060;
+    color: var(--hf-ink);
 }
 
 .order-number span {
-    font-size: 9px;
+    font-size: 9.5px;
 
-    color: #aaa;
+    color: var(--hf-ink-faint);
 }
+
 .status-badge {
-    padding: 7px 11px;
+    flex-shrink: 0;
 
-    border-radius: 20px;
+    padding: 6px 11px;
 
-    font-size: 9px;
+    border-radius: 6px;
 
+    font-size: 9.5px;
+    font-weight: 600;
     text-transform: capitalize;
+    letter-spacing: .01em;
 }
 
 .status-menunggu {
-    background: #fff7e8;
+    background: var(--hf-amber-bg);
 
-    color: #b58a45;
+    color: var(--hf-amber);
 }
 
 .status-diproses {
-    background: #edf4ff;
+    background: var(--hf-sage-soft);
 
-    color: #6488bc;
+    color: var(--hf-green);
 }
 
 .status-dikirim {
-    background: #f3edff;
+    background: var(--hf-blue-bg);
 
-    color: #8068b1;
+    color: var(--hf-blue);
+}
+
+.status-diterima {
+    background: var(--hf-sage-soft);
+
+    color: var(--hf-green-dark);
 }
 
 .status-selesai {
-    background: #eaf7ec;
+    background: var(--hf-sage-soft);
 
-    color: #5c9865;
+    color: var(--hf-green-dark);
+
+    font-weight: 700;
 }
 
 .status-dibatalkan {
-    background: #fff0f0;
+    background: var(--hf-red-bg);
 
-    color: #bc7777;
+    color: var(--hf-red);
 }
 
 .customer-row {
@@ -1402,9 +1466,9 @@ const bukaNotifikasi = (notification) => {
 
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 16px;
 
-    padding: 16px 20px;
+    padding: 14px 18px;
 }
 
 .customer-info {
@@ -1412,9 +1476,24 @@ const bukaNotifikasi = (notification) => {
 
     align-items: center;
 
-    gap: 10px;
+    gap: 11px;
 
-    color: #6f9d9d;
+    min-width: 0;
+}
+
+.customer-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--hf-bg);
+    color: var(--hf-ink-soft);
 }
 
 .customer-info strong {
@@ -1422,17 +1501,26 @@ const bukaNotifikasi = (notification) => {
 
     margin-bottom: 3px;
 
-    color: #5d6c6b;
+    color: var(--hf-ink);
 
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .customer-info span {
     display: block;
 
-    color: #aaa;
+    color: var(--hf-ink-faint);
 
-    font-size: 9px;
+    font-size: 9.5px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .customer-total {
@@ -1442,19 +1530,22 @@ const bukaNotifikasi = (notification) => {
 
     flex-direction: column;
 
-    gap: 4px;
+    gap: 3px;
+
+    flex-shrink: 0;
 }
 
 .customer-total span {
-    color: #aaa;
+    color: var(--hf-ink-faint);
 
-    font-size: 9px;
+    font-size: 9.5px;
 }
 
 .customer-total strong {
-    color: #6f9d9d;
+    color: var(--hf-green-dark);
 
     font-size: 15px;
+    font-weight: 700;
 }
 
 .order-actions {
@@ -1466,7 +1557,7 @@ const bukaNotifikasi = (notification) => {
 
     gap: 10px;
 
-    padding: 0 20px 16px;
+    padding: 0 18px 16px;
 }
 
 .detail-button {
@@ -1478,54 +1569,66 @@ const bukaNotifikasi = (notification) => {
 
     padding: 9px 12px;
 
-    border: 1px solid #dceeee;
+    border: 1px solid var(--hf-border);
 
     border-radius: 8px;
 
     background: #ffffff;
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 9px;
+    font-size: 10.5px;
+    font-weight: 600;
 
     cursor: pointer;
+
+    transition: background .15s ease, border-color .15s ease;
 }
 
 .detail-button:hover {
-    background: #f3fafa;
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-sage);
 }
 
 .status-select {
     padding: 9px 12px;
 
-    border: 1px solid #dceeee;
+    border: 1px solid var(--hf-border);
 
     border-radius: 8px;
 
     background: #ffffff;
 
-    color: #6f9d9d;
+    color: var(--hf-ink);
 
-    font-size: 9px;
+    font-size: 10.5px;
+    font-weight: 500;
 
     outline: none;
 
     cursor: pointer;
+
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.status-select:focus {
+    border-color: var(--hf-green);
+    box-shadow: 0 0 0 3px rgba(63, 110, 105, .10);
 }
 
 .order-detail {
-    padding: 20px;
+    padding: 18px;
 
-    border-top: 1px solid #edf2f2;
+    border-top: 1px solid var(--hf-border);
 
-    background: #fbfdfd;
+    background: var(--hf-bg);
 }
 
 .detail-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .detail-box {
@@ -1533,9 +1636,13 @@ const bukaNotifikasi = (notification) => {
 
     background: #ffffff;
 
-    border: 1px solid #e7eeee;
+    border: 1px solid var(--hf-border);
 
     border-radius: 10px;
+}
+
+.detail-box--payment {
+    margin-bottom: 18px;
 }
 
 .detail-title {
@@ -1547,9 +1654,12 @@ const bukaNotifikasi = (notification) => {
 
     margin-bottom: 11px;
 
-    color: #6f9d9d;
+    color: var(--hf-ink-faint);
 
-    font-size: 9px;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
 }
 
 .detail-box strong {
@@ -1557,9 +1667,10 @@ const bukaNotifikasi = (notification) => {
 
     margin-bottom: 4px;
 
-    color: #5b6d6b;
+    color: var(--hf-ink);
 
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .detail-box span {
@@ -1567,23 +1678,34 @@ const bukaNotifikasi = (notification) => {
 
     margin-bottom: 6px;
 
-    color: #8fa19f;
+    color: var(--hf-ink-soft);
 
-    font-size: 9px;
+    font-size: 10px;
 }
 
 .detail-box p {
     margin: 0;
 
-    color: #7b8c8a;
+    color: var(--hf-ink-soft);
 
-    font-size: 9px;
+    font-size: 10.5px;
 
     line-height: 1.7;
 }
 
+.payment-status {
+    display: inline-block;
+
+    color: var(--hf-amber) !important;
+    font-weight: 600;
+}
+
+.payment-status--paid {
+    color: var(--hf-green-dark) !important;
+}
+
 .products-title {
-    margin-top: 18px;
+    margin-top: 4px;
     margin-bottom: 10px;
 }
 
@@ -1610,14 +1732,14 @@ const bukaNotifikasi = (notification) => {
 
     background: #ffffff;
 
-    border: 1px solid #e7eeee;
+    border: 1px solid var(--hf-border);
 
     border-radius: 9px;
 }
 
 .product-image {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
 
     flex-shrink: 0;
 
@@ -1630,9 +1752,9 @@ const bukaNotifikasi = (notification) => {
 
     border-radius: 8px;
 
-    background: #f1f6f5;
+    background: var(--hf-sage-soft);
 
-    color: #9aabaa;
+    color: var(--hf-ink-faint);
 }
 
 .product-image img {
@@ -1653,29 +1775,40 @@ const bukaNotifikasi = (notification) => {
 
     margin-bottom: 4px;
 
-    color: #566765;
+    color: var(--hf-ink);
 
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .product-info span {
-    color: #99a8a6;
+    color: var(--hf-ink-faint);
 
-    font-size: 9px;
+    font-size: 9.5px;
 }
 
 .product-subtotal {
-    color: #5f8986;
+    flex-shrink: 0;
 
-    font-size: 11px;
+    color: var(--hf-green-dark);
+
+    font-size: 11.5px;
+    font-weight: 700;
 }
+
 .product-size {
     display: block;
     margin-bottom: 3px;
 
-    color: #5d8986;
-    font-size: 9px;
+    color: var(--hf-green);
+    font-size: 9.5px;
+    font-weight: 600;
 }
+
 .maps-button {
     margin-top: 12px;
 
@@ -1686,22 +1819,23 @@ const bukaNotifikasi = (notification) => {
 
     padding: 8px 11px;
 
-    border: 1px solid #dce7e5;
+    border: 1px solid var(--hf-border);
     border-radius: 8px;
 
-    background: #f7faf9;
+    background: var(--hf-bg);
 
-    color: #568381;
+    color: var(--hf-green);
 
-    font-size: 9px;
+    font-size: 10px;
+    font-weight: 600;
 
     text-decoration: none;
 
-    transition: .2s ease;
+    transition: background .15s ease;
 }
 
 .maps-button:hover {
-    background: #edf4f2;
+    background: var(--hf-sage-soft);
 }
 
 
@@ -1729,6 +1863,10 @@ const bukaNotifikasi = (notification) => {
 
 
 @media (max-width: 600px) {
+
+    .topbar h1 {
+        font-size: 21px;
+    }
 
     .order-top {
         align-items: flex-start;

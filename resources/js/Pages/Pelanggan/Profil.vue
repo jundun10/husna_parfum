@@ -64,7 +64,7 @@ const formatRupiah = (value) => {
                 href="/Pelanggan"
                 class="back-button"
             >
-                <ArrowLeft :size="21" />
+                <ArrowLeft :size="20" :stroke-width="1.7" />
             </Link>
 
             <div class="header-title">
@@ -78,240 +78,273 @@ const formatRupiah = (value) => {
                 @click="logout"
                 :disabled="logoutForm.processing"
             >
-                <LogOut :size="16" />
+                <LogOut :size="15" :stroke-width="1.7" />
 
-                {{
-                    logoutForm.processing
-                        ? 'Keluar...'
-                        : 'Logout'
-                }}
+                <span>
+                    {{
+                        logoutForm.processing
+                            ? 'Keluar...'
+                            : 'Logout'
+                    }}
+                </span>
             </button>
 
         </header>
 
+        <main class="profile-content">
 
-        <section class="user-card">
+            <section class="user-summary">
 
-            <div class="user-avatar">
-                {{ props.authUser.name?.charAt(0).toUpperCase() }}
-            </div>
+                <div class="user-avatar">
+                    {{ props.authUser.name?.charAt(0).toUpperCase() }}
+                </div>
 
-            <div class="user-info">
+                <div class="user-info">
 
-                <h2>
-                    {{ props.authUser.name }}
-                </h2>
+                    <h2>
+                        {{ props.authUser.name }}
+                    </h2>
 
-                <p>
-                    {{ props.authUser.email }}
-                </p>
-
-            </div>
-
-        </section>
-
-        <nav class="order-tabs">
-
-            <button
-                v-for="tab in [
-                    'Semua',
-                    'Dikemas',
-                    'Diantar',
-                    'Akan Diterima',
-                    'Selesai',
-                    'Dibatalkan'
-                ]"
-                :key="tab"
-                type="button"
-                class="order-tab"
-                :class="{ active: tabAktif === tab }"
-                @click="tabAktif = tab"
-            >
-                {{ tab }}
-            </button>
-
-        </nav>
-
-       <main class="profile-content">
-
-        <section
-            v-if="pesananTampil.length === 0"
-            class="empty-orders"
-        >
-
-            <div class="empty-icon">
-            <ShoppingBag
-                :size="30"
-                :stroke-width="1.5"
-            />
-            </div>
-
-            <h2>
-                {{
-                    tabAktif === 'Semua'
-                        ? 'Belum ada pesanan'
-                        : `Belum ada pesanan ${tabAktif.toLowerCase()}`
-                }}
-            </h2>
-
-            <p>
-                {{
-                    tabAktif === 'Semua'
-                        ? 'Pesanan kamu akan muncul di sini setelah melakukan checkout.'
-                        : 'Belum ada pesanan dengan status tersebut.'
-                }}
-            </p>
-
-            <Link
-                v-if="tabAktif === 'Semua'"
-                href="/Pelanggan"
-                class="shop-button"
-            >
-                Mulai Belanja
-            </Link>
-
-        </section>
-
-        <section
-            v-else
-            class="orders-list"
-        >
-
-            <article
-                v-for="pesanan in pesananTampil"
-                :key="pesanan.id"
-                class="customer-order-card"
-            >
-
-                <div class="customer-order-top">
-
-                    <div>
-                        <strong>
-                            {{
-                                new Date(
-                                    pesanan.created_at
-                                ).toLocaleDateString('id-ID')
-                            }}
-                        </strong>
-                    </div>
-
-                    <span
-                        class="customer-status"
-                        :class="`status-${pesanan.status}`"
-                    >
-                        {{ pesanan.status }}
-                    </span>
+                    <p>
+                        {{ props.authUser.email }}
+                    </p>
 
                 </div>
 
+            </section>
 
-                <div class="customer-order-items">
+            <div class="section-divider"></div>
 
-                    <div
-                        v-for="item in pesanan.items"
-                        :key="item.id"
-                        class="customer-order-item"
+            <section class="orders-section">
+
+                <div class="orders-section-heading">
+                    <h3>Riwayat Pesanan</h3>
+                </div>
+
+                <nav class="order-tabs">
+
+                    <button
+                        v-for="tab in [
+                            'Semua',
+                            'Dikemas',
+                            'Diantar',
+                            'Akan Diterima',
+                            'Selesai',
+                            'Dibatalkan'
+                        ]"
+                        :key="tab"
+                        type="button"
+                        class="order-tab"
+                        :class="{ active: tabAktif === tab }"
+                        @click="tabAktif = tab"
+                    >
+                        {{ tab }}
+                    </button>
+
+                </nav>
+
+                <section
+                    v-if="pesananTampil.length === 0"
+                    class="empty-orders"
+                >
+
+                    <div class="empty-icon">
+                        <ShoppingBag
+                            :size="26"
+                            :stroke-width="1.4"
+                        />
+                    </div>
+
+                    <h2>
+                        {{
+                            tabAktif === 'Semua'
+                                ? 'Belum ada pesanan'
+                                : `Belum ada pesanan ${tabAktif.toLowerCase()}`
+                        }}
+                    </h2>
+
+                    <p>
+                        {{
+                            tabAktif === 'Semua'
+                                ? 'Pesanan kamu akan muncul di sini setelah melakukan checkout.'
+                                : 'Belum ada pesanan dengan status tersebut.'
+                        }}
+                    </p>
+
+                    <Link
+                        v-if="tabAktif === 'Semua'"
+                        href="/Pelanggan"
+                        class="shop-button"
+                    >
+                        Mulai Belanja
+                    </Link>
+
+                </section>
+
+                <section
+                    v-else
+                    class="orders-list"
+                >
+
+                    <article
+                        v-for="pesanan in pesananTampil"
+                        :key="pesanan.id"
+                        class="customer-order-card"
                     >
 
-                        <div class="customer-product-image">
+                        <div class="customer-order-top">
 
-                            <img
-                                v-if="item.parfum?.foto"
-                                :src="`/storage/${item.parfum.foto}`"
-                                :alt="item.parfum.nama"
+                            <div>
+                                <strong>
+                                    {{
+                                        new Date(
+                                            pesanan.created_at
+                                        ).toLocaleDateString('id-ID')
+                                    }}
+                                </strong>
+                            </div>
+
+                            <span
+                                class="customer-status"
+                                :class="`status-${pesanan.status}`"
                             >
-
-                        </div>
-
-                        <div class="customer-product-info">
-
-                            <strong>
-                                {{ item.parfum?.nama }}
-                            </strong>
-
-                            <span>
-                                {{ item.jumlah }} produk ×
-                                {{
-                                    formatRupiah(item.harga)
-                                }}
+                                {{ pesanan.status }}
                             </span>
 
                         </div>
 
-                        <strong>
-                            {{
-                                formatRupiah(item.subtotal)
-                            }}
-                        </strong>
 
-                    </div>
+                        <div class="customer-order-items">
 
-                </div>
+                            <div
+                                v-for="item in pesanan.items"
+                                :key="item.id"
+                                class="customer-order-item"
+                            >
+
+                                <div class="customer-product-image">
+
+                                    <img
+                                        v-if="item.parfum?.foto"
+                                        :src="`/storage/${item.parfum.foto}`"
+                                        :alt="item.parfum.nama"
+                                    >
+
+                                </div>
+
+                                <div class="customer-product-info">
+
+                                    <strong>
+                                        {{ item.parfum?.nama }}
+                                    </strong>
+
+                                    <span>
+                                        {{ item.jumlah }} produk ×
+                                        {{
+                                            formatRupiah(item.harga)
+                                        }}
+                                    </span>
+
+                                </div>
+
+                                <strong>
+                                    {{
+                                        formatRupiah(item.subtotal)
+                                    }}
+                                </strong>
+
+                            </div>
+
+                        </div>
 
 
-                <div class="customer-order-bottom">
+                        <div class="customer-order-bottom">
 
-                    <span>
-                        Total Pesanan
-                    </span>
+                            <span>
+                                Total Pesanan
+                            </span>
 
-                    <strong>
-                        {{
-                            formatRupiah(
-                                pesanan.total_harga
-                            )
-                        }}
-                    </strong>
+                            <strong>
+                                {{
+                                    formatRupiah(
+                                        pesanan.total_harga
+                                    )
+                                }}
+                            </strong>
 
-                </div>
+                        </div>
 
-            </article>
+                    </article>
 
-        </section>
+                </section>
 
-    </main>
+            </section>
+
+        </main>
 
     </div>
 </template>
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
 * {
     box-sizing: border-box;
 }
 
 .profile-page {
+    --forest: #23423a;
+    --forest-deep: #1a332c;
+    --sage: #7d9d8a;
+    --sage-soft: #e9f0e8;
+    --ivory: #faf9f4;
+    --line: #e1e6dd;
+    --text: #2c3a35;
+    --text-muted: #75847b;
+
     min-height: 100vh;
 
-    padding: 25px 6% 60px;
+    padding-bottom: 60px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #f7faf9 0%,
-            #eef5f3 100%
-        );
+    background: var(--ivory);
 
-    color: #304c4b;
+    color: var(--text);
+
+    font-family: 'Inter', Arial, sans-serif;
 }
 
+.profile-page h1,
+.profile-page h2,
+.profile-page h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+}
 
 .profile-header {
-    width: min(1200px, 100%);
+    position: sticky;
+    top: 0;
+    z-index: 20;
 
-    margin: 0 auto 25px;
+    height: 68px;
 
     display: grid;
-
-    grid-template-columns: 45px 1fr auto;
+    grid-template-columns: 40px 1fr auto;
 
     align-items: center;
+    gap: 14px;
 
-    gap: 15px;
+    padding: 0 6%;
+
+    background: rgba(250, 249, 244, .96);
+
+    border-bottom: 1px solid var(--line);
+
+    backdrop-filter: blur(8px);
 }
 
 .back-button {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
 
     display: flex;
     align-items: center;
@@ -322,131 +355,142 @@ const formatRupiah = (value) => {
 
     background: transparent;
 
-    color: #477c79;
+    color: var(--forest);
 
     cursor: pointer;
-
     text-decoration: none;
+
+    transition: background .2s ease;
 }
 
 .back-button:hover {
-    background: #edf4f2;
+    background: var(--sage-soft);
 }
 
 .header-title h1 {
-    margin: 0 0 3px;
+    margin: 0;
 
-    font-family: Georgia, serif;
+    font-size: 20px;
+    font-weight: 500;
 
-    font-size: 28px;
-
-    font-weight: normal;
-}
-
-.header-title span {
-    color: #92a3a1;
-
-    font-size: 10px;
+    color: var(--forest-deep);
 }
 
 .logout-button {
     display: flex;
     align-items: center;
-
     gap: 7px;
 
-    padding: 9px 13px;
+    padding: 8px 14px;
 
-    border: 1px solid #f0dddd;
-
-    border-radius: 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
 
     background: #ffffff;
 
-    color: #b77777;
+    color: var(--text-muted);
 
-    font-size: 10px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 10.5px;
+    font-weight: 500;
 
     cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
 }
 
 .logout-button:hover {
-    background: #fff8f8;
+    border-color: #d8b7b3;
+    color: #b5675f;
 }
 
+.logout-button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
 
-.user-card {
-    width: min(1200px, 100%);
+.profile-content {
+    width: min(720px, calc(100% - 40px));
 
-    margin: 0 auto 20px;
+    margin: 36px auto 0;
+}
 
-    padding: 20px;
-
+.user-summary {
     display: flex;
-
     align-items: center;
+    gap: 16px;
 
-    gap: 15px;
-
-    background: #ffffff;
-
-    border: 1px solid #dce7e5;
-
-    border-radius: 14px;
+    margin-bottom: 28px;
 }
 
 .user-avatar {
-    width: 56px;
-    height: 56px;
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
     border-radius: 50%;
 
-    background: #eaf7f7;
+    background: var(--sage-soft);
+    color: var(--forest);
 
-    color: #6f9d9d;
-
-    font-family: Georgia, serif;
-
-    font-size: 22px;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px;
+    font-weight: 600;
 }
 
 .user-info h2 {
-    margin: 0 0 5px;
+    margin: 0 0 4px;
 
-    font-family: Georgia, serif;
+    font-size: 21px;
+    font-weight: 500;
 
-    font-size: 19px;
-
-    font-weight: normal;
+    color: var(--forest-deep);
 }
 
 .user-info p {
     margin: 0;
 
-    color: #96a6a4;
+    color: var(--text-muted);
 
-    font-size: 10px;
+    font-size: 11px;
+}
+
+.section-divider {
+    height: 1px;
+
+    margin-bottom: 28px;
+
+    background: var(--line);
+}
+
+.orders-section-heading {
+    margin-bottom: 16px;
+}
+
+.orders-section-heading h3 {
+    margin: 0;
+
+    font-size: 19px;
+    font-weight: 500;
+
+    color: var(--forest-deep);
 }
 
 .order-tabs {
-    width: min(1200px, 100%);
-
-    margin: 0 auto 20px;
-
     display: flex;
+
+    gap: 22px;
+
+    margin-bottom: 24px;
+    padding-bottom: 2px;
 
     overflow-x: auto;
 
-    border: 1px solid #dce7e5;
-
-    border-radius: 11px;
-
-    background: rgba(255, 255, 255, .8);
+    border-bottom: 1px solid var(--line);
 
     scrollbar-width: none;
 }
@@ -456,59 +500,68 @@ const formatRupiah = (value) => {
 }
 
 .order-tab {
-    flex: 1;
+    position: relative;
 
-    min-width: 125px;
-
-    padding: 13px 18px;
+    padding: 0 1px 11px;
 
     border: none;
-    border-right: 1px solid #e2ebe9;
-
     background: transparent;
 
-    color: #6e8583;
+    color: var(--text-muted);
 
-    font-size: 10px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 12px;
 
     white-space: nowrap;
 
     cursor: pointer;
-
-    transition: .2s;
-}
-
-.order-tab:last-child {
-    border-right: none;
+    transition: color .2s ease;
 }
 
 .order-tab:hover {
-    background: #edf5f3;
+    color: var(--forest);
+}
+
+.order-tab::after {
+    content: '';
+
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+
+    width: 100%;
+    height: 2px;
+
+    background: var(--forest);
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition: transform .25s ease;
 }
 
 .order-tab.active {
-    background: #416f6d;
+    color: var(--forest-deep);
+    font-weight: 500;
+}
 
-    color: white;
+.order-tab.active::after {
+    transform: scaleX(1);
 }
 
 .orders-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .customer-order-card {
     background: #ffffff;
 
-    border: 1px solid #dce7e5;
-    border-radius: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
 
     overflow: hidden;
-
-    box-shadow:
-        0 8px 25px
-        rgba(70, 95, 90, .04);
 }
 
 .customer-order-top {
@@ -516,68 +569,70 @@ const formatRupiah = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    padding: 16px 18px;
+    padding: 14px 18px;
 
-    border-bottom: 1px solid #edf2f1;
+    border-bottom: 1px solid var(--line);
 }
 
 .customer-order-top strong {
-    color: #61716f;
+    color: var(--text-muted);
 
-    font-size: 9px;
-
-    font-weight: normal;
+    font-size: 10px;
+    font-weight: 500;
 }
 
 .customer-status {
-    padding: 7px 11px;
+    padding: 5px 11px;
 
-    border-radius: 20px;
+    border-radius: 4px;
 
-    font-size: 8px;
-
+    font-size: 9px;
+    font-weight: 500;
     text-transform: capitalize;
 }
 
 .status-menunggu {
-    background: #fff7e8;
-    color: #b58a45;
+    background: #fbf3e4;
+    color: #a8813f;
 }
 
 .status-diproses {
-    background: #edf4ff;
-    color: #6488bc;
+    background: #edf2fb;
+    color: #6081b8;
 }
 
 .status-dikirim {
-    background: #f3edff;
-    color: #8068b1;
+    background: #f1ecfb;
+    color: #7c65ac;
+}
+
+.status-diterima {
+    background: var(--sage-soft);
+    color: var(--forest);
 }
 
 .status-selesai {
-    background: #eaf7ec;
-    color: #5c9865;
+    background: #e9f3ea;
+    color: #558b5e;
 }
 
 .status-dibatalkan {
-    background: #fff0f0;
-    color: #bc7777;
+    background: #fbeceb;
+    color: #b5675f;
 }
 
 .customer-order-items {
-    padding: 8px 18px;
+    padding: 4px 18px;
 }
 
 .customer-order-item {
     display: flex;
-
     align-items: center;
+    gap: 13px;
 
-    gap: 12px;
+    padding: 12px 0;
 
-    padding: 10px 0;
-
-    border-bottom: 1px solid #f0f4f3;
+    border-bottom: 1px solid var(--line);
 }
 
 .customer-order-item:last-child {
@@ -585,8 +640,8 @@ const formatRupiah = (value) => {
 }
 
 .customer-product-image {
-    width: 55px;
-    height: 55px;
+    width: 52px;
+    height: 52px;
 
     flex-shrink: 0;
 
@@ -596,9 +651,9 @@ const formatRupiah = (value) => {
     align-items: center;
     justify-content: center;
 
-    border-radius: 9px;
+    border-radius: 6px;
 
-    background: #f3f7f6;
+    background: var(--sage-soft);
 }
 
 .customer-product-image img {
@@ -610,6 +665,8 @@ const formatRupiah = (value) => {
 
 .customer-product-info {
     flex: 1;
+
+    min-width: 0;
 }
 
 .customer-product-info strong {
@@ -617,21 +674,29 @@ const formatRupiah = (value) => {
 
     margin-bottom: 4px;
 
-    color: #526765;
+    color: var(--text);
 
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: 500;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .customer-product-info span {
-    color: #97a6a4;
+    color: var(--text-muted);
 
-    font-size: 9px;
+    font-size: 10px;
 }
 
 .customer-order-item > strong {
-    color: #5d8986;
+    flex-shrink: 0;
 
-    font-size: 10px;
+    color: var(--forest);
+
+    font-size: 11px;
+    font-weight: 600;
 }
 
 .customer-order-bottom {
@@ -641,149 +706,170 @@ const formatRupiah = (value) => {
 
     gap: 12px;
 
-    padding: 14px 18px;
+    padding: 13px 18px;
 
-    background: #fafcfb;
+    background: var(--ivory);
 
-    border-top: 1px solid #edf2f1;
+    border-top: 1px solid var(--line);
 }
 
 .customer-order-bottom span {
-    color: #97a6a4;
+    color: var(--text-muted);
 
-    font-size: 9px;
+    font-size: 9.5px;
 }
 
 .customer-order-bottom strong {
-    color: #477c79;
+    color: var(--forest-deep);
 
-    font-size: 13px;
-}
-
-.profile-content {
-    width: min(1200px, 100%);
-
-    margin: 0 auto;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .empty-orders {
-    min-height: 350px;
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
 
-    padding: 40px;
+    padding: 60px 25px;
 
     text-align: center;
 
     background: #ffffff;
 
-    border: 1px solid #dce7e5;
-
-    border-radius: 14px;
-
-    box-shadow:
-        0 10px 30px
-        rgba(70, 95, 90, .05);
+    border: 1px solid var(--line);
+    border-radius: 8px;
 }
 
 .empty-icon {
-    width: 55px;
-    height: 55px;
+    width: 48px;
+    height: 48px;
 
-    margin-bottom: 15px;
+    margin-bottom: 14px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
-    border-radius: 14px;
+    border-radius: 50%;
 
-    background: #edf5f3;
-
-    font-size: 24px;
+    background: var(--sage-soft);
+    color: var(--forest);
 }
 
 .empty-orders h2 {
     margin: 0 0 7px;
 
-    font-family: Georgia, serif;
+    font-size: 19px;
+    font-weight: 500;
 
-    font-size: 20px;
-
-    font-weight: normal;
+    color: var(--forest-deep);
 }
 
 .empty-orders p {
-    max-width: 350px;
+    max-width: 320px;
 
-    margin: 0 0 20px;
+    margin: 0 0 22px;
 
-    color: #99a8a6;
+    color: var(--text-muted);
 
-    font-size: 10px;
-
+    font-size: 11px;
     line-height: 1.7;
 }
 
 .shop-button {
-    padding: 10px 18px;
+    padding: 11px 22px;
 
-    border-radius: 8px;
+    border: 1px solid var(--forest);
+    border-radius: 6px;
 
-    background: #477c79;
+    background: var(--forest);
 
-    color: white;
+    color: #ffffff;
 
     text-decoration: none;
 
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 500;
+
+    transition: background .2s ease;
 }
 
+.shop-button:hover {
+    background: var(--forest-deep);
+}
 
-/* MOBILE */
+.back-button:focus-visible,
+.logout-button:focus-visible,
+.order-tab:focus-visible,
+.shop-button:focus-visible {
+    outline: 2px solid var(--sage);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .back-button,
+    .logout-button,
+    .order-tab,
+    .order-tab::after,
+    .shop-button {
+        transition: none !important;
+    }
+}
 
 @media (max-width: 650px) {
 
-    .profile-page {
-        padding: 18px 12px 40px;
-    }
-
     .profile-header {
-        grid-template-columns: 40px 1fr auto;
+        height: 60px;
 
-        gap: 8px;
+        grid-template-columns: 34px 1fr auto;
+
+        padding: 0 16px;
     }
 
     .header-title h1 {
-        font-size: 22px;
+        font-size: 17px;
     }
 
-    .logout-button {
-        padding: 8px 10px;
-    }
-
-    .logout-button svg {
+    .logout-button span {
         display: none;
     }
 
-    .user-card {
-        padding: 15px;
+    .logout-button {
+        padding: 8px;
+    }
+
+    .profile-content {
+        width: calc(100% - 24px);
+
+        margin-top: 26px;
     }
 
     .user-avatar {
-        width: 48px;
-        height: 48px;
+        width: 50px;
+        height: 50px;
+
+        font-size: 20px;
+    }
+
+    .user-info h2 {
+        font-size: 18px;
     }
 
     .order-tab {
-        min-width: 110px;
+        font-size: 11px;
     }
+
+    .customer-order-top,
+    .customer-order-bottom {
+        padding: 12px 14px;
+    }
+
+    .customer-order-items {
+        padding: 4px 14px;
+    }
+
 }
+
 </style>

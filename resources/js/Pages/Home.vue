@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-const logoUrl = '/images/logo.jpg';
+const logoUrl = '/images/logo-hf.png';
 const heroUrl = '/images/hero.jpeg';
 const aboutParfumUrl = '/images/parfume 3.jpg';
 
@@ -31,7 +31,7 @@ const logout = () => {
             >
                 <img
                     :src="logoUrl"
-                    alt="Lamore Perfumes"
+                    alt="HF Parfum"
                 >
             </Link>
 
@@ -61,9 +61,11 @@ const logout = () => {
 
     <img
         :src="heroUrl"
-        alt="Lamore Perfumes"
+        alt="HF parfum"
         class="hero-image"
     >
+
+    <div class="hero-overlay"></div>
 
     <div class="hero-content">
 
@@ -72,8 +74,8 @@ const logout = () => {
         </span>
 
         <h1>
-            Lamore
-            <span>Perfumes</span>
+            HF
+            <span>Parfum</span>
         </h1>
 
         <p>
@@ -112,7 +114,7 @@ const logout = () => {
             </h2>
 
             <p>
-                Lamore Perfumes hadir untuk memberikan
+                HF Perfum hadir untuk memberikan
                 pengalaman parfum yang elegan, lembut,
                 dan berkesan dalam setiap kesempatan.
             </p>
@@ -133,20 +135,6 @@ const logout = () => {
 
         </div>
 
-
-        <div class="about-visual">
-
-            <div class="visual-card">
-
-                <img
-                    :src="aboutParfumUrl"
-                    alt="Koleksi Lamore Perfumes"
-                >
-
-            </div>
-
-        </div>
-
     </div>
 
 </section>
@@ -164,7 +152,7 @@ const logout = () => {
 
                     <h2>
                         Mengapa memilih
-                        <span>Lamore?</span>
+                        <span>HF Parfum?</span>
                     </h2>
 
                     <p>
@@ -263,7 +251,7 @@ const logout = () => {
                     </h2>
 
                     <p>
-                        Jelajahi pilihan parfum Lamore yang
+                        Jelajahi pilihan HF parfum yang
                         dirancang untuk melengkapi karaktermu.
                     </p>
 
@@ -392,7 +380,7 @@ const logout = () => {
                         <p>
                             Punya pertanyaan atau ingin mengetahui
                             lebih banyak tentang koleksi kami?
-                            Jangan ragu untuk menghubungi Lamore Perfumes.
+                            Jangan ragu untuk menghubungi HF Parfum.
                         </p>
 
                     </div>
@@ -433,8 +421,17 @@ const logout = () => {
                             </span>
 
                             <h3>
-                                Indonesia
+                                HF Parfum
                             </h3>
+
+                            <a
+                                href="https://maps.app.goo.gl/L2V2VHMM2EZaoDpv7?g_st=awb"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="location-link"
+                            >
+                                Lihat Lokasi Toko →
+                            </a>
 
                         </div>
 
@@ -452,12 +449,12 @@ const logout = () => {
             <div class="footer-logo">
                 <img
                     :src="logoUrl"
-                    alt="Lamore Perfumes"
+                    alt="HF Parfum"
                 >
             </div>
 
             <p>
-                © 2026 Lamore Perfumes.
+                 © 2026 HF Parfum.
                 All rights reserved.
             </p>
 
@@ -479,12 +476,28 @@ html {
 
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #666;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif;
+    color: #5c665f;
+}
+
+.location-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #4a6b52;
+    font-size: 11px;
+    letter-spacing: .3px;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .25s ease, color .25s ease;
+}
+
+.location-link:hover {
+    color: #38513f;
+    border-bottom-color: currentColor;
 }
 
 .home-page {
-    background: #ffffff;
+    background: #fdfdfb;
 }
 
 .navbar {
@@ -492,33 +505,33 @@ body {
     top: 0;
     z-index: 100;
 
-    height: 64px;
+    height: 72px;
 
     display: flex;
     align-items: center;
 
-    padding: 0 28px;
+    padding: 0 40px;
 
-    background: rgba(239, 250, 250, .96);
+    background: rgba(253, 253, 251, .92);
 
-    border-bottom: 1px solid #dceeee;
+    border-bottom: 1px solid #e6ebe4;
 
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
 }
 
 .logo {
     display: flex;
     align-items: center;
 
-    width: 60px;
-    height: 64px;
+    width: 56px;
+    height: 72px;
 
     text-decoration: none;
 }
 
 .logo img {
-    width: 58px;
-    height: 58px;
+    width: 50px;
+    height: 50px;
 
     object-fit: contain;
 
@@ -531,55 +544,84 @@ body {
     display: flex;
     justify-content: center;
 
-    gap: 38px;
+    gap: 46px;
 }
 
 .nav-menu a {
     position: relative;
 
-    color: #777;
+    padding-bottom: 4px;
 
-    font-size: 10px;
+    color: #6b746c;
+
+    font-size: 13px;
+    letter-spacing: .2px;
 
     text-decoration: none;
 
-    transition: .2s;
+    transition: color .2s ease;
+}
+
+.nav-menu a::after {
+    content: '';
+
+    position: absolute;
+    left: 0;
+    right: 100%;
+    bottom: 0;
+
+    height: 1px;
+
+    background: #4a6b52;
+
+    transition: right .25s ease;
 }
 
 .nav-menu a:hover {
-    color: #6daa5c;
+    color: #384c3d;
+}
+
+.nav-menu a:hover::after {
+    right: 0;
 }
 
 .logout-button {
-    display: inline-block;
-    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
 
-    border: none;
+    padding: 9px 20px;
+
+    border: 1px solid #c9d8c8;
+    border-radius: 3px;
+
     background: transparent;
 
-    color: #777;
-    font-size: 10px;
+    color: #435a48;
+    font-size: 12px;
+    letter-spacing: .2px;
 
-    cursor: pointer;
-    transition: .2s;
+    text-decoration: none;
+
+    transition: background .2s ease, border-color .2s ease, color .2s ease;
 }
 
 .logout-button:hover {
-    color: #6daa5c;
+    background: #435a48;
+    border-color: #435a48;
+    color: #fdfdfb;
 }
-
 
 .hero {
     position: relative;
 
-    min-height: 560px;
+    min-height: 620px;
 
     overflow: hidden;
 
     display: flex;
     align-items: center;
 
-    background: #dcefe4;
+    background: #e9f0e6;
 }
 
 .hero-image {
@@ -591,8 +633,19 @@ body {
     height: 100%;
 
     object-fit: cover;
-
     object-position: center;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        100deg,
+        rgba(253, 253, 251, .88) 0%,
+        rgba(253, 253, 251, .55) 38%,
+        rgba(253, 253, 251, 0) 62%
+    );
 }
 
 .hero-content {
@@ -600,81 +653,74 @@ body {
 
     z-index: 2;
 
-    width: 48%;
+    width: 46%;
 
-    padding-left: 8%;
+    padding-left: 9%;
 
-    color: #555;
+    color: #4d564f;
 }
 
 .hero-label {
     display: block;
 
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 
-    color: #628c70;
-
-    font-size: 10px;
-
-    letter-spacing: 4px;
+    color: #5f8168;
+    font-size: 12px;
+    letter-spacing: 3px;
 }
 
 .hero-content h1 {
     margin: 0;
 
-    font-family: Georgia, serif;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 62px;
+    font-weight: 400;
+    line-height: 1.02;
 
-    font-size: 58px;
-
-    line-height: .95;
-
-    font-weight: normal;
-
-    color: #4f6256;
+    color: #37473b;
 }
 
 .hero-content h1 span {
     display: block;
 
-    color: #628c70;
-
+    color: #5f8168;
     font-style: italic;
 }
 
 .hero-content p {
-    max-width: 350px;
+    max-width: 360px;
 
-    margin: 25px 0;
+    margin: 26px 0 34px;
 
-    font-size: 12px;
+    font-size: 15px;
+    line-height: 1.8;
 
-    line-height: 1.9;
-
-    color: #64746a;
+    color: #647063;
 }
 
 .hero-button {
     display: inline-block;
 
-    padding: 12px 25px;
+    padding: 14px 30px;
 
-    border-radius: 6px;
+    border-radius: 3px;
 
-    background: #628c70;
+    background: #435a48;
 
-    color: white;
-
-    font-size: 10px;
+    color: #fdfdfb;
+    font-size: 12px;
+    letter-spacing: .3px;
 
     text-decoration: none;
 
-    transition: .2s;
+    transition: background .2s ease, transform .2s ease;
 }
 
 .hero-button:hover {
-    background: #4f765c;
+    background: #344739;
+    transform: translateY(-1px);
 }
-
 
 .section-container {
     width: min(1200px, calc(100% - 100px));
@@ -683,25 +729,23 @@ body {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 460px;
     align-items: center;
-    gap: 60px;
+    gap: 70px;
 }
 
 .section-label {
     display: inline-block;
 
-    margin-bottom: 13px;
+    margin-bottom: 14px;
 
-    color: #7fbd6c;
-
-    font-size: 9px;
-
-    letter-spacing: 3px;
+    color: #6d9376;
+    font-size: 11px;
+    letter-spacing: 2.5px;
 }
 
 .section-heading {
-    max-width: 650px;
+    max-width: 620px;
 
-    margin: 0 auto 50px;
+    margin: 0 auto 56px;
 
     text-align: center;
 }
@@ -711,162 +755,136 @@ body {
 .contact-heading h2 {
     margin: 0;
 
-    font-family: Georgia, serif;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.25;
 
-    font-size: 38px;
-
-    font-weight: normal;
-
-    line-height: 1.2;
-
-    color: #555;
+    color: #3c473e;
 }
 
 .section-heading h2 span,
 .about-content h2 span,
 .contact-heading h2 span {
-    color: #7fbd6c;
-
+    color: #5f8168;
     font-style: italic;
 }
 
 .section-heading p {
     margin-top: 18px;
 
-    font-size: 11px;
-
+    font-size: 14px;
     line-height: 1.8;
 
-    color: #888;
+    color: #7a847b;
 }
 
 .about-section {
-    min-height: 720px;
+    min-height: 700px;
 
-    padding: 90px 0;
+    padding: 110px 0;
 
-    background: #ffffff;
+    background: #fdfdfb;
 
     overflow: hidden;
 }
 
 .about-section .section-container {
     width: 90%;
-    max-width: 1280px;
+    max-width: 1240px;
 
     margin: 0 auto;
 
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
-    gap: 70px;
+    gap: 80px;
 }
 
 .about-content {
-    width: 48%;
-
-    padding-left: 10px;
+    width: 46%;
 }
 
 .about-content .section-label {
     display: block;
 
-    margin-bottom: 30px;
-
-    color: #69ad5b;
-
-    font-size: 13px;
-
-    letter-spacing: 5px;
-
-    font-weight: 500;
+    margin-bottom: 24px;
 }
 
 .about-content h2 {
-    margin: 0 0 38px;
-
-    font-family: Georgia, 'Times New Roman', serif;
-
-    font-size: 58px;
-
-    line-height: 1.15;
-
-    font-weight: 400;
-
-    color: #555;
-}
-
-.about-content h2 span {
-    color: #69ad5b;
-
-    font-style: italic;
+    margin: 0 0 34px;
+    font-size: 46px;
+    line-height: 1.2;
 }
 
 .about-content p {
-    max-width: 520px;
+    max-width: 480px;
 
-    margin: 0 0 25px;
+    margin: 0 0 22px;
 
-    color: #888;
-
-    font-family: Arial, Helvetica, sans-serif;
-
-    font-size: 16px;
-
+    font-size: 15px;
     line-height: 1.9;
+
+    color: #7a847b;
 }
 
 .text-button {
     display: inline-flex;
-
     align-items: center;
 
-    gap: 18px;
+    gap: 12px;
 
-    margin-top: 18px;
+    margin-top: 14px;
 
-    color: #69ad5b;
-
-    font-size: 14px;
+    color: #4a6b52;
+    font-size: 13px;
+    letter-spacing: .2px;
 
     text-decoration: none;
 }
 
 .text-button span {
-    font-size: 22px;
+    font-size: 16px;
+    transition: transform .2s ease;
 }
 
+.text-button:hover span {
+    transform: translateX(4px);
+}
 
 .about-visual {
-    width: 50%;
-    min-height: 420px;
-
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    padding-right: 30px;
-}
-
-.visual-card {
-    width: 390px;
-    height: 390px;
-
-    border-radius: 50%;
-
-    overflow: hidden;
+    width: 48%;
+    min-height: 400px;
 
     display: flex;
     align-items: center;
     justify-content: center;
+}
 
-    background: #edf6ee;
+.visual-card {
+    position: relative;
 
-    box-shadow:
-        0 20px 50px rgba(100, 130, 100, 0.08);
+    width: 400px;
+    max-width: 100%;
+    aspect-ratio: 4 / 5;
+
+    overflow: hidden;
+
+    border-radius: 4px;
+
+    background: #edf3ea;
+
+    box-shadow: 0 24px 60px rgba(60, 80, 62, .12);
+}
+
+.visual-card::after {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    border: 1px solid rgba(255, 255, 255, .35);
 }
 
 .visual-card img {
@@ -878,155 +896,141 @@ body {
 }
 
 .features-section {
-    padding: 100px 5%;
+    padding: 110px 5%;
 
-    background: #f7faf7;
+    background: #f2f6f0;
 }
 
 .features-grid {
-    width: min(1000px, 100%);
+    width: min(1020px, 100%);
 
     margin: auto;
 
     display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 22px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
 }
 
 .feature-card {
     position: relative;
 
-    min-height: 270px;
+    min-height: 250px;
 
-    padding: 32px;
+    padding: 38px 34px;
 
-    background: #ffffff;
+    background: #fdfdfb;
 
-    border: 1px solid #e7eee7;
+    border: 1px solid #e6ebe3;
+    border-radius: 4px;
 
-    border-radius: 10px;
-
-    transition: .25s;
+    transition: box-shadow .25s ease, transform .25s ease;
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
-
-    box-shadow:
-        0 15px 35px rgba(90,120,90,.08);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(60, 80, 62, .08);
 }
 
 .feature-number {
     position: absolute;
+    top: 24px;
+    right: 26px;
 
-    top: 20px;
-    right: 22px;
-
-    color: #d6e4d5;
-
-    font-size: 11px;
+    color: #cddbc9;
+    font-family: Georgia, serif;
+    font-size: 13px;
 }
 
 .feature-icon {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    margin-bottom: 25px;
+    margin-bottom: 26px;
 
     border-radius: 50%;
 
-    background: #edf7ec;
+    background: #e9f1e6;
 
-    color: #7fbd6c;
-
-    font-size: 20px;
+    color: #4a6b52;
+    font-size: 18px;
 }
 
 .feature-card h3 {
     margin: 0 0 12px;
 
     font-family: Georgia, serif;
+    font-size: 21px;
+    font-weight: 400;
 
-    font-size: 20px;
-
-    font-weight: normal;
-
-    color: #555;
+    color: #3c473e;
 }
 
 .feature-card p {
     margin: 0;
 
-    font-size: 10px;
+    font-size: 13px;
+    line-height: 1.85;
 
-    line-height: 1.9;
-
-    color: #888;
+    color: #808a81;
 }
 
-
 .products-section {
-    padding: 100px 5%;
+    padding: 110px 5%;
 
-    background: #ffffff;
+    background: #fdfdfb;
 }
 
 .products-grid {
-    width: min(1050px, 100%);
+    width: min(1080px, 100%);
     margin: auto;
 
     display: flex;
-    gap: 25px;
+    gap: 26px;
 
     overflow-x: auto;
     overflow-y: hidden;
 
-    padding: 10px 5px 25px;
+    padding: 8px 5px 28px;
 
     scroll-behavior: smooth;
     scroll-snap-type: x mandatory;
 
     scrollbar-width: thin;
-    scrollbar-color: #b8d6b0 transparent;
+    scrollbar-color: #bfd3ba transparent;
 }
 
 .product-card {
-    flex: 0 0 320px;
+    flex: 0 0 300px;
 
     overflow: hidden;
 
-    border: 1px solid #e8ece8;
-    border-radius: 10px;
+    border: 1px solid #e6ebe3;
+    border-radius: 4px;
 
-    background: white;
+    background: #fdfdfb;
 
-    transition: .2s;
+    transition: box-shadow .25s ease, transform .25s ease;
 
     scroll-snap-align: start;
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
-
-    box-shadow:
-        0 15px 35px rgba(90,120,90,.08);
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(60, 80, 62, .08);
 }
 
 .product-image {
-    height: 300px;
+    height: 320px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: #f1f6f1;
+    background: #f2f6f0;
 
     overflow: hidden;
 }
@@ -1036,56 +1040,53 @@ body {
     height: 100%;
 
     object-fit: cover;
-
     display: block;
 
-    transition: transform .35s ease;
+    transition: transform .4s ease;
 }
 
 .product-card:hover .product-image img {
-    transform: scale(1.04);
+    transform: scale(1.05);
 }
 
 .product-info {
-    padding: 23px;
+    padding: 24px 22px 26px;
 }
 
 .product-category {
-    color: #7fbd6c;
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
+    color: #6d9376;
+    font-size: 10px;
+    letter-spacing: 1.5px;
 }
 
 .product-info h3 {
-    margin: 8px 0;
+    margin: 10px 0 8px;
 
     font-family: Georgia, serif;
-
     font-size: 20px;
+    font-weight: 400;
 
-    font-weight: normal;
-
-    color: #555;
+    color: #3c473e;
 }
 
 .product-info p {
     margin: 0;
 
-    font-size: 10px;
+    font-size: 12px;
+    line-height: 1.7;
 
-    color: #888;
+    color: #808a81;
 }
 
-.contact-section {
-    padding: 100px 5%;
 
-    background: #f3f8f3;
+.contact-section {
+    padding: 110px 5%;
+
+    background: #f2f6f0;
 }
 
 .contact-container {
-    width: min(1000px, 100%);
+    width: min(1020px, 100%);
 
     margin: auto;
 }
@@ -1093,7 +1094,7 @@ body {
 .contact-heading {
     max-width: 600px;
 
-    margin-bottom: 55px;
+    margin-bottom: 60px;
 }
 
 .contact-heading p {
@@ -1101,62 +1102,55 @@ body {
 
     margin-top: 20px;
 
-    font-size: 11px;
+    font-size: 14px;
+    line-height: 1.85;
 
-    line-height: 1.9;
-
-    color: #888;
+    color: #7a847b;
 }
 
 .contact-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
 }
 
 .contact-item {
-    padding: 25px;
+    padding: 30px 26px;
 
-    background: white;
+    background: #fdfdfb;
 
-    border-radius: 8px;
+    border: 1px solid #e6ebe3;
+    border-radius: 4px;
 }
 
 .contact-label {
-    color: #7fbd6c;
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
+    color: #6d9376;
+    font-size: 10px;
+    letter-spacing: 1.5px;
 }
 
 .contact-item h3 {
-    margin: 10px 0 0;
+    margin: 12px 0 0;
 
-    font-size: 11px;
+    font-size: 14px;
+    font-weight: 400;
 
-    font-weight: normal;
-
-    color: #666;
+    color: #4a544b;
 }
 
-
 .footer {
-    padding: 35px 20px;
+    padding: 44px 20px;
 
     text-align: center;
 
-    background: #ffffff;
+    background: #fdfdfb;
 
-    border-top: 1px solid #e7eee7;
+    border-top: 1px solid #e6ebe3;
 }
 
 .footer-logo img {
-    width: 65px;
-    height: 65px;
+    width: 56px;
+    height: 56px;
 
     object-fit: contain;
 
@@ -1164,32 +1158,22 @@ body {
 }
 
 .footer p {
-    margin: 10px 0 0;
+    margin: 12px 0 0;
 
-    color: #aaa;
-
-    font-size: 9px;
+    color: #a3aca4;
+    font-size: 11px;
+    letter-spacing: .2px;
 }
 
+@media (max-width: 1024px) {
 
-@media (max-width: 800px) {
-
-    .nav-menu {
-        gap: 15px;
+    .section-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
     }
 
-    .nav-menu a {
-        font-size: 8px;
-    }
-
-    .hero-content {
-        width: 70%;
-
-        padding-left: 35px;
-    }
-
-    .hero-content h1 {
-        font-size: 45px;
+    .about-section .section-container {
+        flex-direction: column;
     }
 
     .about-content,
@@ -1197,18 +1181,78 @@ body {
         width: 100%;
     }
 
-    .about-content {
-        padding-right: 0;
+    .about-visual {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 800px) {
+
+    .navbar {
+        padding: 0 20px;
     }
 
-    .about-visual {
-        margin-top: 50px;
+    .nav-menu {
+        gap: 18px;
+    }
+
+    .nav-menu a {
+        font-size: 11px;
+    }
+
+    .hero-content {
+        width: 82%;
+
+        padding-left: 24px;
+    }
+
+    .hero-content h1 {
+        font-size: 44px;
+    }
+
+    .hero-content p {
+        font-size: 13px;
+    }
+
+    .about-content h2 {
+        font-size: 34px;
     }
 
     .features-grid,
-    .products-grid,
     .contact-grid {
         grid-template-columns: 1fr;
+    }
+
+    .products-grid {
+        gap: 18px;
+    }
+
+    .product-card {
+        flex-basis: 78%;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .hero {
+        min-height: 540px;
+    }
+
+    .hero-content {
+        width: 100%;
+
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 36px;
+    }
+
+    .section-heading h2,
+    .about-content h2,
+    .contact-heading h2 {
+        font-size: 30px;
     }
 }
 

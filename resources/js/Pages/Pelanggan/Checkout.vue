@@ -61,10 +61,14 @@ const buatPesanan = () => {
         return;
     }
 
+    const itemIds = props.items
+        .map(item => item.id)
+        .filter(id => id !== null && id !== undefined);
+
     router.post(
         '/pelanggan/keranjang/checkout',
         {
-            item_ids: props.items.map(item => item.id),
+            item_ids: itemIds.length > 0 ? itemIds : null,
             metode_pembayaran: metodePembayaran.value,
         },
         {
@@ -85,25 +89,26 @@ const buatPesanan = () => {
                 class="back-button"
                 @click="kembaliKePelanggan"
             >
-                <ArrowLeft :size="20" />
+                <ArrowLeft :size="19" />
             </button>
 
-            <div>
+            <div class="header-titles">
+                <span class="header-eyebrow"></span>
                 <h1>Checkout</h1>
             </div>
         </header>
 
-        <main class="container py-4 py-md-5">
+        <main class="checkout-main">
 
-            <div class="row">
+            <div class="checkout-layout">
 
-                <div class="col-12">
+                <div class="checkout-column">
 
-                    <section class="checkout-card mb-4">
+                    <section class="checkout-card">
 
                         <div class="section-header">
                             <div class="section-icon">
-                                <MapPin :size="18" />
+                                <MapPin :size="17" />
                             </div>
 
                             <div>
@@ -115,9 +120,9 @@ const buatPesanan = () => {
                             v-if="alamat"
                             class="address-box"
                         >
-                            <div class="d-flex justify-content-between align-items-start gap-3">
+                            <div class="address-top">
 
-                                <div>
+                                <div class="address-identity">
                                     <strong class="address-name">
                                         {{ alamat.nama_penerima }}
                                     </strong>
@@ -136,7 +141,7 @@ const buatPesanan = () => {
 
                             </div>
 
-                            <p>
+                            <p class="address-detail">
                                 {{ alamat.alamat_lengkap }},
                                 Desa {{ alamat.desa }},
                                 Kecamatan {{ alamat.kecamatan }},
@@ -150,7 +155,7 @@ const buatPesanan = () => {
                             v-else
                             class="empty-address"
                         >
-                            <div>
+                            <div class="empty-address-text">
                                 <strong>Belum ada alamat pengiriman</strong>
                                 <p>
                                     Tambahkan alamat terlebih dahulu sebelum membuat pesanan.
@@ -159,7 +164,7 @@ const buatPesanan = () => {
 
                             <Link
                                 href="/pelanggan/alamat"
-                                class="btn btn-sm add-address-button"
+                                class="btn add-address-button"
                             >
                                 Tambah Alamat
                             </Link>
@@ -168,11 +173,11 @@ const buatPesanan = () => {
                     </section>
 
 
-                    <section class="checkout-card mb-4">
+                    <section class="checkout-card">
 
                         <div class="section-header">
                             <div class="section-icon">
-                                <Package :size="18" />
+                                <Package :size="17" />
                             </div>
 
                             <div>
@@ -209,16 +214,20 @@ const buatPesanan = () => {
                                         {{ item.parfum?.nama }}
                                     </strong>
 
-                                    <span class="product-size">
-                                        {{ item.ukuran_ml }} ml
-                                    </span>
+                                    <div class="product-meta">
+                                        <span class="product-size">
+                                            {{ item.ukuran_ml }} ml
+                                        </span>
+
+                                        <span class="meta-dot">·</span>
+
+                                        <span class="product-qty">
+                                            {{ item.jumlah }} botol
+                                        </span>
+                                    </div>
 
                                     <span class="product-price-ml">
                                         {{ formatRupiah(item.parfum?.harga_per_ml) }} / ml
-                                    </span>
-
-                                    <span class="product-qty">
-                                        {{ item.jumlah }} botol
                                     </span>
 
                                 </div>
@@ -238,7 +247,7 @@ const buatPesanan = () => {
 
                         <div class="section-header">
                             <div class="section-icon">
-                                <CreditCard :size="18" />
+                                <CreditCard :size="17" />
                             </div>
 
                             <div>
@@ -258,9 +267,10 @@ const buatPesanan = () => {
                                 value="cod"
                             >
 
+                            <span class="payment-radio-dot"></span>
+
                             <div class="payment-content">
                                 <strong>COD</strong>
-                                
                             </div>
                         </label>
 
@@ -276,6 +286,8 @@ const buatPesanan = () => {
                                 value="transfer"
                             >
 
+                            <span class="payment-radio-dot"></span>
+
                             <div class="payment-content">
                                 <strong>Transfer Bank</strong>
                             </div>
@@ -285,25 +297,47 @@ const buatPesanan = () => {
 
                     <section class="checkout-card summary-card">
 
-                <h2>Rincian Pembayaran</h2>
+                        <h2>Rincian Pembayaran</h2>
 
-                <div class="summary-row">
-                    <span>Harga Produk</span>
+                        <div class="summary-row">
+                            <span>Harga Produk</span>
 
-                    <strong>
-                        {{ formatRupiah(totalProduk) }}
-                    </strong>
+                            <strong>
+                                {{ formatRupiah(totalProduk) }}
+                            </strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Ongkos Kirim</span>
+
+                            <strong>
+                                {{ formatRupiah(ongkir) }}
+                            </strong>
+                        </div>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-total">
+                            <span>Total Pembayaran</span>
+
+                            <strong>
+                                {{ formatRupiah(totalBayar) }}
+                            </strong>
+                        </div>
+
+                    </section>
+
                 </div>
 
-                <div class="summary-row">
-                    <span>Ongkos Kirim</span>
+            </div>
 
-                    <strong>
-                        {{ formatRupiah(ongkir) }}
-                    </strong>
-                </div>
+        </main>
 
-                <div class="summary-total">
+        <div class="checkout-action-bar">
+
+            <div class="checkout-action-inner">
+
+                <div class="action-total">
                     <span>Total Pembayaran</span>
 
                     <strong>
@@ -311,36 +345,18 @@ const buatPesanan = () => {
                     </strong>
                 </div>
 
-                </section>
-            </div>
+                <button
+                    type="button"
+                    class="checkout-button"
+                    :disabled="!alamat || items.length === 0"
+                    @click="buatPesanan"
+                >
+                    Buat Pesanan
+                </button>
 
             </div>
 
-        </main>
-        <div class="checkout-action-bar">
-
-    <div class="checkout-action-inner">
-
-        <div class="action-total">
-            <span>Total</span>
-
-            <strong>
-                {{ formatRupiah(totalBayar) }}
-            </strong>
         </div>
-
-        <button
-            type="button"
-            class="checkout-button"
-            :disabled="!alamat || items.length === 0"
-            @click="buatPesanan"
-        >
-            Buat Pesanan
-        </button>
-
-    </div>
-
-</div>
 
     </div>
 </template>
@@ -348,189 +364,261 @@ const buatPesanan = () => {
 <style scoped>
 
 .checkout-page {
-    min-height: 100vh;
-    padding-bottom: 110px;
+    --hf-green: #3f6e69;
+    --hf-green-dark: #2f5652;
+    --hf-sage: #cddbd6;
+    --hf-sage-soft: #eef4f2;
+    --hf-bg: #f7f9f8;
+    --hf-ink: #2c3f3d;
+    --hf-ink-soft: #5f7472;
+    --hf-ink-faint: #98a6a4;
+    --hf-border: #e4ece9;
 
-    background: #f5f8f7;
-    color: #304c4b;
+    min-height: 100vh;
+    padding-bottom: 128px;
+
+    background: var(--hf-bg);
+    color: var(--hf-ink);
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .checkout-header {
-    height: 72px;
+    height: 76px;
 
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
 
     padding: 0 6%;
 
-    background: rgba(255, 255, 255, .96);
-    border-bottom: 1px solid #e3ece9;
+    background: rgba(255, 255, 255, .97);
+    border-bottom: 1px solid var(--hf-border);
+
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.back-button {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--hf-border);
+    border-radius: 50%;
+
+    background: #ffffff;
+    color: var(--hf-green);
+
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.back-button:hover {
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-sage);
+}
+
+.header-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-eyebrow {
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+
+    color: var(--hf-ink-faint);
+    margin-bottom: 2px;
 }
 
 .checkout-header h1 {
     margin: 0;
 
-    font-family: Georgia, serif;
-    font-size: 25px;
-    font-weight: normal;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: 400;
 
-    color: #304c4b;
+    color: var(--hf-ink);
 }
 
-.checkout-header p {
-    margin: 3px 0 0;
-
-    color: #91a3a1;
-    font-size: 9px;
+.checkout-main {
+    padding: 28px 6% 0;
 }
 
-.back-button {
-    width: 38px;
-    height: 38px;
+.checkout-layout {
+    max-width: 640px;
+    margin: 0 auto;
+}
 
+.checkout-column {
     display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: none;
-    border-radius: 50%;
-
-    background: transparent;
-    color: #477c79;
-
-    cursor: pointer;
-}
-
-.back-button:hover {
-    background: #edf4f2;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .checkout-card {
-    padding: 20px;
+    padding: 22px;
 
     background: #ffffff;
-    border: 1px solid #e1ebe8;
-    border-radius: 14px;
+    border: 1px solid var(--hf-border);
+    border-radius: 12px;
 }
 
 .section-header {
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 12px;
 
-    margin-bottom: 17px;
+    margin-bottom: 18px;
 }
 
 .section-icon {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 10px;
+    border-radius: 9px;
 
-    background: #edf4f2;
-    color: #5d8986;
-
-    flex-shrink: 0;
+    background: var(--hf-sage-soft);
+    color: var(--hf-green);
 }
 
 .section-header h2 {
-    margin: 0 0 3px;
+    margin: 0;
 
-    color: #304c4b;
+    color: var(--hf-ink);
     font-size: 14px;
     font-weight: 600;
+    letter-spacing: .01em;
 }
 
 .section-header p {
-    margin: 0;
+    margin: 2px 0 0;
 
-    color: #97a6a4;
-    font-size: 9px;
-}
-
-.address-box {
-    padding: 15px;
-
-    border-radius: 10px;
-    background: #f7faf9;
-}
-
-.address-name {
-    display: block;
-
-    color: #526b69;
+    color: var(--hf-ink-faint);
     font-size: 11px;
 }
 
-.address-phone {
-    display: block;
+.address-box {
+    padding: 16px 17px;
 
-    margin-top: 3px;
-
-    color: #91a3a1;
-    font-size: 9px;
+    border: 1px solid var(--hf-border);
+    border-radius: 10px;
+    background: var(--hf-bg);
 }
 
-.address-box p {
-    margin: 9px 0 0;
+.address-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+}
 
-    max-width: 85%;
+.address-identity {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+}
 
-    color: #718381;
-    font-size: 9px;
-    line-height: 1.7;
+.address-name {
+    color: var(--hf-ink);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.address-phone {
+    color: var(--hf-ink-soft);
+    font-size: 11.5px;
 }
 
 .change-link {
-    color: #568381;
-    font-size: 9px;
+    flex-shrink: 0;
+
+    color: var(--hf-green);
+    font-size: 11.5px;
+    font-weight: 600;
     text-decoration: none;
+
+    padding: 4px 2px;
+    border-bottom: 1px solid transparent;
+    transition: border-color .15s ease;
+}
+
+.change-link:hover {
+    border-bottom-color: var(--hf-green);
+}
+
+.address-detail {
+    margin: 10px 0 0;
+
+    color: var(--hf-ink-soft);
+    font-size: 11.5px;
+    line-height: 1.7;
 }
 
 .empty-address {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
 
-    gap: 15px;
+    padding: 16px 17px;
 
-    padding: 14px;
-
+    border: 1px dashed var(--hf-sage);
     border-radius: 10px;
-    background: #f7faf9;
+    background: var(--hf-sage-soft);
 }
 
-.empty-address strong {
+.empty-address-text strong {
     display: block;
 
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 
-    color: #526b69;
-    font-size: 11px;
+    color: var(--hf-ink);
+    font-size: 12.5px;
 }
 
-.empty-address p {
+.empty-address-text p {
     margin: 0;
 
-    color: #99a8a6;
-    font-size: 9px;
+    color: var(--hf-ink-soft);
+    font-size: 11px;
+    line-height: 1.5;
 }
 
 .add-address-button {
     flex-shrink: 0;
 
-    background: #5d8986;
+    padding: 9px 16px;
+
     border: none;
+    border-radius: 8px;
+
+    background: var(--hf-green);
     color: #ffffff;
+
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+
+    transition: background .15s ease;
 }
 
 .add-address-button:hover {
-    background: #477c79;
+    background: var(--hf-green-dark);
     color: #ffffff;
 }
 
@@ -542,33 +630,40 @@ const buatPesanan = () => {
 .product-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 
-    padding: 12px 0;
+    padding: 14px 0;
 
-    border-bottom: 1px solid #edf2f0;
+    border-bottom: 1px solid var(--hf-border);
+}
+
+.product-item:first-child {
+    padding-top: 0;
 }
 
 .product-item:last-child {
+    padding-bottom: 0;
     border-bottom: none;
 }
 
 .product-image {
-    width: 65px;
-    height: 65px;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     overflow: hidden;
-    flex-shrink: 0;
 
-    border-radius: 10px;
-    background: #f1f6f5;
+    border: 1px solid var(--hf-border);
+    border-radius: 9px;
+    background: var(--hf-sage-soft);
 
-    color: #9aadaa;
-    font-size: 7px;
+    color: var(--hf-ink-faint);
+    font-size: 8px;
+    letter-spacing: .06em;
 }
 
 .product-image img {
@@ -576,6 +671,7 @@ const buatPesanan = () => {
     height: 100%;
 
     object-fit: cover;
+    object-position: center;
 }
 
 .product-info {
@@ -583,74 +679,123 @@ const buatPesanan = () => {
     min-width: 0;
 }
 
-.product-info strong {
+.product-info > strong {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 
-    color: #475e5c;
+    color: var(--hf-ink);
+    font-size: 12.5px;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.product-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: 3px;
+}
+
+.product-size,
+.product-qty {
+    color: var(--hf-ink-soft);
     font-size: 11px;
 }
 
-.product-info span {
-    display: block;
-}
-
-.product-size {
-    color: #5d8986;
-    font-size: 9px;
+.meta-dot {
+    color: var(--hf-ink-faint);
+    font-size: 11px;
 }
 
 .product-price-ml {
-    margin-top: 2px;
-
-    color: #97a6a4;
-    font-size: 8px;
-}
-
-.product-qty {
-    margin-top: 2px;
-
-    color: #99a8a6;
-    font-size: 8px;
+    color: var(--hf-ink-faint);
+    font-size: 10.5px;
 }
 
 .product-subtotal {
-    color: #4f817d;
-    font-size: 11px;
+    flex-shrink: 0;
+
+    color: var(--hf-green-dark);
+    font-size: 12.5px;
+    font-weight: 700;
     white-space: nowrap;
 }
 
 .payment-option {
+    position: relative;
+
     display: flex;
     align-items: center;
-    gap: 11px;
+    gap: 12px;
 
-    padding: 13px 14px;
+    padding: 14px 15px;
 
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 
-    border: 1px solid #e2ebe9;
+    border: 1px solid var(--hf-border);
     border-radius: 10px;
 
     background: #ffffff;
 
     cursor: pointer;
-    transition: .2s ease;
+    transition: border-color .15s ease, background .15s ease;
 }
 
 .payment-option:last-child {
     margin-bottom: 0;
 }
 
+.payment-option:hover {
+    border-color: var(--hf-sage);
+}
+
 .payment-option.active {
-    background: #f3f9f8;
-    border-color: #78a29e;
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-green);
 }
 
 .payment-option input {
-    margin: 0;
-    accent-color: #5d8986;
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.payment-radio-dot {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+
+    border: 1.5px solid var(--hf-ink-faint);
+    border-radius: 50%;
+
+    position: relative;
+
+    transition: border-color .15s ease;
+}
+
+.payment-option.active .payment-radio-dot {
+    border-color: var(--hf-green);
+}
+
+.payment-option.active .payment-radio-dot::after {
+    content: '';
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+    background: var(--hf-green);
+
+    transform: translate(-50%, -50%);
 }
 
 .payment-content strong {
@@ -658,121 +803,21 @@ const buatPesanan = () => {
 
     margin-bottom: 3px;
 
-    color: #405d5a;
-    font-size: 11px;
+    color: var(--hf-ink);
+    font-size: 12.5px;
+    font-weight: 600;
 }
 
 .payment-content span {
-    color: #97a6a4;
-    font-size: 9px;
-}
-
-.action-total span {
-    margin-bottom: 3px;
-    color: #899997;
-    font-size: 9px;
-}
-.checkout-action-bar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    z-index: 1000;
-
-    background: rgba(255, 255, 255, .98);
-
-    border-top: 1px solid #dfe9e7;
-
-    box-shadow:
-        0 -4px 18px rgba(60, 90, 85, .07);
-
-    backdrop-filter: blur(8px);
-}
-
-.checkout-action-inner {
-    width: min(1000px, calc(100% - 40px));
-    min-height: 72px;
-
-    margin: 0 auto;
-
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    gap: 22px;
-}
-
-.action-total {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.action-total span {
-    margin-bottom: 2px;
-
-    color: #899997;
-    font-size: 9px;
-}
-
-.action-total strong {
-    color: #4f817d;
-
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.checkout-action-inner .checkout-button {
-    width: 190px;
-    height: 48px;
-
-    border: none;
-    border-radius: 10px;
-
-    background: #5d8986;
-    color: #ffffff;
-
-    font-size: 11px;
-    font-weight: 600;
-
-    cursor: pointer;
-    transition: .2s ease;
-}
-
-.checkout-action-inner .checkout-button:hover:not(:disabled) {
-    background: #477c79;
-}
-
-.checkout-action-inner .checkout-button:disabled {
-    background: #cbd7d5;
-    cursor: not-allowed;
-}
-
-@media (max-width: 600px) {
-
-    .checkout-action-inner {
-        width: calc(100% - 20px);
-        min-height: 70px;
-        gap: 12px;
-    }
-
-    .action-total strong {
-        font-size: 15px;
-    }
-
-    .checkout-action-inner .checkout-button {
-        width: 150px;
-        height: 44px;
-    }
-
+    color: var(--hf-ink-faint);
+    font-size: 10.5px;
 }
 
 .summary-card h2 {
-    margin: 0 0 20px;
+    margin: 0 0 18px;
 
-    color: #304c4b;
-    font-size: 15px;
+    color: var(--hf-ink);
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -785,99 +830,185 @@ const buatPesanan = () => {
 }
 
 .summary-row span {
-    color: #899997;
-    font-size: 10px;
+    color: var(--hf-ink-soft);
+    font-size: 11.5px;
 }
 
 .summary-row strong {
-    color: #526b69;
-    font-size: 11px;
+    color: var(--hf-ink);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.summary-divider {
+    height: 1px;
+
+    margin: 14px 0;
+
+    background: var(--hf-border);
 }
 
 .summary-total {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    margin-top: 12px;
-    margin-bottom: 0;
 }
 
 .summary-total span {
-    color: #899997;
-    font-size: 10px;
-    font-weight: normal;
+    color: var(--hf-ink);
+    font-size: 12.5px;
+    font-weight: 600;
 }
 
 .summary-total strong {
-    color: #526b69;
-    font-size: 11px;
+    color: var(--hf-green-dark);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.checkout-action-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 30;
+
+    background: rgba(255, 255, 255, .98);
+    border-top: 1px solid var(--hf-border);
+
+    box-shadow: 0 -6px 20px rgba(47, 86, 82, .06);
+    backdrop-filter: blur(8px);
+}
+
+.checkout-action-inner {
+    width: min(640px, calc(100% - 48px));
+    min-height: 76px;
+
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.action-total {
+    display: flex;
+    flex-direction: column;
+}
+
+.action-total span {
+    margin-bottom: 3px;
+
+    color: var(--hf-ink-faint);
+    font-size: 10px;
+}
+
+.action-total strong {
+    color: var(--hf-green-dark);
+    font-size: 18px;
     font-weight: 700;
 }
 
 .checkout-button {
-    width: 100%;
+    min-width: 168px;
     height: 48px;
+    flex-shrink: 0;
 
     border: none;
-    border-radius: 10px;
+    border-radius: 9px;
 
-    background: #5d8986;
+    background: var(--hf-green);
     color: #ffffff;
 
-    font-size: 11px;
+    font-size: 12.5px;
     font-weight: 600;
+    letter-spacing: .01em;
 
     cursor: pointer;
-    transition: .2s ease;
+    transition: background .15s ease, transform .1s ease;
 }
 
 .checkout-button:hover:not(:disabled) {
-    background: #477c79;
+    background: var(--hf-green-dark);
+}
+
+.checkout-button:active:not(:disabled) {
+    transform: translateY(1px);
 }
 
 .checkout-button:disabled {
-    background: #cbd7d5;
+    background: #d5dedb;
+    color: #ffffff;
     cursor: not-allowed;
-}
-
-@media (max-width: 991px) {
-    .summary-card {
-        position: static;
-    }
 }
 
 @media (max-width: 600px) {
 
     .checkout-header {
-        height: 64px;
-        padding: 0 15px;
+        height: 66px;
+        padding: 0 16px;
+        gap: 12px;
     }
 
     .checkout-header h1 {
-        font-size: 21px;
+        font-size: 19px;
+    }
+
+    .checkout-main {
+        padding: 20px 16px 0;
+    }
+
+    .checkout-column {
+        gap: 12px;
     }
 
     .checkout-card {
-        padding: 16px;
+        padding: 17px;
     }
 
-    .product-image {
-        width: 58px;
-        height: 58px;
+    .address-top {
+        flex-wrap: wrap;
     }
 
-    .product-subtotal {
-        font-size: 10px;
-    }
-
-    .address-box p {
+    .address-detail {
         max-width: 100%;
     }
 
     .empty-address {
-        align-items: flex-start;
         flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .add-address-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .product-image {
+        width: 56px;
+        height: 56px;
+    }
+
+    .product-info > strong {
+        white-space: normal;
+    }
+
+    .checkout-action-inner {
+        width: calc(100% - 24px);
+        min-height: 70px;
+        gap: 12px;
+    }
+
+    .action-total strong {
+        font-size: 15px;
+    }
+
+    .checkout-button {
+        min-width: 0;
+        flex: 1;
+        height: 46px;
     }
 
 }

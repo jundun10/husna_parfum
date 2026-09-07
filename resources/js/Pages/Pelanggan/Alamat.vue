@@ -195,75 +195,74 @@ const submit = () => {
 
         <header class="address-header">
 
-    <Link
-        href="/pelanggan/checkout"
-        class="back-button"
-    >
-        <ArrowLeft :size="20" />
-    </Link>
+            <Link
+                href="/pelanggan/checkout"
+                class="back-button"
+            >
+                <ArrowLeft :size="19" />
+            </Link>
 
-    <div class="address-title">
-        <div>
-            <h1>Alamat Pengiriman</h1>
+            <div class="address-title">
+                <div class="address-title-text">
+                    <span class="header-eyebrow"></span>
+                    <h1>Alamat Pengiriman</h1>
+                </div>
 
-            <p>
-                {{
-                    isEditing
-                        ? ''
-                        : ''
-                }}
-            </p>
-        </div>
+                <button
+                    v-if="props.alamat && !isEditing"
+                    type="button"
+                    class="edit-address-button"
+                    @click="isEditing = true"
+                >
+                    Edit
+                </button>
+            </div>
 
-        <button
-            v-if="props.alamat && !isEditing"
-            type="button"
-            class="edit-address-button"
-            @click="isEditing = true"
-        >
-            Edit
-        </button>
-    </div>
+        </header>
 
-    </header>
+        <div class="address-container">
 
-    <div
-    v-if="props.alamat && !isEditing"
-    class="saved-address-card"
->
-    <div class="saved-address-top">
-        <div>
-            <span class="saved-label">
-                ALAMAT UTAMA
-            </span>
+            <div
+                v-if="props.alamat && !isEditing"
+                class="saved-address-card"
+            >
+                <div class="saved-address-top">
+                    <div>
+                        <span class="saved-label">
+                            Alamat Utama
+                        </span>
 
-            <h2>
-                {{ props.alamat.nama_penerima }}
-            </h2>
-        </div>
+                        <h2>
+                            {{ props.alamat.nama_penerima }}
+                        </h2>
+                    </div>
 
-        <span class="saved-phone">
-            {{ props.alamat.no_hp }}
-        </span>
-    </div>
+                    <span class="saved-phone">
+                        {{ props.alamat.no_hp }}
+                    </span>
+                </div>
 
-    <p>
-        {{ props.alamat.alamat_lengkap }},
-        {{ props.alamat.desa }},
-        {{ props.alamat.kecamatan }},
-        {{ props.alamat.kabupaten_kota }},
-        {{ props.alamat.provinsi }},
-        {{ props.alamat.kode_pos }}
-    </p>
-    </div>
+                <div class="saved-divider"></div>
 
-        <main class="address-container">
+                <p>
+                    {{ props.alamat.alamat_lengkap }},
+                    {{ props.alamat.desa }},
+                    {{ props.alamat.kecamatan }},
+                    {{ props.alamat.kabupaten_kota }},
+                    {{ props.alamat.provinsi }},
+                    {{ props.alamat.kode_pos }}
+                </p>
+            </div>
 
             <form
                 v-if="isEditing"
                 class="address-card"
                 @submit.prevent="submit"
             >
+
+                <div class="form-section-label">
+                    Data Penerima
+                </div>
 
                 <div class="form-row">
 
@@ -303,6 +302,10 @@ const submit = () => {
 
                 </div>
 
+                <div class="form-section-label">
+                    Wilayah
+                </div>
+
                 <div class="form-group">
                     <label>Provinsi</label>
 
@@ -328,129 +331,141 @@ const submit = () => {
                     </span>
                 </div>
 
-                <div class="form-group">
-                    <label>Kabupaten</label>
+                <div class="form-row">
 
-                    <select
-                        v-model="form.kabupaten_kota"
-                        :disabled="
-                            !form.provinsi ||
-                            loadingRegencies
-                        "
-                    >
-                        <option value="">
-                            {{
+                    <div class="form-group">
+                        <label>Kabupaten / Kota</label>
+
+                        <select
+                            v-model="form.kabupaten_kota"
+                            :disabled="
+                                !form.provinsi ||
                                 loadingRegencies
-                                    ? 'Memuat...'
-                                    : 'Pilih Kabupaten / Kota'
-                            }}
-                        </option>
-
-                        <option
-                            v-for="regency in regencies"
-                            :key="regency.code"
-                            :value="regency.code"
+                            "
                         >
-                            {{ regency.name }}
-                        </option>
-                    </select>
+                            <option value="">
+                                {{
+                                    loadingRegencies
+                                        ? 'Memuat...'
+                                        : 'Pilih Kabupaten / Kota'
+                                }}
+                            </option>
 
-                    <span
-                        v-if="form.errors.kabupaten_kota"
-                        class="error"
-                    >
-                        {{ form.errors.kabupaten_kota }}
-                    </span>
-                </div>
+                            <option
+                                v-for="regency in regencies"
+                                :key="regency.code"
+                                :value="regency.code"
+                            >
+                                {{ regency.name }}
+                            </option>
+                        </select>
 
-                <div class="form-group">
-                    <label>Kecamatan</label>
+                        <span
+                            v-if="form.errors.kabupaten_kota"
+                            class="error"
+                        >
+                            {{ form.errors.kabupaten_kota }}
+                        </span>
+                    </div>
 
-                    <select
-                        v-model="form.kecamatan"
-                        :disabled="
-                            !form.kabupaten_kota ||
-                            loadingDistricts
-                        "
-                    >
-                        <option value="">
-                            {{
+                    <div class="form-group">
+                        <label>Kecamatan</label>
+
+                        <select
+                            v-model="form.kecamatan"
+                            :disabled="
+                                !form.kabupaten_kota ||
                                 loadingDistricts
-                                    ? 'Memuat...'
-                                    : 'Pilih Kecamatan'
-                            }}
-                        </option>
-
-                        <option
-                            v-for="district in districts"
-                            :key="district.code"
-                            :value="district.code"
+                            "
                         >
-                            {{ district.name }}
-                        </option>
-                    </select>
+                            <option value="">
+                                {{
+                                    loadingDistricts
+                                        ? 'Memuat...'
+                                        : 'Pilih Kecamatan'
+                                }}
+                            </option>
 
-                    <span
-                        v-if="form.errors.kecamatan"
-                        class="error"
-                    >
-                        {{ form.errors.kecamatan }}
-                    </span>
+                            <option
+                                v-for="district in districts"
+                                :key="district.code"
+                                :value="district.code"
+                            >
+                                {{ district.name }}
+                            </option>
+                        </select>
+
+                        <span
+                            v-if="form.errors.kecamatan"
+                            class="error"
+                        >
+                            {{ form.errors.kecamatan }}
+                        </span>
+                    </div>
+
                 </div>
 
-                <div class="form-group">
-                    <label>Desa / Kelurahan</label>
+                <div class="form-row">
 
-                    <select
-                        v-model="form.desa"
-                        :disabled="
-                            !form.kecamatan ||
-                            loadingVillages
-                        "
-                    >
-                        <option value="">
-                            {{
+                    <div class="form-group">
+                        <label>Desa / Kelurahan</label>
+
+                        <select
+                            v-model="form.desa"
+                            :disabled="
+                                !form.kecamatan ||
                                 loadingVillages
-                                    ? 'Memuat...'
-                                    : 'Pilih Desa / Kelurahan'
-                            }}
-                        </option>
-
-                        <option
-                            v-for="village in villages"
-                            :key="village.code"
-                            :value="village.code"
+                            "
                         >
-                            {{ village.name }}
-                        </option>
-                    </select>
+                            <option value="">
+                                {{
+                                    loadingVillages
+                                        ? 'Memuat...'
+                                        : 'Pilih Desa / Kelurahan'
+                                }}
+                            </option>
 
-                    <span
-                        v-if="form.errors.desa"
-                        class="error"
-                    >
-                        {{ form.errors.desa }}
-                    </span>
+                            <option
+                                v-for="village in villages"
+                                :key="village.code"
+                                :value="village.code"
+                            >
+                                {{ village.name }}
+                            </option>
+                        </select>
+
+                        <span
+                            v-if="form.errors.desa"
+                            class="error"
+                        >
+                            {{ form.errors.desa }}
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kode Pos</label>
+
+                        <input
+                            v-model="form.kode_pos"
+                            type="text"
+                            placeholder="Kode pos"
+                        >
+
+                        <span
+                            v-if="form.errors.kode_pos"
+                            class="error"
+                        >
+                            {{ form.errors.kode_pos }}
+                        </span>
+                    </div>
+
                 </div>
 
-                <div class="form-group">
-                    <label>Kode Pos</label>
-
-                    <input
-                        v-model="form.kode_pos"
-                        type="text"
-                        placeholder="Kode pos"
-                    >
-
-                    <span
-                        v-if="form.errors.kode_pos"
-                        class="error"
-                    >
-                        {{ form.errors.kode_pos }}
-                    </span>
+                <div class="form-section-label">
+                    Detail Alamat
                 </div>
 
-                <div class="form-group">
+                <div class="form-group form-group--full">
                     <label>Alamat Lengkap</label>
 
                     <textarea
@@ -477,7 +492,7 @@ const submit = () => {
 
             </form>
 
-        </main>
+        </div>
 
     </div>
 </template>
@@ -488,164 +503,218 @@ const submit = () => {
 }
 
 .address-page {
+    --hf-green: #3f6e69;
+    --hf-green-dark: #2f5652;
+    --hf-sage: #cddbd6;
+    --hf-sage-soft: #eef4f2;
+    --hf-bg: #f7f9f8;
+    --hf-ink: #2c3f3d;
+    --hf-ink-soft: #5f7472;
+    --hf-ink-faint: #98a6a4;
+    --hf-border: #e4ece9;
+    --hf-red: #b5504b;
+
     min-height: 100vh;
-    padding: 45px 3% 60px;
-    background: #f5f8f7;
-    color: #304c4b;
+    padding: 0 0 60px;
+
+    background: var(--hf-bg);
+    color: var(--hf-ink);
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .address-header {
-    width: min(900px, 100%);
-    margin: 0 auto 25px;
+    height: 76px;
 
     display: flex;
     align-items: center;
+    gap: 16px;
 
-    gap: 15px;
-}
-.address-title {
-    flex: 1;
+    padding: 0 6%;
 
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    margin-bottom: 28px;
 
-    gap: 20px;
+    background: rgba(255, 255, 255, .97);
+    border-bottom: 1px solid var(--hf-border);
 }
 
-.edit-address-button {
-    padding: 8px 14px;
-
-    border: 1px solid #dce7e5;
-    border-radius: 8px;
-
-    background: #ffffff;
-    color: #568381;
-
-    font-size: 10px;
-
-    cursor: pointer;
-
-    transition: .2s ease;
-}
-
-.edit-address-button:hover {
-    background: #edf4f2;
-}
-
-.saved-address-card {
-    width: min(900px, 100%);
-
-    margin: 0 auto 20px;
-
-    padding: 22px;
-
-    background: #ffffff;
-
-    border: 1px solid #dce7e5;
-    border-radius: 14px;
-
-    box-shadow: 0 10px 30px rgba(70, 95, 90, .05);
-}
-
-.saved-address-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 15px;
-
-    margin-bottom: 10px;
-}
-
-.saved-label {
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: #8da3a1;
-
-    font-size: 7px;
-    letter-spacing: 2px;
-}
-
-.saved-address-top h2 {
-    margin: 0;
-
-    font-family: Georgia, serif;
-
-    font-size: 19px;
-    font-weight: normal;
-
-    color: #304c4b;
-}
-
-.saved-phone {
-    color: #6f8885;
-
-    font-size: 10px;
-}
-
-.saved-address-card p {
-    margin: 0;
-
-    color: #718381;
-
-    font-size: 11px;
-    line-height: 1.8;
-}
 .back-button {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    flex-shrink: 0;
-
-    border: none;
+    border: 1px solid var(--hf-border);
     border-radius: 50%;
 
-    background: transparent;
-    color: #477c79;
+    background: #ffffff;
+    color: var(--hf-green);
 
     cursor: pointer;
+    text-decoration: none;
 
-    transition: .2s ease;
+    transition: background .15s ease, border-color .15s ease;
 }
 
 .back-button:hover {
-    background: #edf4f2;
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-sage);
+}
+
+.address-title {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+.address-title-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-eyebrow {
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+
+    color: var(--hf-ink-faint);
+    margin-bottom: 2px;
 }
 
 .address-header h1 {
-    margin: 0 0 6px;
-    font-family: Georgia, serif;
-    font-size: 28px;
-    font-weight: normal;
+    margin: 0;
+
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: 400;
+
+    color: var(--hf-ink);
 }
 
-.address-header p {
-    margin: 0;
+.edit-address-button {
+    flex-shrink: 0;
+
+    padding: 9px 16px;
+
+    border: 1px solid var(--hf-border);
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: var(--hf-green);
+
     font-size: 11px;
-    color: #91a3a1;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.edit-address-button:hover {
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-sage);
 }
 
 .address-container {
-    width: min(900px, 100%);
+    width: min(640px, 100%);
     margin: 0 auto;
+    padding: 0 6%;
 }
 
-.address-card {
-    padding: 28px;
+.saved-address-card {
+    padding: 22px;
+
+    margin-bottom: 20px;
 
     background: #ffffff;
 
-    border: 1px solid #dce7e5;
-    border-radius: 14px;
+    border: 1px solid var(--hf-border);
+    border-radius: 12px;
+}
 
-    box-shadow: 0 10px 30px rgba(70, 95, 90, .05);
+.saved-address-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+.saved-label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--hf-ink-faint);
+
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.saved-address-top h2 {
+    margin: 0;
+
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: 400;
+
+    color: var(--hf-ink);
+}
+
+.saved-phone {
+    flex-shrink: 0;
+
+    color: var(--hf-ink-soft);
+    font-size: 11.5px;
+}
+
+.saved-divider {
+    height: 1px;
+
+    margin: 14px 0;
+
+    background: var(--hf-border);
+}
+
+.saved-address-card p {
+    margin: 0;
+
+    color: var(--hf-ink-soft);
+
+    font-size: 11.5px;
+    line-height: 1.8;
+}
+
+.address-card {
+    padding: 26px;
+
+    background: #ffffff;
+
+    border: 1px solid var(--hf-border);
+    border-radius: 12px;
+}
+
+.form-section-label {
+    margin: 0 0 14px;
+
+    color: var(--hf-ink-faint);
+
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.address-card > .form-section-label:not(:first-child) {
+    margin-top: 24px;
 }
 
 .form-row {
@@ -658,12 +727,17 @@ const submit = () => {
     margin-bottom: 18px;
 }
 
+.form-group--full {
+    grid-column: 1 / -1;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 7px;
 
-    color: #526b69;
-    font-size: 10px;
+    color: var(--hf-ink-soft);
+    font-size: 10.5px;
+    font-weight: 600;
 }
 
 .form-group input,
@@ -671,98 +745,124 @@ const submit = () => {
 .form-group textarea {
     width: 100%;
 
-    height: 42px;
+    height: 44px;
 
-    padding: 0 12px;
+    padding: 0 13px;
 
-    border: 1px solid #dce7e5;
+    border: 1px solid var(--hf-border);
     border-radius: 8px;
 
     outline: none;
 
-    background: #f9fbfa;
-    color: #526b69;
+    background: var(--hf-bg);
+    color: var(--hf-ink);
 
-    font-size: 11px;
+    font-size: 12px;
+    font-family: inherit;
 
-    transition: .2s ease;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
 
 .form-group textarea {
     height: auto;
-    padding: 11px 12px;
+    padding: 12px 13px;
+    line-height: 1.6;
     resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--hf-ink-faint);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: #8fb5b0;
+    border-color: var(--hf-green);
     background: #ffffff;
 
-    box-shadow: 0 0 0 3px rgba(143, 181, 176, .10);
+    box-shadow: 0 0 0 3px rgba(63, 110, 105, .10);
 }
-.form-group select:disabled {
-    background: #f0f4f3;
 
-    color: #a1afad;
+.form-group select:disabled {
+    background: #eef1f0;
+
+    color: var(--hf-ink-faint);
 
     cursor: not-allowed;
 }
 
 .error {
     display: block;
-    margin-top: 5px;
-    color: #c77d7d;
-    font-size: 9px;
+    margin-top: 6px;
+
+    color: var(--hf-red);
+    font-size: 10px;
 }
 
 .save-button {
     width: 100%;
+    height: 48px;
 
-    height: 44px;
+    margin-top: 6px;
 
     border: none;
     border-radius: 9px;
 
-    background: #5d8986;
-    color: white;
+    background: var(--hf-green);
+    color: #ffffff;
 
-    font-size: 11px;
+    font-size: 12.5px;
+    font-weight: 600;
 
     cursor: pointer;
+
+    transition: background .15s ease, transform .1s ease;
 }
 
-.save-button:hover {
-    background: #477c79;
+.save-button:hover:not(:disabled) {
+    background: var(--hf-green-dark);
+}
+
+.save-button:active:not(:disabled) {
+    transform: translateY(1px);
 }
 
 .save-button:disabled {
-    opacity: .6;
+    background: #cbd7d5;
     cursor: not-allowed;
 }
 
 @media (max-width: 650px) {
 
-    .address-page {
-        padding: 20px 15px 40px;
-    }
-
     .address-header {
-        gap: 12px;
+        height: 66px;
+        padding: 0 16px;
+        margin-bottom: 20px;
     }
 
     .address-header h1 {
-        font-size: 23px;
+        font-size: 19px;
     }
 
-    .address-card {
-        padding: 20px;
+    .address-container {
+        padding: 0 16px;
+    }
+
+    .address-card,
+    .saved-address-card {
+        padding: 18px;
     }
 
     .form-row {
         grid-template-columns: 1fr;
         gap: 0;
+    }
+
+    .saved-address-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
     }
 }
 </style>

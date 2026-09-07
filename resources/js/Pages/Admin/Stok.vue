@@ -3,6 +3,14 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import {
     Menu,
     X,
+    Plus,
+    Package,
+    CheckCircle2,
+    AlertTriangle,
+    XCircle,
+    Pencil,
+    Trash2,
+    ImagePlus,
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -25,7 +33,7 @@ const errorMessage = ref('');
 
 const showModal = ref(false);
 const sidebarOpen = ref(false);
-const logoUrl = '/images/logo.jpg';
+const logoUrl = '/images/logo-hf.png';
 const logoutForm = useForm({});
 
 const logout = () => {
@@ -328,11 +336,11 @@ const formatRupiah = (value) => {
 
                     <img
                         :src="logoUrl"
-                        alt="Lamore Perfumes"
+                        alt="HF Parfum"
                     >
 
                     <div>
-                        <h2>Lamore</h2>
+                        <h2>HF Parfum</h2>
                     </div>
 
                 </div>
@@ -342,7 +350,7 @@ const formatRupiah = (value) => {
                     class="close-button"
                     @click="sidebarOpen = false"
                 >
-                    ×
+                    <X :size="20" />
                 </button>
 
             </div>
@@ -391,16 +399,9 @@ const formatRupiah = (value) => {
 
                 <Link
                     href="/admin/stok"
-                    class="menu-item"
+                    class="menu-item active"
                 >
                     <span>Kelola Stok</span>
-                </Link>
-
-                <Link
-                    href="/admin/laporan"
-                    class="menu-item"
-                >
-                    <span>Laporan</span>
                 </Link>
 
                 <Link
@@ -447,15 +448,11 @@ const formatRupiah = (value) => {
                         @click="sidebarOpen = true"
                         aria-label="Buka sidebar"
                     >
-                        ☰
+                        <Menu :size="19" />
                     </button>
 
-                    <div>
-
-                        <h1>
-                            Kelola Stok
-                        </h1>
-
+                    <div class="topbar-heading">
+                        <h1>Kelola Stok</h1>
                     </div>
 
                 </div>
@@ -466,11 +463,80 @@ const formatRupiah = (value) => {
                     class="add-button"
                     @click="openModal"
                 >
-                    <span>+</span>
+                    <Plus :size="16" />
                     Tambah Stok
                 </button>
 
             </header>
+
+            <section
+                v-if="parfums.length > 0"
+                class="stats-grid"
+            >
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        <Package :size="18" :stroke-width="1.8" />
+                    </div>
+
+                    <div class="stat-body">
+                        <span class="stat-label">Total Produk</span>
+                        <strong>{{ parfums.length }}</strong>
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon stat-icon--ok">
+                        <CheckCircle2 :size="18" :stroke-width="1.8" />
+                    </div>
+
+                    <div class="stat-body">
+                        <span class="stat-label">Stok Tersedia</span>
+                        <strong>
+                            {{ parfums.filter((p) => p.stok > 5).length }}
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon stat-icon--warn">
+                        <AlertTriangle :size="18" :stroke-width="1.8" />
+                    </div>
+
+                    <div class="stat-body">
+                        <span class="stat-label">Stok Menipis</span>
+                        <strong>
+                            {{
+                                parfums.filter(
+                                    (p) => p.stok > 0 && p.stok <= 5
+                                ).length
+                            }}
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon stat-icon--danger">
+                        <XCircle :size="18" :stroke-width="1.8" />
+                    </div>
+
+                    <div class="stat-body">
+                        <span class="stat-label">Stok Habis</span>
+                        <strong>
+                            {{ parfums.filter((p) => p.stok === 0).length }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
 
         <section
             v-if="parfums.length === 0"
@@ -478,7 +544,7 @@ const formatRupiah = (value) => {
         >
 
             <div class="empty-icon">
-                ♡
+                <Package :size="28" :stroke-width="1.6" />
             </div>
 
             <h2>Belum Ada Stok Parfum</h2>
@@ -493,7 +559,8 @@ const formatRupiah = (value) => {
                 class="empty-button"
                 @click="openModal"
             >
-                + Tambah Stok Parfum
+                <Plus :size="15" />
+                Tambah Stok Parfum
             </button>
 
         </section>
@@ -542,9 +609,31 @@ const formatRupiah = (value) => {
                     </td>
 
                     <td>
-                        <span class="stock-number">
-                            {{ parfum.stok }}
-                        </span>
+                        <div class="stock-cell">
+
+                            <span class="stock-number">
+                                {{ parfum.stok }}
+                            </span>
+
+                            <span
+                                class="stock-badge"
+                                :class="{
+                                    'stock-badge--ok': parfum.stok > 5,
+                                    'stock-badge--warn':
+                                        parfum.stok > 0 && parfum.stok <= 5,
+                                    'stock-badge--danger': parfum.stok === 0,
+                                }"
+                            >
+                                {{
+                                    parfum.stok === 0
+                                        ? 'Habis'
+                                        : parfum.stok <= 5
+                                            ? 'Menipis'
+                                            : 'Aman'
+                                }}
+                            </span>
+
+                        </div>
                     </td>
 
                     <td>
@@ -555,6 +644,7 @@ const formatRupiah = (value) => {
                             class="edit-button"
                             @click="openEditModal(parfum)"
                         >
+                            <Pencil :size="12" />
                             Edit
                         </button>
 
@@ -563,6 +653,7 @@ const formatRupiah = (value) => {
                             class="delete-button"
                             @click="confirmDelete(parfum)"
                         >
+                            <Trash2 :size="12" />
                             Hapus
                         </button>
 
@@ -585,7 +676,10 @@ const formatRupiah = (value) => {
 >
     <div class="confirm-modal">
 
-        <div class="confirm-icon">
+        <div
+            class="confirm-icon"
+            :class="{ 'confirm-icon--danger': confirmType === 'delete' }"
+        >
             {{ confirmType === 'delete' ? '!' : '?' }}
         </div>
 
@@ -655,7 +749,7 @@ const formatRupiah = (value) => {
                         class="modal-close"
                         @click="closeModal"
                     >
-                        ×
+                        <X :size="18" />
                     </button>
 
                 </div>
@@ -781,6 +875,8 @@ const formatRupiah = (value) => {
                         </label>
 
                         <label class="upload-box">
+
+                            <ImagePlus :size="17" />
 
                             <span>
                                 Pilih foto 
@@ -911,7 +1007,7 @@ const formatRupiah = (value) => {
                 class="modal-close"
                 @click="closeEditModal"
             >
-                ×
+                <X :size="18" />
             </button>
 
         </div>
@@ -1048,6 +1144,8 @@ const formatRupiah = (value) => {
                 </div>
 
                 <label class="upload-box">
+
+                    <ImagePlus :size="17" />
 
                     <span>
                         Pilih foto baru
@@ -1256,6 +1354,31 @@ const formatRupiah = (value) => {
 * {
     box-sizing: border-box;
 }
+
+.admin-page {
+    --hf-green: #3f6e69;
+    --hf-green-dark: #2f5652;
+    --hf-sage: #cddbd6;
+    --hf-sage-soft: #eef4f2;
+    --hf-bg: #f5f8f7;
+    --hf-ink: #2c3f3d;
+    --hf-ink-soft: #5f7472;
+    --hf-ink-faint: #97a6a4;
+    --hf-border: #e3ece9;
+    --hf-red: #b5504b;
+    --hf-red-bg: #fbeeee;
+    --hf-amber: #b8862f;
+    --hf-amber-bg: #f7f0e2;
+
+    min-height: 100vh;
+
+    background: var(--hf-bg);
+
+    color: var(--hf-ink);
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 .edit-photo-preview {
     width: 100%;
     height: 150px;
@@ -1264,10 +1387,10 @@ const formatRupiah = (value) => {
 
     overflow: hidden;
 
-    border: 1px solid #dce7e5;
+    border: 1px solid var(--hf-border);
     border-radius: 10px;
 
-    background: #f5f8f7;
+    background: var(--hf-bg);
 }
 
 .edit-photo-preview img {
@@ -1278,37 +1401,40 @@ const formatRupiah = (value) => {
 
     object-fit: contain;
 }
+
+/* ---------- Sidebar ---------- */
+
 .sidebar {
     position: fixed;
 
     top: 0;
     left: 0;
 
-    width: 275px;
+    width: 270px;
     height: 100vh;
 
-    padding: 25px 18px;
+    padding: 24px 16px;
 
     display: flex;
     flex-direction: column;
 
     background: #ffffff;
 
-    border-right: 1px solid #e2eeee;
+    border-right: 1px solid var(--hf-border);
 
     transform: translateX(-100%);
 
-    transition: transform .3s ease;
+    transition: transform .25s ease;
 
     z-index: 1000;
-
-    box-shadow: 8px 0 30px rgba(100, 130, 130, .08);
 
     overflow-y: auto;
 }
 
 .sidebar.sidebar-open {
     transform: translateX(0);
+
+    box-shadow: 10px 0 34px rgba(47, 86, 82, .12);
 }
 
 .sidebar-header {
@@ -1317,7 +1443,7 @@ const formatRupiah = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 38px;
+    margin-bottom: 30px;
 }
 
 .brand {
@@ -1329,8 +1455,8 @@ const formatRupiah = (value) => {
 }
 
 .brand img {
-    width: 43px;
-    height: 43px;
+    width: 40px;
+    height: 40px;
 
     object-fit: contain;
 
@@ -1340,14 +1466,22 @@ const formatRupiah = (value) => {
 }
 
 .brand h2 {
-    margin: 0;
+    margin: 0 0 2px;
 
     font-family: Georgia, serif;
 
-    font-size: 18px;
+    font-size: 16px;
     font-weight: normal;
 
-    color: #6f9d9d;
+    color: var(--hf-ink);
+}
+
+.brand span {
+    font-size: 9px;
+
+    color: var(--hf-ink-faint);
+    letter-spacing: .06em;
+    text-transform: uppercase;
 }
 
 .close-button {
@@ -1363,13 +1497,15 @@ const formatRupiah = (value) => {
 
     background: transparent;
 
-    color: #999;
+    color: var(--hf-ink-faint);
 
     cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .close-button:hover {
-    background: #f3f9f9;
+    background: var(--hf-sage-soft);
 }
 
 .admin-info {
@@ -1377,14 +1513,17 @@ const formatRupiah = (value) => {
 
     align-items: center;
 
-    margin: 5px 0 28px;
+    margin: 4px 0 24px;
 
-    padding: 0 8px;
+    padding: 13px;
+
+    border-radius: 10px;
+    background: var(--hf-bg);
 }
 
 .admin-avatar {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
 
     flex-shrink: 0;
 
@@ -1392,17 +1531,17 @@ const formatRupiah = (value) => {
     align-items: center;
     justify-content: center;
 
-    margin-right: 13px;
+    margin-right: 12px;
 
     border-radius: 50%;
 
-    background: #eaf7f7;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
     font-family: Georgia, serif;
 
-    font-size: 21px;
+    font-size: 18px;
 }
 
 .admin-details {
@@ -1412,33 +1551,36 @@ const formatRupiah = (value) => {
 .admin-details strong {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    color: #344747;
+    color: var(--hf-ink);
 
-    font-size: 14px;
+    font-size: 12.5px;
 
     font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .admin-details span {
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 600;
 }
 
 .admin-details small {
     display: block;
 
-    max-width: 190px;
-
     overflow: hidden;
 
-    color: #9aa8a8;
+    color: var(--hf-ink-faint);
 
     font-size: 9px;
 
@@ -1452,68 +1594,72 @@ const formatRupiah = (value) => {
 
     flex-direction: column;
 
-    gap: 6px;
+    gap: 3px;
 }
 
 .menu-item {
     display: flex;
     align-items: center;
 
-    padding: 13px 14px;
+    padding: 12px 13px;
 
-    border-radius: 9px;
+    border-radius: 8px;
 
-    color: #777;
+    color: var(--hf-ink-soft);
 
     text-decoration: none;
 
     font-size: 12px;
+    font-weight: 500;
 
-    transition: .2s ease;
+    transition: background .15s ease, color .15s ease;
 }
 
 .menu-item:hover {
-    background: #f2f9f9;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green);
 }
 
 .menu-item.active {
-    background: #eaf7f7;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
+    color: var(--hf-green-dark);
 
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .sidebar-footer {
-    margin-top: 25px;
+    margin-top: 22px;
 
-    padding-top: 15px;
+    padding-top: 14px;
+
+    border-top: 1px solid var(--hf-border);
 }
 
 .logout-button {
     width: 100%;
 
-    padding: 13px 14px;
+    padding: 12px 14px;
 
-    border: 1px solid #f0dddd;
+    border: 1px solid var(--hf-red-bg);
 
     border-radius: 9px;
 
-    background: #ffffff;
+    background: var(--hf-red-bg);
 
-    color: #b77777;
+    color: var(--hf-red);
 
     font-size: 12px;
+    font-weight: 600;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: background .15s ease;
 }
 
 .logout-button:hover {
-    background: #fff8f8;
+    background: #f6e2e1;
 }
 
 .logout-button:disabled {
@@ -1527,22 +1673,17 @@ const formatRupiah = (value) => {
 
     inset: 0;
 
-    background: rgba(0, 0, 0, .22);
+    background: rgba(30, 45, 43, .32);
 
     z-index: 999;
 }
-.admin-page {
-    min-height: 100vh;
 
-    background: #edf3f2;
-
-    color: #526363;
-}
+/* ---------- Main ---------- */
 
 .main-content {
     min-height: 100vh;
 
-    padding: 30px 35px;
+    padding: 30px 4%;
 }
 
 .topbar {
@@ -1551,7 +1692,9 @@ const formatRupiah = (value) => {
     align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 35px;
+    gap: 16px;
+
+    margin-bottom: 22px;
 }
 
 .topbar-left {
@@ -1559,54 +1702,67 @@ const formatRupiah = (value) => {
 
     align-items: center;
 
-    gap: 17px;
+    gap: 16px;
 }
 
 .toggle-button {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
 
-    border: 1px solid #dceeee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--hf-border);
 
     border-radius: 10px;
 
     background: #ffffff;
 
-    color: #6f9d9d;
-
-    font-size: 20px;
+    color: var(--hf-green);
 
     cursor: pointer;
 
-    transition: 0.2s;
-
-    box-shadow:
-        0 5px 18px
-        rgba(100, 130, 130, 0.04);
+    transition: background .15s ease;
 }
 
 .toggle-button:hover {
-    background: #effafa;
+    background: var(--hf-sage-soft);
+}
+
+.topbar-heading {
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar-eyebrow {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+
+    color: var(--hf-ink-faint);
+    margin-bottom: 2px;
 }
 
 .topbar h1 {
-    margin: 0 0 5px;
+    margin: 0;
 
     font-family: Georgia, serif;
 
-    font-size: 29px;
+    font-size: 24px;
 
     font-weight: normal;
 
-    color: #666;
+    color: var(--hf-ink);
 }
 
 .topbar p {
-    margin: 0;
+    margin: 3px 0 0;
 
     font-size: 11px;
 
-    color: #999;
+    color: var(--hf-ink-faint);
 }
 
 .add-button,
@@ -1615,36 +1771,112 @@ const formatRupiah = (value) => {
     align-items: center;
     justify-content: center;
 
-    gap: 8px;
+    flex-shrink: 0;
 
-    padding: 12px 18px;
+    gap: 7px;
+
+    padding: 11px 17px;
 
     border: none;
     border-radius: 9px;
 
-    background: #477878;
+    background: var(--hf-green);
 
     color: #ffffff;
 
-    font-size: 11px;
+    font-size: 11.5px;
+    font-weight: 600;
 
     cursor: pointer;
 
-    transition: 0.2s;
+    transition: background .15s ease;
 }
 
 .add-button:hover,
 .empty-button:hover {
-    background: #386666;
+    background: var(--hf-green-dark);
 }
 
-.add-button span {
-    font-size: 18px;
+/* ---------- Stats ---------- */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+
+    margin-bottom: 20px;
 }
 
+.stat-card {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px;
+
+    background: #ffffff;
+
+    border: 1px solid var(--hf-border);
+    border-radius: 12px;
+}
+
+.stat-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: var(--hf-sage-soft);
+    color: var(--hf-green);
+}
+
+.stat-icon--ok {
+    background: var(--hf-sage-soft);
+    color: var(--hf-green);
+}
+
+.stat-icon--warn {
+    background: var(--hf-amber-bg);
+    color: var(--hf-amber);
+}
+
+.stat-icon--danger {
+    background: var(--hf-red-bg);
+    color: var(--hf-red);
+}
+
+.stat-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.stat-label {
+    color: var(--hf-ink-faint);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+
+    margin-bottom: 3px;
+}
+
+.stat-body strong {
+    color: var(--hf-ink);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+/* ---------- Empty state ---------- */
 
 .empty-card {
-    min-height: 500px;
+    min-height: 420px;
 
     display: flex;
     flex-direction: column;
@@ -1653,69 +1885,65 @@ const formatRupiah = (value) => {
 
     padding: 40px;
 
-    background: #fbfdfc;
+    background: #ffffff;
 
-    border: 1px solid #d7e3e1;
+    border: 1px solid var(--hf-border);
 
-    border-radius: 16px;
+    border-radius: 12px;
 
     text-align: center;
-
-    box-shadow: 0 8px 25px rgba(50, 90, 90, 0.05);
 }
 
 .empty-icon {
-    width: 75px;
-    height: 75px;
+    width: 66px;
+    height: 66px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 
-    border-radius: 50%;
+    border-radius: 14px;
 
-    background: #eaf3f2;
+    background: var(--hf-sage-soft);
 
-    color: #6f9d9d;
-
-    font-size: 30px;
+    color: var(--hf-green);
 }
 
 .empty-card h2 {
-    margin: 0 0 9px;
+    margin: 0 0 8px;
 
     font-family: Georgia, serif;
 
-    font-size: 22px;
+    font-size: 20px;
     font-weight: normal;
 
-    color: #344747;
+    color: var(--hf-ink);
 }
 
 .empty-card p {
-    max-width: 420px;
+    max-width: 400px;
 
-    margin: 0 0 22px;
+    margin: 0 0 20px;
 
     font-size: 11px;
 
     line-height: 1.8;
 
-    color: #8b9999;
+    color: var(--hf-ink-faint);
 }
+
+/* ---------- Table ---------- */
 
 .table-card {
     width: 100%;
 
-    background: #fbfdfc;
+    background: #ffffff;
 
-    border: 1px solid #d7e3e1;
+    border: 1px solid var(--hf-border);
 
-    border-radius: 14px;
-
-    box-shadow: 0 8px 25px rgba(50, 90, 90, 0.05);
+    border-radius: 12px;
 
     overflow: hidden;
 }
@@ -1735,21 +1963,22 @@ const formatRupiah = (value) => {
 }
 
 .stok-table thead {
-    background: #f2f7f6;
+    background: var(--hf-bg);
 }
 
 .stok-table th {
-    padding: 15px 18px;
+    padding: 14px 18px;
 
-    color: #6f8585;
+    color: var(--hf-ink-faint);
 
-    font-size: 10px;
-
+    font-size: 9.5px;
     font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
 
     text-align: left;
 
-    border-bottom: 1px solid #dce8e6;
+    border-bottom: 1px solid var(--hf-border);
 
     white-space: nowrap;
 }
@@ -1757,16 +1986,11 @@ const formatRupiah = (value) => {
 .stok-table td {
     padding: 14px 18px;
 
-    color: #526363;
+    color: var(--hf-ink-soft);
 
-    border-bottom: 1px solid #e8efee;
+    border-bottom: 1px solid var(--hf-border);
 
     vertical-align: middle;
-}
-.stok-table th:nth-child(4),
-.stok-table td:nth-child(4) {
-    width: 260px;
-    padding-left: 50px;
 }
 
 .stok-table tbody tr:last-child td {
@@ -1774,33 +1998,61 @@ const formatRupiah = (value) => {
 }
 
 .stok-table tbody tr:hover {
-    background: #f8fbfa;
+    background: var(--hf-bg);
 }
 
 .product-name {
-    color: #344747;
+    color: var(--hf-ink);
 
-    font-family: Georgia, serif;
+    font-size: 12.5px;
 
-    font-size: 13px;
-
-    font-weight: normal;
+    font-weight: 600;
 }
 
 .table-price {
-    color: #477878;
+    color: var(--hf-ink);
 
     font-size: 11px;
-
     font-weight: 600;
 
     white-space: nowrap;
 }
 
+.stock-cell {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
 .stock-number {
-    color: #555;
-    font-size: 11px;
+    color: var(--hf-ink);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.stock-badge {
+    padding: 4px 9px;
+
+    border-radius: 6px;
+
+    font-size: 9px;
     font-weight: 600;
+    white-space: nowrap;
+}
+
+.stock-badge--ok {
+    background: var(--hf-sage-soft);
+    color: var(--hf-green);
+}
+
+.stock-badge--warn {
+    background: var(--hf-amber-bg);
+    color: var(--hf-amber);
+}
+
+.stock-badge--danger {
+    background: var(--hf-red-bg);
+    color: var(--hf-red);
 }
 
 .action-buttons {
@@ -1813,40 +2065,48 @@ const formatRupiah = (value) => {
 
 .edit-button,
 .delete-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
     padding: 7px 11px;
 
-    border-radius: 6px;
+    border-radius: 7px;
 
-    font-size: 9px;
+    font-size: 10px;
+    font-weight: 600;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: background .15s ease, border-color .15s ease;
 }
 
 .edit-button {
-    border: 1px solid #cbdedc;
+    border: 1px solid var(--hf-border);
 
     background: #ffffff;
 
-    color: #477878;
+    color: var(--hf-green);
 }
 
 .edit-button:hover {
-    background: #edf5f4;
+    background: var(--hf-sage-soft);
+    border-color: var(--hf-sage);
 }
 
 .delete-button {
-    border: 1px solid #efd4d4;
+    border: 1px solid var(--hf-red-bg);
 
     background: #ffffff;
 
-    color: #b87575;
+    color: var(--hf-red);
 }
 
 .delete-button:hover {
-    background: #fff5f5;
+    background: var(--hf-red-bg);
 }
+
+/* ---------- Modals ---------- */
 
 .modal-overlay {
     position: fixed;
@@ -1859,7 +2119,7 @@ const formatRupiah = (value) => {
 
     padding: 25px;
 
-    background: rgba(24, 49, 49, 0.45);
+    background: rgba(30, 45, 43, .45);
 
     z-index: 2000;
 }
@@ -1871,14 +2131,12 @@ const formatRupiah = (value) => {
 
     overflow-y: auto;
 
-    padding: 28px;
+    padding: 26px;
 
-    background: #fbfdfc;
+    background: #ffffff;
 
-    border: 1px solid #d7e3e1;
-    border-radius: 17px;
-
-    box-shadow: 0 25px 70px rgba(20, 50, 50, 0.2);
+    border: 1px solid var(--hf-border);
+    border-radius: 14px;
 }
 
 .modal-header {
@@ -1886,18 +2144,18 @@ const formatRupiah = (value) => {
     justify-content: space-between;
     align-items: flex-start;
 
-    margin-bottom: 25px;
+    margin-bottom: 22px;
 }
 
 .modal-header h2 {
-    margin: 0 0 5px;
+    margin: 0 0 4px;
 
     font-family: Georgia, serif;
 
-    font-size: 21px;
+    font-size: 19px;
     font-weight: normal;
 
-    color: #344747;
+    color: var(--hf-ink);
 }
 
 .modal-header p {
@@ -1905,40 +2163,47 @@ const formatRupiah = (value) => {
 
     font-size: 10px;
 
-    color: #899999;
+    color: var(--hf-ink-faint);
 }
 
 .modal-close {
     width: 32px;
     height: 32px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     border: none;
     border-radius: 8px;
 
     background: transparent;
 
-    color: #899999;
-
-    font-size: 24px;
+    color: var(--hf-ink-faint);
 
     cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .modal-close:hover {
-    background: #edf3f2;
+    background: var(--hf-sage-soft);
 }
+
 .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 17px;
 }
 
 .form-group label {
     display: block;
 
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 
-    font-size: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
 
-    color: #657575;
+    color: var(--hf-ink-soft);
 }
 
 .form-group input {
@@ -1946,91 +2211,93 @@ const formatRupiah = (value) => {
 
     padding: 12px 13px;
 
-    border: 1px solid #d4e2e0;
+    border: 1px solid var(--hf-border);
 
     border-radius: 8px;
 
     outline: none;
 
-    background: #ffffff;
+    background: var(--hf-bg);
 
-    color: #526363;
+    color: var(--hf-ink);
 
-    font-size: 11px;
+    font-size: 11.5px;
 
-    transition: 0.2s;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
 
 .form-group input:focus {
-    border-color: #7eabab;
+    border-color: var(--hf-green);
+    background: #ffffff;
 
-    box-shadow: 0 0 0 3px rgba(126, 171, 171, 0.12);
+    box-shadow: 0 0 0 3px rgba(63, 110, 105, .10);
 }
 
 .form-group input::placeholder {
-    color: #b0bbbb;
+    color: var(--hf-ink-faint);
 }
+
 .form-group select {
     width: 100%;
 
     padding: 12px 13px;
 
-    border: 1px solid #d4e2e0;
+    border: 1px solid var(--hf-border);
     border-radius: 8px;
 
     outline: none;
 
-    background: #ffffff;
+    background: var(--hf-bg);
 
-    color: #526363;
+    color: var(--hf-ink);
 
-    font-size: 11px;
+    font-size: 11.5px;
 
     cursor: pointer;
 
-    transition: 0.2s;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
 
 .form-group select:focus {
-    border-color: #7eabab;
+    border-color: var(--hf-green);
+    background: #ffffff;
 
-    box-shadow: 0 0 0 3px rgba(126, 171, 171, 0.12);
+    box-shadow: 0 0 0 3px rgba(63, 110, 105, .10);
 }
 
 .upload-box {
-    min-height: 80px;
+    min-height: 76px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    gap: 9px;
+    gap: 8px;
 
     padding: 15px;
 
-    border: 1px dashed #abc4c2;
+    border: 1px dashed var(--hf-sage);
 
     border-radius: 9px;
 
-    background: #f6faf9;
+    background: var(--hf-sage-soft);
 
-    color: #779292;
+    color: var(--hf-green);
 
-    font-size: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
 
     cursor: pointer;
+
+    transition: background .15s ease;
 }
 
 .upload-box:hover {
-    background: #edf5f4;
+    background: #e4efec;
 }
 
 .upload-box input {
     display: none;
-}
-
-.upload-icon {
-    font-size: 20px;
 }
 
 .form-group small {
@@ -2038,20 +2305,20 @@ const formatRupiah = (value) => {
 
     margin-top: 6px;
 
-    font-size: 8px;
+    font-size: 8.5px;
 
-    color: #a0adad;
+    color: var(--hf-ink-faint);
 }
 
 .price-input {
     display: flex;
     align-items: center;
 
-    border: 1px solid #d4e2e0;
+    border: 1px solid var(--hf-border);
 
     border-radius: 8px;
 
-    background: #ffffff;
+    background: var(--hf-bg);
 
     overflow: hidden;
 }
@@ -2059,9 +2326,10 @@ const formatRupiah = (value) => {
 .price-input span {
     padding-left: 13px;
 
-    color: #819090;
+    color: var(--hf-ink-faint);
 
     font-size: 11px;
+    font-weight: 600;
 }
 
 .price-input input {
@@ -2069,6 +2337,13 @@ const formatRupiah = (value) => {
 
     border-radius: 0;
 
+    background: transparent;
+
+    box-shadow: none;
+}
+
+.price-input input:focus {
+    background: transparent;
     box-shadow: none;
 }
 
@@ -2077,9 +2352,9 @@ const formatRupiah = (value) => {
 
     margin-top: 5px;
 
-    color: #c87878;
+    color: var(--hf-red);
 
-    font-size: 9px;
+    font-size: 9.5px;
 }
 
 .modal-actions {
@@ -2088,7 +2363,7 @@ const formatRupiah = (value) => {
 
     gap: 10px;
 
-    margin-top: 25px;
+    margin-top: 22px;
 }
 
 .cancel-button,
@@ -2097,35 +2372,36 @@ const formatRupiah = (value) => {
 
     border-radius: 8px;
 
-    font-size: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
 
     cursor: pointer;
 
-    transition: 0.2s;
+    transition: background .15s ease;
 }
 
 .cancel-button {
-    border: 1px solid #d5e2e0;
+    border: 1px solid var(--hf-border);
 
     background: #ffffff;
 
-    color: #788888;
+    color: var(--hf-ink-soft);
 }
 
 .cancel-button:hover {
-    background: #f0f5f4;
+    background: var(--hf-bg);
 }
 
 .save-button {
     border: none;
 
-    background: #477878;
+    background: var(--hf-green);
 
     color: white;
 }
 
 .save-button:hover {
-    background: #386666;
+    background: var(--hf-green-dark);
 }
 
 .save-button:disabled {
@@ -2134,66 +2410,71 @@ const formatRupiah = (value) => {
     cursor: not-allowed;
 }
 
+/* ---------- Confirm modal ---------- */
+
 .confirm-modal {
     width: 100%;
-    max-width: 390px;
+    max-width: 380px;
 
-    padding: 30px;
+    padding: 28px;
 
-    background: #fbfdfc;
+    background: #ffffff;
 
-    border: 1px solid #d7e3e1;
+    border: 1px solid var(--hf-border);
 
-    border-radius: 17px;
+    border-radius: 14px;
 
     text-align: center;
-
-    box-shadow: 0 25px 70px rgba(20, 50, 50, 0.2);
 }
 
 .confirm-icon {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    margin: 0 auto 17px;
+    margin: 0 auto 15px;
 
     border-radius: 50%;
 
-    background: #eaf3f2;
+    background: var(--hf-sage-soft);
 
-    color: #477878;
+    color: var(--hf-green);
 
-    font-size: 22px;
+    font-size: 20px;
 
-    font-weight: 600;
+    font-weight: 700;
+}
+
+.confirm-icon--danger {
+    background: var(--hf-red-bg);
+    color: var(--hf-red);
 }
 
 .confirm-modal h2 {
-    margin: 0 0 10px;
+    margin: 0 0 9px;
 
     font-family: Georgia, serif;
 
-    font-size: 21px;
+    font-size: 19px;
 
     font-weight: normal;
 
-    color: #344747;
+    color: var(--hf-ink);
 }
 
 .confirm-modal p {
     margin: 0 auto;
 
-    max-width: 300px;
+    max-width: 290px;
 
     font-size: 11px;
 
     line-height: 1.7;
 
-    color: #879797;
+    color: var(--hf-ink-faint);
 }
 
 .confirm-actions {
@@ -2203,7 +2484,7 @@ const formatRupiah = (value) => {
 
     gap: 10px;
 
-    margin-top: 25px;
+    margin-top: 22px;
 }
 
 .confirm-edit-button,
@@ -2214,31 +2495,32 @@ const formatRupiah = (value) => {
 
     border-radius: 8px;
 
-    font-size: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
 
     cursor: pointer;
 
-    transition: 0.2s;
+    transition: background .15s ease;
 }
 
 .confirm-edit-button {
-    background: #477878;
+    background: var(--hf-green);
 
     color: white;
 }
 
 .confirm-edit-button:hover {
-    background: #386666;
+    background: var(--hf-green-dark);
 }
 
 .confirm-delete-button {
-    background: #b87575;
+    background: var(--hf-red);
 
     color: white;
 }
 
 .confirm-delete-button:hover {
-    background: #a46262;
+    background: #9c433f;
 }
 
 .confirm-edit-button:disabled,
@@ -2247,6 +2529,8 @@ const formatRupiah = (value) => {
 
     cursor: not-allowed;
 }
+
+/* ---------- Success / error overlays ---------- */
 
 .success-overlay {
     position: fixed;
@@ -2258,30 +2542,30 @@ const formatRupiah = (value) => {
     align-items: center;
     justify-content: center;
 
-    background: rgba(20, 40, 40, 0.25);
+    background: rgba(30, 45, 43, .28);
 
     backdrop-filter: blur(3px);
 }
 
 .success-modal {
-    width: 330px;
+    width: 320px;
 
-    padding: 35px 30px;
+    padding: 34px 28px;
 
     background: #ffffff;
 
-    border-radius: 20px;
+    border-radius: 16px;
 
     text-align: center;
 
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
 }
-.success-icon {
-    width: 80px;
-    height: 80px;
 
-    margin: 0 auto 18px;
+.success-icon {
+    width: 76px;
+    height: 76px;
+
+    margin: 0 auto 16px;
 
     display: flex;
     align-items: center;
@@ -2289,24 +2573,23 @@ const formatRupiah = (value) => {
 }
 
 .checkmark {
-    width: 80px;
-    height: 80px;
+    width: 76px;
+    height: 76px;
 }
 
 .check-circle {
-    stroke: #62b66a;
+    stroke: var(--hf-green);
 
     stroke-width: 2;
 
     stroke-dasharray: 151;
     stroke-dashoffset: 151;
 
-    animation:
-        circleDraw 0.5s ease forwards;
+    animation: circleDraw 0.5s ease forwards;
 }
 
 .check-line {
-    stroke: #62b66a;
+    stroke: var(--hf-green);
 
     stroke-width: 3.5;
 
@@ -2316,29 +2599,29 @@ const formatRupiah = (value) => {
     stroke-dasharray: 40;
     stroke-dashoffset: 40;
 
-    animation:
-        checkDraw 0.45s ease 0.45s forwards;
+    animation: checkDraw 0.45s ease 0.45s forwards;
 }
 
 .success-modal h3 {
-    margin: 0 0 8px;
+    margin: 0 0 7px;
 
     font-family: Georgia, serif;
 
-    font-size: 25px;
+    font-size: 22px;
 
     font-weight: normal;
 
-    color: #31504f;
+    color: var(--hf-ink);
 }
 
 .success-modal p {
     margin: 0;
 
-    font-size: 13px;
+    font-size: 12.5px;
 
-    color: #819393;
+    color: var(--hf-ink-faint);
 }
+
 .selected-file {
     display: block;
 
@@ -2348,9 +2631,9 @@ const formatRupiah = (value) => {
 
     border-radius: 7px;
 
-    background: #edf5f4;
+    background: var(--hf-sage-soft);
 
-    color: #477878;
+    color: var(--hf-green);
 
     font-size: 9px;
 
@@ -2393,7 +2676,7 @@ const formatRupiah = (value) => {
 
     from {
         opacity: 0;
-        transform: scale(0.8);
+        transform: scale(0.9);
     }
 
     to {
@@ -2412,13 +2695,13 @@ const formatRupiah = (value) => {
 
     to {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.92);
     }
 
 }
 
 .error-circle {
-    stroke: #d96b6b;
+    stroke: var(--hf-red);
     stroke-width: 2;
 
     stroke-dasharray: 151;
@@ -2428,7 +2711,7 @@ const formatRupiah = (value) => {
 }
 
 .error-line {
-    stroke: #d96b6b;
+    stroke: var(--hf-red);
     stroke-width: 3.5;
 
     stroke-linecap: round;
@@ -2440,7 +2723,7 @@ const formatRupiah = (value) => {
 }
 
 .error-modal h3 {
-    color: #b75c5c;
+    color: var(--hf-red);
 }
 
 @keyframes circleError {
@@ -2473,32 +2756,49 @@ const formatRupiah = (value) => {
     animation: successOut 0.25s ease;
 }
 
-@media (max-width: 750px) {
-    .stok-page {
-        padding: 22px 15px;
+@media (max-width: 900px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .page-header {
-        align-items: flex-start;
-        gap: 15px;
+}
+
+@media (max-width: 750px) {
+
+    .main-content {
+        padding: 20px 15px;
+    }
+
+    .topbar {
+        flex-wrap: wrap;
     }
 
     .stok-table {
-        min-width: 600px;
+        min-width: 620px;
     }
+
 }
 
 @media (max-width: 500px) {
-    .page-header {
+
+    .topbar {
         flex-direction: column;
+        align-items: flex-start;
     }
 
     .add-button {
         width: 100%;
     }
 
-    .modal {
-        padding: 22px;
+    .stats-grid {
+        grid-template-columns: 1fr;
     }
+
+    .stok-modal,
+    .confirm-modal {
+        padding: 20px;
+    }
+
 }
 </style>

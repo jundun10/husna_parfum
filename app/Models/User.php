@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasPushSubscriptions;
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
+        'role',
     ];
 
     /**
@@ -48,16 +49,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function keranjangItems(): HasMany
-{
-    return $this->hasMany(KeranjangItem::class);
-}
-public function alamat(): HasOne
-{
-    return $this->hasOne(Alamat::class);
-}
-public function pesanans()
-{
-    return $this->hasMany(Pesanan::class);
-}
+    {
+        return $this->hasMany(KeranjangItem::class);
+    }
+
+    public function alamat(): HasOne
+    {
+        return $this->hasOne(Alamat::class);
+    }
+
+    public function pesanans()
+    {
+        return $this->hasMany(Pesanan::class);
+    }
 }

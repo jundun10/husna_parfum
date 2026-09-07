@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Cache;
 
 class PesananController extends Controller
 {
@@ -132,33 +133,37 @@ class PesananController extends Controller
     }
 
     private function findRegion(
-        string $endpoint,
-        ?string $code
-    ): ?array {
-        if (!$code) {
-            return null;
-        }
-
-        $response = Http::get(
-            "https://wilayah.id/api/{$endpoint}.json"
-        );
-
-        if (!$response->successful()) {
-            return null;
-        }
-
-        $data = $response->json('data', []);
-
-        foreach ($data as $region) {
-
-            if (($region['code'] ?? null) === $code) {
-                return $region;
-            }
-
-        }
-
+    string $endpoint,
+    ?string $code
+): ?array {
+    if (!$code) {
         return null;
     }
+
+    $data = Cache::remember(
+        'wilayah_' . $endpoint,
+        now()->addHours(24),
+        function () use ($endpoint) {
+            $response = Http::timeout(5)->get(
+                "https://wilayah.id/api/{$endpoint}.json"
+            );
+
+            if (!$response->successful()) {
+                return [];
+            }
+
+            return $response->json('data', []);
+        }
+    );
+
+    foreach ($data as $region) {
+        if (($region['code'] ?? null) === $code) {
+            return $region;
+        }
+    }
+
+    return null;
+}
 
 
     public function updateStatus(
