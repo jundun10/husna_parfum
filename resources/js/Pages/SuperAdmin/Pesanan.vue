@@ -233,13 +233,6 @@ const bukaNotifikasi = (notification) => {
                     <span>Kelola Pengguna</span>
                 </Link>
 
-                <Link
-                    href="/admin/pengaturan"
-                    class="menu-item"
-                >
-                    <span>Pengaturan</span>
-                </Link>
-
             </nav>
 
             <div class="sidebar-footer">
@@ -1089,8 +1082,6 @@ const bukaNotifikasi = (notification) => {
     z-index: 999;
 }
 
-/* ---------- Main / topbar ---------- */
-
 .main-content {
     min-height: 100vh;
 
@@ -1162,8 +1153,6 @@ const bukaNotifikasi = (notification) => {
 
     color: var(--hf-ink);
 }
-
-/* ---------- Order section ---------- */
 
 .order-section {
     max-width: 1180px;
@@ -1270,8 +1259,6 @@ const bukaNotifikasi = (notification) => {
     color: #ffffff;
 }
 
-/* ---------- Empty state ---------- */
-
 .empty-orders {
     min-height: 300px;
 
@@ -1330,9 +1317,6 @@ const bukaNotifikasi = (notification) => {
 
     color: var(--hf-ink-faint);
 }
-
-
-/* ---------- Order cards ---------- */
 
 .order-list {
     display: flex;

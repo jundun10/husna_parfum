@@ -408,10 +408,12 @@ public function showCheckout(Request $request)
                 'status_pembayaran' => 'belum_bayar',
             ]);
 
+            if ($validated['metode_pembayaran'] === 'cod') {
             AdminNotification::create([
                 'pesanan_id' => $pesanan->id,
                 'is_read' => false,
             ]);
+        }
 
             foreach ($items as $item) {
 

@@ -19,7 +19,12 @@ class PesananController extends Controller
             'user:id,name,email',
             'alamat:id,user_id,nama_penerima,no_hp,provinsi,kabupaten_kota,kecamatan,desa,alamat_lengkap,kode_pos',
             'items.parfum:id,nama,harga,foto',
-        ])
+       ])
+        ->where(function ($query) {
+            $query
+                ->where('metode_pembayaran', 'cod')
+                ->orWhere('status_pembayaran', 'sudah_bayar');
+        })
         ->latest()
         ->get();
 
@@ -132,7 +137,7 @@ class PesananController extends Controller
         );
     }
 
-    private function findRegion(
+   private function findRegion(
     string $endpoint,
     ?string $code
 ): ?array {
@@ -144,15 +149,19 @@ class PesananController extends Controller
         'wilayah_' . $endpoint,
         now()->addHours(24),
         function () use ($endpoint) {
-            $response = Http::timeout(5)->get(
-                "https://wilayah.id/api/{$endpoint}.json"
-            );
+            try {
+                $response = Http::timeout(5)->get(
+                    "https://wilayah.id/api/{$endpoint}.json"
+                );
 
-            if (!$response->successful()) {
+                if (!$response->successful()) {
+                    return [];
+                }
+
+                return $response->json('data', []);
+            } catch (\Throwable $e) {
                 return [];
             }
-
-            return $response->json('data', []);
         }
     );
 
@@ -188,11 +197,15 @@ class PesananController extends Controller
     }
     public function markNotificationAsRead(
     AdminNotification $notification
-    ) {
-        $notification->update([
-            'is_read' => true,
-        ]);
+)   {
+    $notification->update([
+        'is_read' => true,
+    ]);
 
-        return redirect()->route('admin.pesanan');
+    if (request()->is('super-admin/*')) {
+        return redirect()->route('superadmin.pesanan');
+    }
+
+    return redirect()->route('admin.pesanan');
     }
 }

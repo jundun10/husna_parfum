@@ -60,7 +60,7 @@ const logout = () => {
 };
 const bukaNotifikasi = (notification) => {
     router.put(
-        `/admin/notifications/${notification.id}/read`,
+        `/super-admin/notifications/${notification.id}/read`,
         {},
         {
             preserveScroll: true,
@@ -197,13 +197,6 @@ const tinggiBar = (value) => {
                     class="menu-item"
                 >
                     <span>Kelola Pengguna</span>
-                </Link>
-
-                <Link
-                    href="/super-admin/pengaturan"
-                    class="menu-item"
-                >
-                    <span>Pengaturan</span>
                 </Link>
 
             </nav>

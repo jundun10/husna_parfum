@@ -404,13 +404,6 @@ const formatRupiah = (value) => {
                     <span>Kelola Stok</span>
                 </Link>
 
-                <Link
-                    href="/admin/pengaturan"
-                    class="menu-item"
-                >
-                    <span>Pengaturan</span>
-                </Link>
-
             </nav>
 
 
@@ -1402,8 +1395,6 @@ const formatRupiah = (value) => {
     object-fit: contain;
 }
 
-/* ---------- Sidebar ---------- */
-
 .sidebar {
     position: fixed;
 
@@ -1678,8 +1669,6 @@ const formatRupiah = (value) => {
     z-index: 999;
 }
 
-/* ---------- Main ---------- */
-
 .main-content {
     min-height: 100vh;
 
@@ -1797,8 +1786,6 @@ const formatRupiah = (value) => {
     background: var(--hf-green-dark);
 }
 
-/* ---------- Stats ---------- */
-
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -1873,8 +1860,6 @@ const formatRupiah = (value) => {
     font-weight: 700;
 }
 
-/* ---------- Empty state ---------- */
-
 .empty-card {
     min-height: 420px;
 
@@ -1933,8 +1918,6 @@ const formatRupiah = (value) => {
 
     color: var(--hf-ink-faint);
 }
-
-/* ---------- Table ---------- */
 
 .table-card {
     width: 100%;
@@ -2105,8 +2088,6 @@ const formatRupiah = (value) => {
 .delete-button:hover {
     background: var(--hf-red-bg);
 }
-
-/* ---------- Modals ---------- */
 
 .modal-overlay {
     position: fixed;
@@ -2410,8 +2391,6 @@ const formatRupiah = (value) => {
     cursor: not-allowed;
 }
 
-/* ---------- Confirm modal ---------- */
-
 .confirm-modal {
     width: 100%;
     max-width: 380px;
@@ -2529,8 +2508,6 @@ const formatRupiah = (value) => {
 
     cursor: not-allowed;
 }
-
-/* ---------- Success / error overlays ---------- */
 
 .success-overlay {
     position: fixed;

@@ -171,7 +171,8 @@ $grafikPenghasilan = [
         'totalPesanan' => $totalPesanan,
         'totalPenghasilan' => $totalPenghasilan,
         'grafikPenghasilan' => $grafikPenghasilan,
-        
+        'notifications' => $notifications,
+        'notificationCount' => $notificationCount,
     ]);
 
     })->name('admin.dashboard');
@@ -292,17 +293,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
 
     })->name('superadmin.dashboard');
 
-        Route::get('/super-admin/pengaturan', function () {
-        return Inertia::render('SuperAdmin/Pengaturan', [
-            'authUser' => request()->user(),
-            'pengaturanToko' => [
-                'nama_toko' => 'HF Parfum',
-                'no_whatsapp' => '',
-                'email_toko' => '',
-                'alamat_toko' => '',
-            ],
-        ]);
-    })->name('superadmin.pengaturan');
+    Route::put('/super-admin/notifications/{notification}/read',[PesananController::class, 'markNotificationAsRead'])->name('superadmin.notifications.read');
 
     Route::get('/super-admin/pesanan', [PesananController::class, 'index'])
     ->name('superadmin.pesanan');

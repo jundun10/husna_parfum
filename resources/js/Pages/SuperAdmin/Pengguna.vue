@@ -361,12 +361,6 @@ const submitEdit = () => {
                     <span>Kelola Pengguna</span>
                 </Link>
 
-                <Link
-                    href="/super-admin/pengaturan"
-                    class="menu-item"
-                >
-                    <span>Pengaturan</span>
-                </Link>
             </nav>
 
             <div class="sidebar-footer">

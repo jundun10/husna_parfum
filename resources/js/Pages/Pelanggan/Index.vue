@@ -3,6 +3,8 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ShoppingCart, UserRound } from 'lucide-vue-next';
 import { ref, computed, nextTick } from 'vue';
 
+const logoUrl = '/images/logo-hf.png';
+
 const props = defineProps({
     parfums: {
         type: Array,
@@ -298,8 +300,11 @@ const populer = computed(() => {
                     href="/"
                     class="brand"
                 >
-                    <span class="brand-mark">HF</span>
-                    <span class="brand-word">Parfum</span>
+                    <img
+                        :src="logoUrl"
+                        alt="HF Parfum"
+                        class="brand-logo"
+                    >
                 </Link>
 
                 <div class="header-actions">
@@ -952,29 +957,12 @@ const populer = computed(() => {
     border-bottom: 1px solid var(--line);
 }
 
-.brand {
-    display: flex;
-    align-items: baseline;
-
-    gap: 6px;
-
-    text-decoration: none;
-    color: var(--forest);
-}
-
-.brand-mark {
-    font-size: 24px;
-    font-weight: 600;
-
-    letter-spacing: .5px;
-}
-
-.brand-word {
-    font-size: 14px;
-
-    color: var(--sage);
-
-    letter-spacing: .5px;
+.brand-logo {
+    display: block;
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    mix-blend-mode: multiply;
 }
 
 .header-actions {
@@ -1920,6 +1908,12 @@ const populer = computed(() => {
 .size-modal-submit:focus-visible {
     outline: 2px solid var(--sage);
     outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+    .brand-logo {
+        width: 50px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -193,12 +193,6 @@ const tinggiBar = (value) => {
                     <span>Kelola Stok</span>
                 </Link>
 
-                <Link
-                    href="/admin/pengaturan"
-                    class="menu-item"
-                >
-                    <span>Pengaturan</span>
-                </Link>
 
             </nav>
 
@@ -481,8 +475,6 @@ const tinggiBar = (value) => {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ---------- Notifications ---------- */
-
 .notification-wrapper {
     position: relative;
     margin-left: auto;
@@ -682,8 +674,6 @@ const tinggiBar = (value) => {
     color: var(--hf-ink-faint);
     font-size: 10px;
 }
-
-/* ---------- Sidebar ---------- */
 
 .sidebar {
     position: fixed;

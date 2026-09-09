@@ -1,0 +1,15 @@
+{
+    "gross_amount":  "41000.00",
+    "order_id":  "ORDER-13",
+    "fraud_status":  "accept",
+    "transaction_time":  "2026-09-09 08:55:00",
+    "transaction_status":  "settlement",
+    "status_code":  "200",
+    "transaction_type":  "off-us",
+    "transaction_id":  "TEST-13",
+    "currency":  "IDR",
+    "payment_type":  "qris",
+    "signature_key":  "414673e0a4d366a0e3073edceae3852e6b230ea11555e50c38c20ccbb746807a66dc4a62e34b0ca328e19f5a62a4fb8d96319be368316410b67e7c1480ea422b",
+    "merchant_id":  "M558128209",
+    "status_message":  "midtrans payment notification"
+}
